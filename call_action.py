@@ -6,7 +6,7 @@ import traceback
 logger = get_logger()
 
 
-async def on_call_action(action: str, params: dict, echo: str | None = None) -> dict:
+async def on_call_action(action: str, params: dict, echo: str | None = None, **_) -> dict:
     try:
         return_data = await action_list[action](**params)
     except Exception as e:

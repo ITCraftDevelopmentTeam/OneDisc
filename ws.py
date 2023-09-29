@@ -1,6 +1,7 @@
 import fastapi
 import call_action
-import json
+import event
+from version import VERSION
 import uvicorn_server
 from logger import get_logger
 from http_server import verify_access_token
@@ -35,6 +36,14 @@ class WebSocketServer:
             raise fastapi.HTTPException(fastapi.status.HTTP_401_UNAUTHORIZED)
         await websocket.accept()
         self.websocket = websocket
+        await websocket.send(event.get_event_object(
+            "meta",
+            "connect",
+            "",
+            params={
+                "version": dict(impl="onedisc", version=VERSION, onebot_version="12")
+            }
+        ))
         while True:
             recv_data = await websocket.receive_json()
             logger.debug(recv_data)

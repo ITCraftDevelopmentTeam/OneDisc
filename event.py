@@ -19,14 +19,13 @@ def init(_self_id: str) -> None:
     global self_id
     self_id = _self_id
 
-
-def new_event(
+def get_event_object(
         _type: str,
         detail_type: str,
         sub_type: str = "",
         _time: float | None = None,
-        **params
-) -> None:
+        params = {}
+) -> dict:
     event_object = {
         "id": str(uuid.uuid1()),
         "self": {
@@ -40,6 +39,17 @@ def new_event(
     }
     event_object.update(params)
     logger.debug(event_object)
+    return event_object
+
+
+def new_event(
+        _type: str,
+        detail_type: str,
+        sub_type: str = "",
+        _time: float | None = None,
+        **params
+) -> None:
+    event_object = get_event_object(_type, detail_type, sub_type, _time, params)
     for conn in connection.connections:
         try:
             asyncio.create_task(conn["add_event_func"](event_object))

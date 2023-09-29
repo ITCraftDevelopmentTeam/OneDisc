@@ -1,7 +1,9 @@
 from http_server import create_http_server
+import asyncio
 from http_webhook import HttpWebhookConnect
 from logger import get_logger
 from ws import WebSocketServer
+from ws_reverse import WebSocketClient
 
 logger = get_logger()
 connections = []
@@ -33,4 +35,14 @@ async def init_connections(connection_list: list[dict]) -> None:
                     "add_event_func": tmp.push_event
                 })
                 await tmp.start_server()
+                del tmp
+            case "ws-reverse":
+                connections.append({
+                    "type": "ws-reverse",
+                    "config": obc_config,
+                    "object": (tmp := WebSocketClient(obc_config)),
+                    "add_event_func": tmp.push_event
+                })
+                await tmp.reconnect()
+                asyncio.create_task(tmp.setup_receive_loop())
                 del tmp

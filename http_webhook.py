@@ -1,4 +1,3 @@
-from tkinter import N
 import httpx
 import call_action
 import json
@@ -36,7 +35,7 @@ class HttpWebhookConnect:
             )
         await self.handle_content(response)
 
-    async def handle_content(self, response: httpx.Response) -> None
+    async def handle_content(self, response: httpx.Response) -> None:
         if response.status_code == 200:
             if response.headers.get("Content-Type", "application/json") == "application/json":
                 content = json.loads(await response.aread())

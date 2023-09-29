@@ -32,6 +32,8 @@ async def on_ready() -> None:
 
 @client.event
 async def on_message(message: discord.Message) -> None:
+    if message.author == client.user and CONFIG["system"].get("ignore_self_message", True):
+        return
     if message.guild and CONFIG["system"].get("enable_channel_event"):
         event.new_event(
             _type="message",
