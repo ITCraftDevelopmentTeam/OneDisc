@@ -68,6 +68,41 @@ async def send_message(
 
     return return_object.get(0, message_id=message_id, time=time.time())
 
+
+async def get_supported_actions() -> dict:
+    """
+    获取支持的动作列表
+
+    Returns:
+        dict: 响应数据
+    """
+    return {
+        "status": "ok",
+        "retcode": 0,
+        "data": list(api_list.keys()),
+        "message": ""
+    }
+
+
+async def get_status() -> dict:
+    return return_object.get(
+        0, good=True,
+        bots=[{
+            "self": {
+                "platform": "discord",
+                "user_id": str(client.user.id)
+            },
+            "online": client.is_ready()
+        }])
+
+
+async def get_version() -> dict:
+    return return_object.get(0, impl="onedisc", version="0.1.0", onebot_version="12")
+
+
 api_list = {
-    "send_message": send_message
+    "send_message": send_message,
+    "get_supported_actions": get_supported_actions,
+    "get_status": get_status,
+    "get_version": get_version
 }
