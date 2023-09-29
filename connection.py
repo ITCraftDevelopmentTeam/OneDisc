@@ -2,6 +2,7 @@ from http_server import create_http_server
 from logger import get_logger
 
 logger = get_logger()
+connections = []
 
 
 async def init_connections(connection_list: list[dict]) -> None:
@@ -9,4 +10,9 @@ async def init_connections(connection_list: list[dict]) -> None:
         logger.debug(connection)
         match connection["type"]:
             case "http":
-                await create_http_server(connection)
+                connections.append({
+                    "type": "http",
+                    "config": connection,
+                    "add_event_func": await create_http_server(connection)
+                })
+                

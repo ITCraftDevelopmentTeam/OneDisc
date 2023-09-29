@@ -15,7 +15,7 @@ BASE_CONNECTION_CONFIG = {
 logger = get_logger()
 
 
-async def create_http_server(_config: dict) -> None:
+async def create_http_server(_config: dict) -> Callable:
     """
     创建 HTTP 服务器
 
@@ -25,16 +25,40 @@ async def create_http_server(_config: dict) -> None:
     config = BASE_CONNECTION_CONFIG.copy()
     config.update(_config)
     app = fastapi.FastAPI()
-    app.add_route("/", get_connection_handler(config), ["post"])
+    app.add_route("/", (tmp := get_connection_handler(config))[0], ["post"])
     await uvicorn_server.run(app, config["port"], config["host"])
+    return tmp[1]
 
-def get_connection_handler(config: dict) -> Callable:
+def get_connection_handler(config: dict) -> tuple[Callable, Callable]:
     """
-    获取连接相应器
+    初始化连接触发器
 
     Args:
-        config (dict): 连接配置
+        config (dict): 服务器配置
+
+    Raises:
+        fastapi.HTTPException: 鉴权错误
+
+    Returns:
+        tuple[Callable, Callable]: 第一项为`fastapi`的`route`，第二项为`add_event_func`
     """
+    event_list = []
+    
+    async def on_call_action(body: bytes) -> dict:
+        data = json.loads(body)
+        if data["action"] == "get_latest_events":
+            obj =  {
+                "status": "ok",
+                "retcode": 0,
+                "data": event_list[-data["params"].get("limit", len(event_list)):],
+                "message": "",
+            }
+            if data.get("echo"):
+                obj["echo"] = data["echo"]
+            return obj
+        else:
+            return await call_action.on_call_action(**data)
+
     async def handle_http_connection(request: fastapi.Request) -> fastapi.responses.JSONResponse:
         """
         处理 HTTP 请求
@@ -49,9 +73,15 @@ def get_connection_handler(config: dict) -> Callable:
         if config["access_token"] and not verify_access_token(request, config["access_token"]):
             raise fastapi.HTTPException(fastapi.status.HTTP_401_UNAUTHORIZED)
         logger.debug(await request.body())
-        return fastapi.responses.JSONResponse(await call_action.on_call_action(**json.loads(await request.body())))
+        return fastapi.responses.JSONResponse(await on_call_action(await request.body()))
+    
+    def add_event(data: dict) -> None:
+        nonlocal event_list
+        if config["event_enabled"]:
+            event_list.append(data)
+            event_list = event_list[-config["event_buffer_size"]:]
 
-    return handle_http_connection
+    return handle_http_connection, add_event
 
 def verify_access_token(request: fastapi.Request, access_token: str) -> bool:
     """

@@ -62,8 +62,8 @@ async def send_message(
     if not (channel := client.get_channel(int(_channel_id))):
         logger.warning(f"频道 {group_id} 不存在")
         return return_object.get(35001, "频道（群号）不存在")
-    parsed_message = message_parser.parse(message)
-    msg = await channel.send(parsed_message["text"]) # type: ignore
+    parsed_message = message_parser.parse_message(message)
+    msg = await channel.send(**parsed_message["text"]) # type: ignore
     message_id = msg
 
     return return_object.get(0, message_id=message_id, time=time.time())
