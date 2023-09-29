@@ -30,10 +30,18 @@ async def on_ready() -> None:
     asyncio.create_task(heartbeat_event.setup_heartbeat_event(CONFIG["system"].get("heartbeat", {})))
 
 
+def print_message_log(message: discord.Message) -> None:
+    try:
+        logger.info(f"[服务器：{message.guild.name} ({message.guild.id})] 来自 #{message.channel.name} ({message.channel.id}) 中 {message.author.name} ({message.author.id}) 的消息：{message.content} ({message.id})")
+    except AttributeError:
+        logger.info(f"来自 {message.author.name}({message.author.id}) 的消息：{message.content}")
+
+
 @client.event
 async def on_message(message: discord.Message) -> None:
     if message.author == client.user and CONFIG["system"].get("ignore_self_message", True):
         return
+    print_message_log(message)
     if message.guild and CONFIG["system"].get("enable_channel_event"):
         event.new_event(
             _type="message",
