@@ -1,6 +1,8 @@
 from config import get_config
 import message_parser
 import event
+import asyncio
+import heartbeat_event
 from logger import get_logger, init_logger
 import discord
 import api
@@ -21,10 +23,11 @@ client = discord.Client(intents=intents, proxy=CONFIG["system"]["proxy"])
 
 @client.event
 async def on_ready() -> None:
+    logger.info(f"成功登陆到 {client.user}")
     api.init(client, CONFIG)
     event.init(str(client.user.id))
-    logger.info(f"成功登陆到 {client.user}")
     await init_connections(CONFIG["servers"])
+    asyncio.create_task(heartbeat_event.setup_heartbeat_event(CONFIG["system"].get("heartbeat", {})))
 
 
 @client.event

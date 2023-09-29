@@ -1,4 +1,5 @@
 import discord
+from version import VERSION
 import return_object
 import time
 import message_parser
@@ -97,7 +98,7 @@ async def get_status() -> dict:
 
 
 async def get_version() -> dict:
-    return return_object.get(0, impl="onedisc", version="0.1.0", onebot_version="12")
+    return return_object.get(0, impl="onedisc", version=VERSION, onebot_version="12")
 
 
 action_list = {

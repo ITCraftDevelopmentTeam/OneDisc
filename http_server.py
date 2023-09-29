@@ -75,7 +75,7 @@ def get_connection_handler(config: dict) -> tuple[Callable, Callable]:
         logger.debug(await request.body())
         return fastapi.responses.JSONResponse(await on_call_action(await request.body()))
     
-    def add_event(data: dict) -> None:
+    async def add_event(data: dict) -> None:
         nonlocal event_list
         if config["event_enabled"]:
             event_list.append(data)
@@ -83,12 +83,12 @@ def get_connection_handler(config: dict) -> tuple[Callable, Callable]:
 
     return handle_http_connection, add_event
 
-def verify_access_token(request: fastapi.Request, access_token: str) -> bool:
+def verify_access_token(request: fastapi.Request | fastapi.WebSocket, access_token: str) -> bool:
     """
     鉴权
 
     Args:
-        request (fastapi.Request): 请求信息
+        request (fastapi.Request | fastapi.WebSocket): 请求信息
         access_token (str): access_token
 
     Returns:

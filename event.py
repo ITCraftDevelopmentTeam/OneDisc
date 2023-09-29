@@ -1,4 +1,5 @@
 import uuid
+import asyncio
 import traceback
 import connection
 import time
@@ -41,7 +42,7 @@ def new_event(
     logger.debug(event_object)
     for conn in connection.connections:
         try:
-            conn["add_event_func"](event_object)
+            asyncio.create_task(conn["add_event_func"](event_object))
         except Exception:
             logger.error(f"在 {conn['type']} 广播事件失败：{traceback.format_exc()}")
     logger.debug("广播事件完成")
