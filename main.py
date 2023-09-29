@@ -3,7 +3,6 @@ from logger import get_logger, init_logger
 import discord
 import api
 from connection import init_connections
-import send_msg
 
 CONFIG = get_config()
 VERSION = "0.1.0"
@@ -20,9 +19,8 @@ client = discord.Client(intents=intents, proxy=CONFIG["system"]["proxy"])
 @client.event
 async def on_ready() -> None:
     api.init(client, CONFIG)
-    send_msg.init(CONFIG)
     logger.info(f"成功登陆到 {client.user}")
-    init_connections(CONFIG["servers"])
+    await init_connections(CONFIG["servers"])
 
 client.run(CONFIG["account_token"], log_handler=None)
 

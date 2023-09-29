@@ -1,11 +1,9 @@
 from typing import Callable
-import asyncio
+import uvicorn_server
 import call_action
 import json
 import fastapi
 from logger import get_logger
-import uvicorn
-from multiprocessing import Process
 
 BASE_CONNECTION_CONFIG = {
     "host": "0.0.0.0",
@@ -17,26 +15,7 @@ BASE_CONNECTION_CONFIG = {
 logger = get_logger()
 
 
-def start_uvicorn(app: fastapi.FastAPI, config: dict) -> None:
-    """
-    启动 UVICORN 服务器
-
-    Args:
-        app (fastapi.FastAPI): 目标APP
-        config (dict): 服务器配置
-    """
-    logger.info(f'正在 {config["host"]}:{config["port"]} 上开启 HTTP 服务器')
-    try:
-        uvicorn.run(app, host=config["host"], port=config["port"], log_config=None)
-        
-        logger.warning("Uvicorn 进程结束")
-    except Exception as e:
-        logger.error(f"Uvicorn 异常退出：{e}")
-    logger.debug("Uvicron 守护进程退出")
-
-
-
-def create_http_server(_config: dict) -> None:
+async def create_http_server(_config: dict) -> None:
     """
     创建 HTTP 服务器
 
@@ -47,8 +26,7 @@ def create_http_server(_config: dict) -> None:
     config.update(_config)
     app = fastapi.FastAPI()
     app.add_route("/", get_connection_handler(config), ["post"])
-    Process(target=start_uvicorn, args=(app, config)).start()
-    # uvicorn.run(app, host=config["host"], port=config["port"], log_config=None, loop="asyncio")
+    await uvicorn_server.run(app, config["port"], config["host"])
 
 def get_connection_handler(config: dict) -> Callable:
     """
