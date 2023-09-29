@@ -101,9 +101,25 @@ async def get_version() -> dict:
     return return_object.get(0, impl="onedisc", version=VERSION, onebot_version="12")
 
 
+async def delete_message(message_id: str) -> dict:
+    for message in client.cached_messages[::-1]:
+        if str(message.id) == message_id:
+            try:
+                await message.delete()
+            except discord.Forbidden:
+                return return_object.get(34001, "权限错误")
+            except discord.NotFound:
+                return return_object.get(35002, "消息已被撤回")
+            break
+    else:
+        return return_object.get(35002, "消息不存在")
+    return return_object.get(0)
+            
+
 action_list = {
     "send_message": send_message,
     "get_supported_actions": get_supported_actions,
     "get_status": get_status,
-    "get_version": get_version
+    "get_version": get_version,
+    "delete_msg": delete_message
 }
