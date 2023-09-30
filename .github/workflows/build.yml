@@ -6,7 +6,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [macos-latest, ubuntu-latest] #, windows-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install imageio pip certifi
+          pip install -U imageio certifi
 
       - name: Build brinary application
         uses: Nuitka/Nuitka-Action@main
