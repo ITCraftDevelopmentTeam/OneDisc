@@ -41,9 +41,6 @@ jobs:
           windows-icon-from-ico: 'onedisc_logo.png'
           macos-app-icon: 'onedisc_logo.png'
           product-version: '0.1.0.0'
-          onefile: false
-          output-dir: 'dist/'
-          follow-imports: true
       
       - name: Rename files
         run: |
@@ -54,4 +51,4 @@ jobs:
         with:
           name: ${{ runner.os }} Build
           path: |
-            dist/**/*
+            build/onedisc*
