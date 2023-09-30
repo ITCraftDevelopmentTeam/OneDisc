@@ -42,6 +42,7 @@ jobs:
           macos-app-icon: 'onedisc_logo.png'
           product-version: '0.1.0.0'
           standalone: true
+          following-import: true
       
       - name: Rename files
         run: |
