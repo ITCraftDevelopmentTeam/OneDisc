@@ -40,7 +40,7 @@ jobs:
           copyright: 'Copyright © 2023 IT Craft Development Team'
           windows-icon-from-ico: 'onedisc.ico'
           macos-app-icon: 'onedisc.ico'
-          product-version: '0.1.0.0'
+          product-version: ${{ env.VERSION }}
           standalone: true
       
       - name: Rename files
