@@ -31,7 +31,7 @@ jobs:
 
       - name: Build Executeable
         run: |
-          pyinstaller --onefile --icon=onedisc_logo.png --name onedisc main.py
+          pyinstaller --onefile --icon=onedisc.ico --name onedisc main.py
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
