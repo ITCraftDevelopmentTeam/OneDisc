@@ -40,7 +40,8 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install -U imageio certifi
+          pip install imageio
+          pip install "certifi"
 
       - name: Build brinary application
         uses: Nuitka/Nuitka-Action@main
