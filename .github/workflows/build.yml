@@ -23,9 +23,10 @@ jobs:
           cache: 'pip'
           cache-dependency-path: |
             requirements.txt
+
       - name: Get Version Number
         run: |
-          python .github/get_version.py >> $GITHUB_ENV
+          python version.py >> $GITHUB_ENV
 
       - name: Install Dependencies
         run: |
