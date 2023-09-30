@@ -1,3 +1,6 @@
+name: 'Build'
+
+
 on:
   push:
     branches:
@@ -42,8 +45,8 @@ jobs:
           product-name: 'OneDisc'
           file-description: 'A OneBot Implementation for Discord'
           copyright: 'Copyright © 2023 IT Craft Development Team'
-          windows-icon-from-ico: 'onedisc.ico'
-          macos-app-icon: 'onedisc.ico'
+          windows-icon-from-ico: 'onedisc_logo.png'
+          macos-app-icon: 'onedisc_logo.png'
           product-version: ${{ env.VERSION }}
           standalone: true
       
