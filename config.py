@@ -2,6 +2,7 @@ import os.path
 import sys
 import json
 
+config = {}
 
 def read_local_config() -> dict:
     """

@@ -1,4 +1,5 @@
 from config import get_config
+from config import config as _config
 import message_parser
 import event
 import asyncio
@@ -19,6 +20,7 @@ logger.info(f"当前版本：{VERSION}")
 intents = discord.Intents.default()
 intents.message_content = True
 client = discord.Client(intents=intents, proxy=CONFIG["system"]["proxy"])
+_config = CONFIG
 
 
 @client.event

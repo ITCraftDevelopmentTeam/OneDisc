@@ -1,5 +1,6 @@
 import discord
 from version import VERSION
+from typing import Callable
 import return_object
 import time
 import message_parser
@@ -317,3 +318,12 @@ action_list = {
     "get_channel_member_list": get_channel_member_list,
     "leave_channel": leave_channel
 }
+
+
+def register_extra_action(name: str) -> Callable:
+    """
+    Register extra action
+    """
+    def decorator(func: Callable) -> None:
+        action_list[name] = func
+    return decorator
