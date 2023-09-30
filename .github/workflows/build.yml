@@ -42,13 +42,14 @@ jobs:
           macos-app-icon: 'onedisc_logo.png'
           product-version: '0.1.0.0'
           standalone: true
-          onefile: true
+      
+      - name: Rename files
+        run: |
+          python3 .github/rename.py
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: ${{ runner.os }} Build
           path: |
-            build/*.exe
-            build/*.bin
-            build/*.app/**/*
+            build/**/*
