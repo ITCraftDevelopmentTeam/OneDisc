@@ -77,11 +77,11 @@ class WebSocketClient:
 
     async def _reconnect(self) -> None:
         while True:
-            await asyncio.sleep(self.config['reconnect_interval'] * 0.001)
             try:
                 await self.connect()
             except Exception as e:
                 logger.error(f"连接 WebSocket 时发生错误：{e}")
+                await asyncio.sleep(self.config['reconnect_interval'] * 0.001)
                 continue
             break
     
