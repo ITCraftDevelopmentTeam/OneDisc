@@ -27,9 +27,13 @@ jobs:
           cache-dependency-path: |
             requirements.txt
 
-      - name: Get Version Number
-        run: |
-          python3 version.py >> $GITHUB_ENV
+      - name: Set VERSION environment variable on Linux
+        if: runner.os != 'Windows'
+        run: python3 version.py >> $GITHUB_ENV
+
+      - name: Set VERSION environment variable on Windows
+        if: runner.os == 'Windows'
+        run: python3 version.py >> %GITHUB_ENV%
 
       - name: Install Dependencies
         run: |
