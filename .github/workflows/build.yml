@@ -22,7 +22,7 @@ jobs:
           architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
           cache: 'pip'
           cache-dependency-path: |
-            **/requirements*.txt
+            requirements.txt
 
       - name: Install Dependencies
         run: |
@@ -33,7 +33,13 @@ jobs:
         with:
           nuitka-version: main
           script-name: main.py
-          onefile: true
+          company-name: 'IT Craft Development Team'
+          product-name: 'OneDisc'
+          file-description: 'A OneBot Implementation for Discord'
+          copyright: 'Copyright © 2023 IT Craft Development Team'
+          windows-icon-from-ico: 'onedisc_logo.png'
+          macos-app-icon: 'onedisc_logo.png'
+          produce-version: '0.1.0'
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
