@@ -27,15 +27,28 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
-          pip install pyinstaller
 
-      - name: Build Executeable
+      - name: Build Executable
+        uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: main
+          script-name: main.py
+          company-name: 'IT Craft Development Team'
+          product-name: 'OneDisc'
+          file-description: 'A OneBot Implementation for Discord'
+          copyright: 'Copyright © 2023 IT Craft Development Team'
+          windows-icon-from-ico: 'onedisc.ico'
+          macos-app-icon: 'onedisc.ico'
+          product-version: '0.1.0.0'
+          standalone: true
+      
+      - name: Rename files
         run: |
-          pyinstaller --onefile --icon=onedisc.ico --name onedisc main.py
+          python3 .github/rename.py
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
         with:
           name: ${{ runner.os }} Build
           path: |
-            dist/**/*
+            build/onedisc*
