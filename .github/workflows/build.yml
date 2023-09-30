@@ -27,6 +27,7 @@ jobs:
       - name: Install Dependencies
         run: |
           pip install -r requirements.txt
+          apt install imageio
 
       - name: Build Executable
         uses: Nuitka/Nuitka-Action@main
@@ -39,7 +40,7 @@ jobs:
           copyright: 'Copyright © 2023 IT Craft Development Team'
           windows-icon-from-ico: 'onedisc_logo.png'
           macos-app-icon: 'onedisc_logo.png'
-          product-version: '0.1.0'
+          product-version: '0.1.0.0'
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
