@@ -1,10 +1,6 @@
 name: 'Build'
 
-
-on:
-  push:
-    branches:
-      - master
+on: [push]
 
 jobs:
   build:
@@ -34,11 +30,8 @@ jobs:
       - name: Set VERSION environment variable (Windows)
         if: runner.os == 'Windows'
         run: |
-          FOR /F "usebackq delims=" %i IN (`python3 version.py`) DO set VERSION=%i
-          echo Currect version: %VERSION%
-          setx GITHUB_ENV "%GITHUB_ENV%;%VERSION%"
-          echo Environment: %GITHUB_ENV%
-
+          $output = python3 version.py
+          [Environment]::SetEnvironmentVariable("GITHUB_ENV", $output, [System.EnvironmentVariableTarget]::User) 
 
       - name: Install dependencies
         run: |
@@ -54,8 +47,8 @@ jobs:
           product-name: 'OneDisc'
           file-description: 'A OneBot Implementation for Discord'
           copyright: 'Copyright © 2023 IT Craft Development Team'
-          windows-icon-from-ico: 'onedisc_logo.png'
-          macos-app-icon: 'onedisc_logo.png'
+          windows-icon-from-ico: 'onedisc.ico'
+          macos-app-icon: 'onedisc.ico'
           product-version: ${{ env.VERSION }}
           standalone: true
       
