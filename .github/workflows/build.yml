@@ -30,8 +30,12 @@ jobs:
       - name: Set VERSION environment variable (Windows)
         if: runner.os == 'Windows'
         run: |
+          # 执行version.py并获取输出
           $output = python3 version.py
-          [Environment]::SetEnvironmentVariable("GITHUB_ENV", $output, [System.EnvironmentVariableTarget]::User) 
+
+          # 追加输出到GITHUB_ENV指向的文件
+          $output >> $env:GITHUB_ENV
+ 
 
       - name: Install dependencies
         run: |
