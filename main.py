@@ -1,6 +1,7 @@
 from config import get_config
 from config import config as _config
 import message_parser
+import file as _file
 import event
 import asyncio
 import heartbeat_event
