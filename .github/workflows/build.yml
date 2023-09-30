@@ -29,7 +29,7 @@ jobs:
 
       - name: Get Version Number
         run: |
-          python version.py >> $GITHUB_ENV
+          python3 version.py >> $GITHUB_ENV
 
       - name: Install Dependencies
         run: |
