@@ -69,7 +69,7 @@ jobs:
           mkdir downloads --parents
           cd downloads
           mv /tmp/OneDisc-linux-x86_64-dev.zip .
-          cd ../..
+          cd /tmp/OneDisc-Homepage/docs
 
           sed -i "s/<!--ver2--><!--ver2.end-->/<!--ver2-->\`$VERSION\`<!--ver2.end-->/g" downloads.md
 
