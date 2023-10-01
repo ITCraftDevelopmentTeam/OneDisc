@@ -7,6 +7,7 @@ import asyncio
 import heartbeat_event
 from logger import get_logger, init_logger
 import discord
+import aiohttp
 import api
 from connection import init_connections
 
@@ -20,7 +21,15 @@ logger.info(f"当前版本：{VERSION}")
 
 intents = discord.Intents.default()
 intents.message_content = True
-client = discord.Client(intents=intents, proxy=CONFIG["system"]["proxy"])
+
+if not CONFIG["system"].get("disable_ssl"):
+    client = discord.Client(intents=intents, proxy=CONFIG["system"]["proxy"])
+else:
+    session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False))
+    client = discord.Client(http_session=session, intents=intents, proxy=CONFIG["system"]["proxy"])
+
+
+
 _config = CONFIG
 
 

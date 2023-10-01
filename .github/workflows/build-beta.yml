@@ -31,8 +31,6 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
           sudo apt install binutils -y
-          pip install --upgrade certifi
-          sudo apt-get update && sudo apt-get install --reinstall ca-certificates
 
 
 
