@@ -71,7 +71,7 @@ jobs:
           mv /tmp/OneDisc-linux-x86_64-dev.zip .
           cd /tmp/OneDisc-Homepage/docs
 
-          sed -i "s/<!--ver2--><!--ver2.end-->/<!--ver2-->\`$VERSION\`<!--ver2.end-->/g" downloads.md
+          sed -i "s/<!--ver2--><!--ver2.end-->/<!--ver2-->\`$VERSION\`<!--ver2.end-->/g" download.md
 
           git add -A
           git config --global user.name "github-actions[bot]"
