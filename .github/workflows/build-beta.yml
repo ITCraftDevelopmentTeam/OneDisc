@@ -36,7 +36,7 @@ jobs:
 
       - name: Build on Linux
         run: |
-          pyinstaller --onefile --add-data "discord_cert.pem:." main.py
+          pyinstaller --onefile main.py
       
       - name: Get version number
         run: |
