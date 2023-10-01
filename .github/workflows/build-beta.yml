@@ -52,34 +52,23 @@ jobs:
           zip -r "/tmp/OneDisc-linux-x86_64-dev.zip" onedisc
 
 
-      - name: Clone web site
+      - name: Publish document
         run: |
           cd /tmp
           rm -rf OneDisc-Homepage
           git clone https://github.com/ITCraftDevelopmentTeam/OneDisc-Homepage.git
-
-      - name: Configure git
-        uses: nodef/git-config.action@v1.0.0
-        with:
-          path: /tmp/OneDisc-Homepage/.git/config
-          credentials: auto
-          entries: |-
-            user.name  = This is XiaoDeng
-            user.email = 1744793737@qq.com
-
-      - name: Publish web site
-        run: |
           cd /tmp/OneDisc-Homepage/docs/public
           mkdir downloads --parents
           cd downloads
           mv /tmp/OneDisc-linux-x86_64-dev.zip .
           git add -A
 
-          git config user.name "This is XiaoDeng"
-          git config user.email "1744793737@qq.com"
-          git config user.password github.com=${{secrets.GITHUB_TOKEN}}
+          
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
 
           git commit -m "Update version to $VERSION"
           git push
         env:
           VERSION: ${{ env.VERSION }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
