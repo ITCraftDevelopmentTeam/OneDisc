@@ -75,7 +75,7 @@ jobs:
           mv /tmp/OneDisc-linux-x86_64-dev.zip .
           git add -A
 
-          cp ~/_work/OneDisc/OneDisc/.git/config ./.git/config
+          
 
           git commit -m "Update version to $VERSION"
           git push
