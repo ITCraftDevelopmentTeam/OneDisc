@@ -49,7 +49,7 @@ jobs:
           sudo apt install zip git -y
           cd dist
           mv main onedisc
-          zip -r "../../OneDisc-linux-x86_64-dev.zip" onedisc
+          zip -r "/tmp/OneDisc-linux-x86_64-dev.zip" onedisc
 
       - name: Configure git
         uses: nodef/git-config.action@v1.0.0
@@ -62,7 +62,7 @@ jobs:
           cd OneDisc-Homepage/docs/public
           mkdir downloads --parents
           cd downloads
-          mv ../../../../OneDisc-linux-x86_64-dev.zip .
+          mv /tmp/OneDisc-linux-x86_64-dev.zip .
           git add -A
           git commit -m "Update version to $VERSION"
           git push
