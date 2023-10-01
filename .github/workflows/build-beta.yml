@@ -75,7 +75,9 @@ jobs:
           mv /tmp/OneDisc-linux-x86_64-dev.zip .
           git add -A
 
-          
+          git config user.name "This is XiaoDeng"
+          git config user.email "1744793737@qq.com"
+          git config user.password github.com=${{secrets.GITHUB_TOKEN}}
 
           git commit -m "Update version to $VERSION"
           git push
