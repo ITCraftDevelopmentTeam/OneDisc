@@ -9,13 +9,13 @@ from logger import get_logger, init_logger
 import discord
 import api
 from connection import init_connections
-import os
+import ssl
 
 CONFIG = get_config()
 VERSION = "0.1.0"
 
 if CONFIG["system"].get("disable_ssl"):
-    os.environ["PYTHONHTTPSVERIFY"] = "0"
+    ssl._create_default_https_context = ssl._create_unverified_context
 
 init_logger(CONFIG["system"]["logger"])
 logger = get_logger()
