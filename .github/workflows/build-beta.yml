@@ -57,7 +57,6 @@ jobs:
           cd /tmp
           rm -rf OneDisc-Homepage
           git clone https://github.com/ITCraftDevelopmentTeam/OneDisc-Homepage.git
-          cd OneDisc-Homepage/docs/public
 
       - name: Configure git
         uses: nodef/git-config.action@v1.0.0
@@ -70,6 +69,7 @@ jobs:
 
       - name: Publish web site
         run: |
+          cd /tmp/OneDisc-Homepage/docs/public
           mkdir downloads --parents
           cd downloads
           mv /tmp/OneDisc-linux-x86_64-dev.zip .
