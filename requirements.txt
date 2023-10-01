@@ -2,4 +2,5 @@ fastapi
 discord.py
 uvicorn
 httpx
+certifi
 websockets

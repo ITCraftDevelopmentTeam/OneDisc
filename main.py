@@ -9,6 +9,8 @@ from logger import get_logger, init_logger
 import discord
 import aiohttp
 import api
+import ssl
+import certifi
 from connection import init_connections
 
 CONFIG = get_config()
@@ -22,13 +24,11 @@ logger.info(f"当前版本：{VERSION}")
 intents = discord.Intents.default()
 intents.message_content = True
 
-if not CONFIG["system"].get("disable_ssl"):
-    client = discord.Client(intents=intents, proxy=CONFIG["system"]["proxy"])
-else:
-    session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False))
-    client = discord.Client(http_session=session, intents=intents, proxy=CONFIG["system"]["proxy"])
+ssl_context = ssl.create_default_context(cafile=certifi.where())
+connector = aiohttp.TCPConnector(ssl=ssl_context)
+session = aiohttp.ClientSession(connector=connector)
 
-
+client = discord.Client(http_session=session, intents=intents, proxy=CONFIG["system"]["proxy"])
 
 _config = CONFIG
 
