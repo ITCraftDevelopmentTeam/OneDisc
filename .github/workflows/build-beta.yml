@@ -40,7 +40,7 @@ jobs:
         run: |
           export VERSION=$(python -c 'print(__import__("version").VERSION)')
           export SUB_VER=$(git rev-list --no-merges --count $(git describe --tags --abbrev=0)..HEAD)
-          echo "VERSION=$VERSION.$SUB_VER" >> GITHUB_ENV
+          echo "VERSION=$VERSION.$SUB_VER" >> $GITHUB_ENV
           echo "Currect Version Number: $VERSION.$SUB_VER"
 
       - name: Compress file
