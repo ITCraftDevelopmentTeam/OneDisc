@@ -56,14 +56,17 @@ jobs:
         run: |
           cd /tmp
           rm -rf OneDisc-Homepage
+
           git clone https://github.com/ITCraftDevelopmentTeam/OneDisc-Homepage.git
+          cd OneDisc-Homepage
+          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/ITCraftDevelopmentTeam/OneDisc-Homepage.git
+  
           cd /tmp/OneDisc-Homepage/docs/public
           mkdir downloads --parents
           cd downloads
           mv /tmp/OneDisc-linux-x86_64-dev.zip .
           git add -A
 
-          
           git config --global user.name "GitHub Action"
           git config --global user.email "action@github.com"
 
@@ -72,3 +75,4 @@ jobs:
         env:
           VERSION: ${{ env.VERSION }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
