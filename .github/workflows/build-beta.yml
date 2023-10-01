@@ -65,11 +65,13 @@ jobs:
           mkdir downloads --parents
           cd downloads
           mv /tmp/OneDisc-linux-x86_64-dev.zip .
+          cd ../..
+          python3 -c 'file=open("download_template.txt", encoding="utf-8").read();re=__import__("re");print(file.replace(re.search("<!--ver2-->.*<!--ver2.end-->").group(0), "<!--ver2-->\`$VERSION\`<!--ver2.end-->"))' > downloads.md
+
+
           git add -A
-
-          git config --global user.name "GitHub Action"
+          git config --global user.name "gitHub-action[bot]"
           git config --global user.email "action@github.com"
-
           git commit -m "Update version to $VERSION"
           git push
         env:
