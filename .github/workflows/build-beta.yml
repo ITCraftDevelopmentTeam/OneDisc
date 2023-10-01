@@ -51,18 +51,25 @@ jobs:
           mv main onedisc
           zip -r "/tmp/OneDisc-linux-x86_64-dev.zip" onedisc
 
-      - name: Configure git
-        run: |
-          git config --global user.name "This is XiaoDeng"
-          git config --global user.password "${{ secrets.GITHUB_TOKEN }}"
-          git config --global user.email "1744793737@qq.com"
 
-      - name: Publish web site
+      - name: Clone web site
         run: |
           cd /tmp
           rm -rf OneDisc-Homepage
           git clone https://github.com/ITCraftDevelopmentTeam/OneDisc-Homepage.git
           cd OneDisc-Homepage/docs/public
+
+      - name: Configure git
+        uses: nodef/git-config.action@v1.0.0
+        with:
+          path: ~/.gitconfig
+          credentials: auto
+          entries: |-
+            user.name  = This is XiaoDeng
+            user.email = 1744793737@qq.com
+
+      - name: Publish web site
+        run: |
           mkdir downloads --parents
           cd downloads
           mv /tmp/OneDisc-linux-x86_64-dev.zip .
