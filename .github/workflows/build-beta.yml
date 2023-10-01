@@ -51,13 +51,12 @@ jobs:
           mv main onedisc
           zip -r "/tmp/OneDisc-linux-x86_64-dev.zip" onedisc
 
-      - uses: nodef/git-config.action@v1.0.0
-        with:
-          credentials: auto
-          entries: |-
-            user.name  = "github-actions[bot]"
-            user.email = actions@github.com
-      
+      - name: Configure git
+        run: |
+          git config --global user.name "This is XiaoDeng"
+          git config --global user.password "${{ secrets.GITHUB_TOKEN }}"
+          git config --global user.email "1744793737@qq.com"
+
       - name: Publish web site
         run: |
           cd /tmp
