@@ -58,7 +58,7 @@ jobs:
           rm -rf OneDisc-Homepage
           git clone https://github.com/ITCraftDevelopmentTeam/OneDisc-Homepage.git
           cd OneDisc-Homepage/docs/public
-          git config --gelobal user.name "This-is-XiaoDeng"
+          git config --global user.name "This-is-XiaoDeng"
 
       - name: Configure git
         uses: nodef/git-config.action@v1.0.0
