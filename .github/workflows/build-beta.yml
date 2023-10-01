@@ -23,8 +23,6 @@ jobs:
           cache: 'pip'
           cache-dependency-path: |
             requirements.txt
-        env:
-          AGENT_TOOLSDIRECTORY: /opt/hostedtoolache
 
       - name: Update Pip and Install Requirements
         run: |
