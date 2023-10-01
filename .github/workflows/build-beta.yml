@@ -51,6 +51,11 @@ jobs:
           mv main onedisc
           zip -r "../../OneDisc-linux-x86_64-dev.zip" onedisc
           cd ../..
+      - name: Configure git
+        uses: nodef/git-config.action@v1.0.0
+      
+      - name: Publish web site
+        run: |
           git clone https://github.com/ITCraftDevelopmentTeam/OneDisc-Homepage.git
           cd OneDisc-Homepage/docs/public
           mkdir downloads --parents
