@@ -18,36 +18,12 @@ logger = get_logger()
 logger.info("OneDisc (By This-is-XiaoDeng)")
 logger.info(f"当前版本：{VERSION}")
 
-
-import ssl
-import aiohttp
-import sys
-import os
-
-if getattr(sys, 'frozen', False):
-    # we are running in a bundled exe
-    base_path = sys._MEIPASS
-else:
-    base_path = os.path.dirname(__file__)
-
-cert_path = os.path.join(base_path, 'discord_cert.pem')
-
-
-ssl_context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
-ssl_context.load_verify_locations(cert_path)
-connector = aiohttp.TCPConnector(ssl_context=ssl_context)
-
-
 intents = discord.Intents.default()
 intents.message_content = True
 
+discord.http.disable_ssl = CONFIG["system"]["disable_ssl"]
 
-
-if CONFIG["system"].get("disable_ssl"):
-    session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=False))
-else:
-    session = aiohttp.ClientSession(connector=connector)
-client = discord.Client(http_session=session, intents=intents, proxy=CONFIG["system"]["proxy"])
+client = discord.Client(intents=intents, proxy=CONFIG["system"]["proxy"])
 
 _config = CONFIG
 
