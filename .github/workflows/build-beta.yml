@@ -61,7 +61,7 @@ jobs:
       - name: Publish web site
         run: |
           cd /tmp
-          pwd
+          rm -rf OneDisc-Homepage
           git clone https://github.com/ITCraftDevelopmentTeam/OneDisc-Homepage.git
           cd OneDisc-Homepage/docs/public
           mkdir downloads --parents
