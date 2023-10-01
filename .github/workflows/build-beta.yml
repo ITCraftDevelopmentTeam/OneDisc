@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   
@@ -32,7 +33,7 @@ jobs:
 
       - name: Build on Linux
         run: |
-          pyinstaller --onefile --icon=onedisc.ico 
+          pyinstaller --onefile main.py
       
       - name: Get version number
         run: |
