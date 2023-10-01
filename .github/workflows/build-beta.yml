@@ -73,7 +73,7 @@ jobs:
 
 
           git add -A
-          git config --global user.name "gitHub-action[bot]"
+          git config --global user.name "github-actions[bot]"
           git config --global user.email "action@github.com"
           git commit -m "Update version to $VERSION"
           git push
