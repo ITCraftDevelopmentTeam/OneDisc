@@ -58,12 +58,11 @@ jobs:
           rm -rf OneDisc-Homepage
           git clone https://github.com/ITCraftDevelopmentTeam/OneDisc-Homepage.git
           cd OneDisc-Homepage/docs/public
-          git config --global user.name "This-is-XiaoDeng"
 
       - name: Configure git
         uses: nodef/git-config.action@v1.0.0
         with:
-          path: ~/.gitconfig
+          path: /tmp/OneDisc-Homepage/.git/config
           credentials: auto
           entries: |-
             user.name  = This is XiaoDeng
