@@ -46,7 +46,7 @@ jobs:
       - name: Compress file
         run: |
           sudo apt update
-          sudo apt install zip -y
+          sudo apt install zip git -y
           cd dist
           mv main onedisc
           zip -r "../../OneDisc-linux-x86_64-dev.zip" onedisc
