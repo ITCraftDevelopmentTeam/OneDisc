@@ -69,7 +69,7 @@ jobs:
           cd /tmp/OneDisc-Build
     
           cat ./version.json
-          export VER_JSON=$(python3 -c 'json = __import__("json");data = json.load(open("./version.json", encoding="utf-8"));data["beta"] = "$VERSION";print(json.dumps(data))')
+          export VER_JSON=$(python3 -c 'os = __import__("os");json = __import__("json");data = json.load(open("./version.json", encoding="utf-8"));data["beta"] = os.environ["VERSION"];print(json.dumps(data))')
           echo $VER_JSON > version.json
 
           git add -A
