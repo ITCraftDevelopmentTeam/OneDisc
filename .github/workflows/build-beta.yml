@@ -54,22 +54,21 @@ jobs:
           zip -r "/tmp/OneDisc-linux-x86_64-dev.zip" onedisc
 
 
-      - name: Publish document
+      - name: Publish application
         run: |
           cd /tmp
-          rm -rf OneDisc-Homepage
+          rm -rf OneDisc-Build
 
-          git clone https://github.com/ITCraftDevelopmentTeam/OneDisc-Homepage.git
-          cd OneDisc-Homepage
-          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/ITCraftDevelopmentTeam/OneDisc-Homepage.git
+          git clone https://github.com/This-is-XiaoDeng/OneDisc-Build.git
+          cd OneDisc-Build
+          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/This-is-XiaoDeng/OneDisc-Build.git
   
-          cd /tmp/OneDisc-Homepage/docs/public
-          mkdir downloads --parents
-          cd downloads
+          mkdir beta --parents
+          cd beta
           mv /tmp/OneDisc-linux-x86_64-dev.zip .
-          cd /tmp/OneDisc-Homepage/docs
+          cd /tmp/OneDisc-Build
 
-          sed -i "s/<!--ver2--><!--ver2.end-->/<!--ver2-->\`$VERSION\`<!--ver2.end-->/g" download.md
+          python3 -c 'json = __import__("json");data = json.load(open("./version.json", encoding="utf-8"));data["beta"] = "$VERSION";print(json.dumps(data))' > version.json
 
           git add -A
           git config --global user.name "github-actions[bot]"
