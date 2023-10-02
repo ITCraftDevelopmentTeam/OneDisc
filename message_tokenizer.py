@@ -5,6 +5,7 @@ def tokenizer(code):
     token_patterns = {
         'mention': '<@[0-9]+>',
         'mention_all': '@everyone',
+        'dc.emoji': '<:.+:[0-9]+>',
         'text': '.+'
     }
     

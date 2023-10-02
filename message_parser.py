@@ -2,6 +2,7 @@ import file
 from logger import get_logger
 from config import config
 import message_tokenizer
+import re
 
 class BadSegmentData(Exception): pass
 class UnsupportedSegment(Exception): pass
@@ -29,6 +30,8 @@ def parse_message(message: list) -> dict:
                     message_data["file"].append(file.get_file_path(file.get_file_name_by_id(segment["data"]["file_id"])))
                     if segment["type"] == "voice":
                         logger.warning("OneDisc 暂不支持 voice 消息段，将以 audio 消息段发送")
+                case "dc.emoji":
+                    message_data["content"] += f'<:{segment["data"]["name"]}:{segment["data"]["id"]}>'
                 
                 case _:
                     if config["system"].get("ignore_unsupported_segment"):
@@ -63,6 +66,14 @@ def parse_string(string: str) -> list:
                     "type": "text",
                     "data": {
                         "text": token[1]
+                    }
+                })
+            case "dc.emoji":
+                message.append({
+                    "type": "dc.emoji",
+                    "data": {
+                        "name": re.search(":.+:", token[1]).group(0)[1:-1],   # type: ignore
+                        "id": re.search("[0-9]+>", token[1]).group(0)[:-1]  # type: ignore
                     }
                 })
     return message
