@@ -3,6 +3,7 @@ import uvicorn_server
 import call_action
 import json
 import fastapi
+import return_object
 from logger import get_logger
 
 BASE_CONNECTION_CONFIG = {
@@ -45,7 +46,10 @@ def get_connection_handler(config: dict) -> tuple[Callable, Callable]:
     event_list = []
     
     async def on_call_action(body: bytes) -> dict:
-        data = json.loads(body)
+        try:
+            data = json.loads(body)
+        except json.JSONDecodeError as e:
+            return return_object.get(10001, str(e))
         if data["action"] == "get_latest_events":
             obj =  {
                 "status": "ok",

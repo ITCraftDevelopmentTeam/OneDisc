@@ -37,9 +37,9 @@ def parse_message(message: list) -> dict:
                     if config["system"].get("ignore_unsupported_segment"):
                         logger.warning(f"不支持的消息段类型：{segment['type']}，已忽略")
                     else:
-                        raise UnsupportedSegment
-        except KeyError:
-            raise BadSegmentData
+                        raise UnsupportedSegment(segment["type"])
+        except KeyError as e:
+            raise BadSegmentData(segment["type"])
     if not message_data["file"]:
         message_data.pop("file")
     return message_data
