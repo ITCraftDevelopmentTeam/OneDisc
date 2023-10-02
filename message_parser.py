@@ -69,7 +69,7 @@ def parse_string(string: str) -> list:
                         "text": token[1]
                     }
                 })
-            case "dc.emoji":
+            case "emoji":
                 message.append({
                     "type": "dc.emoji",
                     "data": {
