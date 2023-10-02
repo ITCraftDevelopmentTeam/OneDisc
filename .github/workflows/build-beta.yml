@@ -67,7 +67,8 @@ jobs:
           cd beta
           mv /tmp/OneDisc-linux-x86_64-dev.zip .
           cd /tmp/OneDisc-Build
-
+    
+          cat ./version.json
           python3 -c 'json = __import__("json");data = json.load(open("./version.json", encoding="utf-8"));data["beta"] = "$VERSION";print(json.dumps(data))' > version.json
 
           git add -A
