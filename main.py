@@ -21,7 +21,7 @@ logger.info(f"当前版本：{VERSION}")
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-discord.http.disable_ssl = CONFIG["system"]["disable_ssl"]
+discord.http.disable_ssl = CONFIG["system"].get("disable_ssl")
 
 client = discord.Client(intents=intents, proxy=CONFIG["system"]["proxy"])
 
