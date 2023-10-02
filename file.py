@@ -38,7 +38,7 @@ async def upload_file_from_url(
     async with httpx.AsyncClient(proxies=proxy) as client:
         response = await client.get(url, headers=headers)    
         if response.status_code == 200 and verify_sha256(response.content, sha256):
-            with open(f".cache/{name}", "wb") as f:
+            with open(f".cache/files/{name}", "wb") as f:
                 f.write(response.content)
             return True
     logger.warning(f"下载文件 {url} (到 {name}) 失败：({response.status_code}) 远程返回错误或校验失败")
@@ -55,7 +55,7 @@ async def upload_file_from_url(
 
 def upload_file_from_data(name: str, data: str) -> tuple[bool, str]:
     try:
-        with open(f".cache/{name}", "wb") as f:
+        with open(f".cache/files/{name}", "wb") as f:
             f.write(base64.b64decode(data))
         return True, ""
     except Exception as e:
@@ -75,7 +75,7 @@ def new_file(name: str) -> str:
 def upload_file_from_path(name: str, path: str) -> tuple[bool, str]:
     try:
         with open(path, "rb") as from_f:
-            with open(f".cache/{name}", "wb") as to_f:
+            with open(f".cache/files/{name}", "wb") as to_f:
                 to_f.write(from_f.read())
         return True, ""
     except Exception as e:
@@ -140,6 +140,8 @@ def get_file_name_by_id(file_id: str) -> str:
         file_list = json.load(f)
     return file_list.get(file_id)
 
+def get_file_path(file_name: str) -> str:
+    return os.path.abspath(f".cache/files/{file_name}")
 
 @register_extra_action("get_file")
 async def get_file(file_id: str, type: str) -> dict:
@@ -158,14 +160,16 @@ async def get_file(file_id: str, type: str) -> dict:
             return return_object.get(
                 0,
                 name=file,
-                path=os.path.abspath(f".config/{file}")
+                path=os.path.abspath(f".cache/files/{file}")
             )
         # TODO 返回 sha256
         
         case "data":
-            with open(f".config/{file}", "rb") as f:
+            with open(f".cache/files/{file}", "rb") as f:
                 return return_object.get(
                     0,
                     name=file,
                     data=base64.b64encode(f.read()).decode("utf-8")
                 )
+        case _:
+            return return_object.get(10003, f"无效的 type 参数：{type}")
