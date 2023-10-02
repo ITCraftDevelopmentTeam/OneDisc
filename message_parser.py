@@ -1,6 +1,7 @@
 import file
 from logger import get_logger
 from config import config
+import message_tokenizer
 
 class BadSegmentData(Exception): pass
 class UnsupportedSegment(Exception): pass
@@ -40,11 +41,29 @@ def parse_message(message: list) -> dict:
         message_data.pop("file")
     return message_data
 
-def parse_string(string: str, file: list = []) -> list:
-    # TODO
-    return [{
-        "type": "text",
-        "data": {
-            "text": string
-        }
-    }]
+def parse_string(string: str) -> list:
+    message = []
+    tokenized_messages = message_tokenizer.tokenizer(string)
+    for token in tokenized_messages:
+        match token[0]:
+            case 'mention':
+                message.append({
+                    "type": "mention",
+                    "data": {
+                        "user_id": token[1][2:-1]
+                    }
+                })
+            case 'mention_all':
+                message.append({
+                    "type": 'mention_all',
+                    'data': {}
+                })
+            case "text":
+                message.append({
+                    "type": "text",
+                    "data": {
+                        "text": token[1]
+                    }
+                })
+    return message
+    
