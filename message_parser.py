@@ -71,10 +71,10 @@ def parse_string(string: str) -> list:
                 })
             case "emoji":
                 message.append({
-                    "type": "dc.emoji",
+                    "type": "discord.emoji",
                     "data": {
                         "name": re.search(":.+:", token[1]).group(0)[1:-1],   # type: ignore
-                        "id": re.search("[0-9]+>", token[1]).group(0)[:-1]  # type: ignore
+                        "id": int(re.search("[0-9]+>", token[1]).group(0)[:-1])  # type: ignore
                     }
                 })
     logger.debug(message)
