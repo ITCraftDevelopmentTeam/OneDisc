@@ -42,6 +42,7 @@ def parse_message(message: list) -> dict:
             raise BadSegmentData(segment["type"])
     if not message_data["file"]:
         message_data.pop("file")
+    logger.debug(message_data)
     return message_data
 
 def parse_string(string: str) -> list:
@@ -76,5 +77,6 @@ def parse_string(string: str) -> list:
                         "id": re.search("[0-9]+>", token[1]).group(0)[:-1]  # type: ignore
                     }
                 })
+    logger.debug(message)
     return message
     
