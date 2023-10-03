@@ -2,7 +2,7 @@ from logger import get_logger
 
 logger = get_logger()
 
-def get(code: int, message: str = "", **data) -> dict:
+def get(code: int = 0, message: str = "", **data) -> dict:
     """
     获取 OneBot 动作响应
 
@@ -17,7 +17,7 @@ def get(code: int, message: str = "", **data) -> dict:
     return {
         "status": "ok" if code == 0 else "failed",
         "retcode": code,
-        "data": data,
+        "data": data or None,
         "message": message
     }
 

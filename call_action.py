@@ -1,5 +1,6 @@
 from api import action_list
 import return_object 
+from checker import BadParam
 from logger import get_logger
 import traceback
 from message_parser import UnsupportedSegment, BadSegmentData
@@ -22,6 +23,8 @@ async def on_call_action(action: str, params: dict, echo: str | None = None, **_
         return return_object.get(10005, str(e))
     except BadSegmentData as e:
         return return_object.get(10006, str(e))
+    except BadParam as e:
+        return return_object.get(10003, str(e))
     except Exception as e:
         logger.error(traceback.format_exc())
         return_data = return_object.get(20002, str(e))

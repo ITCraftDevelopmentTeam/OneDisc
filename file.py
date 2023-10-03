@@ -1,6 +1,7 @@
 from logger import get_logger
 from config import config
 from api import register_extra_action
+import checker
 import os.path
 import os
 import base64
@@ -97,6 +98,7 @@ async def get_file_fragmented(
 
     match stage:
         case "prepare":
+            checker.check_aruments(file_id)
             return return_object.get(
                 0,
                 name=file_name,
@@ -104,6 +106,7 @@ async def get_file_fragmented(
                 sha256=hashlib.sha256(content).hexdigest()
             )
         case "transfer":
+            checker.check_aruments(file_id, offset, size)
             return return_object.get(
                 0,
                 data=base64.b64encode(content[offset:offset + size]).decode("utf-8")    # type: ignore
@@ -111,7 +114,47 @@ async def get_file_fragmented(
         case _:
             return return_object.get(10003, f"无效的 stage 参数：{stage}")
 
-    
+uploading_files = {}
+
+@register_extra_action("upload_file_fragmented")
+async def upload_file_fragmented(
+        stage: str,
+        name: str | None = None,
+        total_size: str | None = None,
+        file_id: str | None = None,
+        offset: int | None = None,
+        data: str | None = None,
+        sha256: str | None = None
+) -> dict:
+    match stage:
+
+        case "prepare":
+            checker.check_aruments(name, total_size)
+            uploading_files[file_id := str(uuid.uuid1())] = {
+                "name": name,
+                "content": [0] * total_size
+            }
+            return return_object.get(
+                file_id=file_id
+            )
+        
+        case "transfer":
+            checker.check_aruments(file_id, offset, data)
+            byte_offset = 0
+            for byte in list(base64.b64decode(data)):
+                uploading_files[file_id]["content"][offset + byte_offset] = byte
+                byte_offset += 1
+            return return_object.get()
+        
+        case "finish":
+            checker.check_aruments(file_id, offset, sha256)
+            file_name = uploading_files[file_id]['name']
+            with open(f".cache/files/{file_name}", "wb") as f:
+                f.write(bytes(uploading_files.pop(file_id)["content"]))
+            # TODO sha256 校验
+            return return_object.get(
+                file_id=new_file(file_name)
+            )
 
 
 @register_extra_action("upload_file")
@@ -128,8 +171,7 @@ async def upload_file(
     match type:
 
         case "url":
-            if url == None:
-                return return_object.get(10003, "url 参数为空")
+            checker.check_aruments(name, url)
             status = await upload_file_from_url(
                 url,
                 headers, 
@@ -146,16 +188,14 @@ async def upload_file(
             )
 
         case "name":
-            if path == None:
-                return return_object.get(10003, "path 参数为空")
+            checker.check_aruments(name, path)
             status = upload_file_from_path(name, path)
             if not status[0]:
                 return return_object.get(32001, status[1])
             return return_object.get(0, file_id=new_file(name))
 
         case "data":
-            if data == None:
-                return return_object.get(10003, "data 参数为空")
+            checker.check_aruments(name, data)
             status = upload_file_from_data(name, data)
             if not status[0]:
                 return return_object.get(32001, status[1])
