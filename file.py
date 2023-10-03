@@ -22,10 +22,10 @@ except Exception:
 
 logger = get_logger()
 
-def verify_sha256(contnet: bytes, sha256: str | None) -> bool:
+def verify_sha256(content: bytes, sha256: str | None) -> bool:
     if sha256 is None:
         return True
-    return hashlib.sha256(contnet).hexdigest() == sha256
+    return hashlib.sha256(content).hexdigest() == sha256
 
 async def upload_file_from_url(
         url: str,
@@ -81,7 +81,39 @@ def upload_file_from_path(name: str, path: str) -> tuple[bool, str]:
     except Exception as e:
         logger.warning(f"从 {path} 获取文件 (到 {name}) 失败：{e}")
         return False, str(e)
-            
+
+
+@register_extra_action("get_file_fragmented")
+async def get_file_fragmented(
+        stage: str,
+        file_id: str,
+        offset: int | None = None,
+        size: int | None = None
+) -> dict:
+    if not (file_name := get_file_name_by_id(file_id)):
+        return return_object.get(31001, f"文件 {file_id} 不存在")
+    with open(get_file_path(file_name), "rb") as f:
+        content = f.read()
+
+    match stage:
+        case "prepare":
+            return return_object.get(
+                0,
+                name=file_name,
+                total_size=len(content),
+                sha256=hashlib.sha256(content).hexdigest()
+            )
+        case "transfer":
+            return return_object.get(
+                0,
+                data=base64.b64encode(content[offset:offset + size]).decode("utf-8")    # type: ignore
+            )
+        case _:
+            return return_object.get(10003, f"无效的 stage 参数：{stage}")
+
+    
+
+
 @register_extra_action("upload_file")
 async def upload_file(
         type: str,
