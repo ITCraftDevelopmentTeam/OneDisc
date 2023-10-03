@@ -31,11 +31,19 @@ jobs:
       - name: Install compilers
         run: |
           sudo apt update
-          sudo apt install -y gcc-aarch64-linux-gnu zip patchelf
+          sudo apt install -y gcc-aarch64-linux-gnu zip patchelf          
 
       - name: Build for Linux ARM64
         run: |
-          CC=aarch64-linux-gnu-gcc python -m nuitka --onefile --standalone main.py
+          sudo dpkg --add-architecture arm64
+          sudo apt-get update
+          sudo apt-get download python3.10:arm64
+          mkdir python3.10-arm64
+          dpkg-deb -R python3.10*.deb python3.10-arm64/
+          export PYTHONPATH=python3.10-arm64/usr/lib/python3.10/
+          export LD_LIBRARY_PATH=python3.10-arm64/usr/lib:$LD_LIBRARY_PATH
+
+          CC=aarch64-linux-gnu-gcc python -m nuitka --python-version=3.10 python3.10-arm64/usr/bin/python3 --follow-imports --onefile --standalone main.py
           cd build
           mv main.bin onedisc
           zip -r "/tmp/OneDisc-Linux-ARM64.zip" ./onedisc
