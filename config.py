@@ -4,6 +4,10 @@ import json
 
 config = {}
 
+def set_config(conf: dict) -> None:
+    global config
+    config = conf
+
 def read_local_config() -> dict:
     """
     读取本地配置文件

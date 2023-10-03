@@ -1,5 +1,4 @@
-from config import get_config
-from config import config as _config
+import config as global_config
 import message_parser
 import file as _file
 import event
@@ -7,11 +6,15 @@ import asyncio
 import heartbeat_event
 from logger import get_logger, init_logger, print_message_delete_log, print_message_log
 import discord
+import discord.http
+import message_parser
+import call_action
 import api
 from connection import init_connections
 
-CONFIG = get_config()
+CONFIG = global_config.get_config()
 VERSION = "0.1.0"
+global_config.set_config(CONFIG)
 
 init_logger(CONFIG["system"]["logger"])
 logger = get_logger()
@@ -25,14 +28,13 @@ discord.http.disable_ssl = CONFIG["system"].get("disable_ssl")
 
 client = discord.Client(intents=intents, proxy=CONFIG["system"]["proxy"])
 
-_config = CONFIG
-
-
 @client.event
 async def on_ready() -> None:
     logger.info(f"成功登陆到 {client.user}")
+    message_parser.init(client)
     api.init(client, CONFIG)
-    event.init(str(client.user.id))
+    call_action.init(CONFIG)
+    event.init(str(client.user.id))     # type: ignore
     await init_connections(CONFIG["servers"])
     asyncio.create_task(heartbeat_event.setup_heartbeat_event(CONFIG["system"].get("heartbeat", {})))
 

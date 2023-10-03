@@ -1,13 +1,19 @@
 import file
 from logger import get_logger
 from config import config
+import discord
 import message_tokenizer
 import re
 
 class BadSegmentData(Exception): pass
 class UnsupportedSegment(Exception): pass
 
+client: discord.Client
 logger = get_logger()
+
+def init(_client: discord.Client):
+    global client
+    client = _client
 
 def escape_mentions(text):
     text = text.replace('<', '<\u200B').replace('>', '\u200B>')
@@ -16,6 +22,7 @@ def escape_mentions(text):
     return text
 
 def parse_message(message: list) -> dict:
+    logger.debug(config)
     message_data = {"content": "", "file": []}
     for segment in message:
         try:
@@ -32,13 +39,20 @@ def parse_message(message: list) -> dict:
                         logger.warning("OneDisc 暂不支持 voice 消息段，将以 audio 消息段发送")
                 case "dc.emoji":
                     message_data["content"] += f'<:{segment["data"]["name"]}:{segment["data"]["id"]}>'
+                case "reply":
+                    for msg in client.cached_messages:
+                        if msg.id == int(segment["data"]["message_id"]):
+                            message_data["reference"] = msg
+                            break
+                    else:
+                        logger.warning(f"解析消息段 {segment} 时出现错误：找不到指定消息，已忽略")
                 
                 case _:
                     if config["system"].get("ignore_unsupported_segment"):
                         logger.warning(f"不支持的消息段类型：{segment['type']}，已忽略")
                     else:
                         raise UnsupportedSegment(segment["type"])
-        except KeyError as e:
+        except KeyError:
             raise BadSegmentData(segment["type"])
     if not message_data["file"]:
         message_data.pop("file")

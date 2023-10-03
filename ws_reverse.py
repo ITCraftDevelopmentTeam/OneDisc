@@ -45,8 +45,8 @@ class WebSocketClient:
         while True:
             try:
                 await self.receive_loop()
-            except Exception as e:
-                logger.warning(f"接收任务异常退出：{e}")
+            except Exception:
+                logger.warning(f"接收任务异常退出：{traceback.format_exc()}")
 
     async def receive_loop(self) -> None:
         recv_data = json.loads(await self.websocket.recv())
