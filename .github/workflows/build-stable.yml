@@ -35,7 +35,7 @@ jobs:
 
       - name: Build for Linux ARM64
         run: |
-          CC=aarch64-linux-gnu-gcc nuitka --onefile --standalone main.py
+          CC=aarch64-linux-gnu-gcc python -m nuitka --onefile --standalone main.py
           cd build
           mv main.bin onedisc
           zip -r "/tmp/OneDisc-Linux-ARM64.zip" ./onedisc
