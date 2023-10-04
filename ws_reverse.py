@@ -42,7 +42,7 @@ class WebSocketClient:
         ))
 
     async def setup_receive_loop(self) -> None:
-        while True:
+        while not hasattr(self, "reconnect_task"):
             try:
                 await self.receive_loop()
             except Exception:
@@ -56,7 +56,8 @@ class WebSocketClient:
         await self.send(await call_action.on_call_action(**recv_data))
 
     async def push_event(self, event: dict) -> None:
-        await self.send(event)
+        if not hasattr(self, "reconnect_task"):
+            await self.send(event)
 
     async def send(self, data: dict) -> None:
         logger.debug(str(data))
@@ -76,6 +77,8 @@ class WebSocketClient:
             self.reconnect_task = asyncio.create_task(self._reconnect())
             await self.reconnect_task
             del self.reconnect_task
+            asyncio.create_task(self.setup_receive_loop())
+
 
     async def _reconnect(self) -> None:
         while True:

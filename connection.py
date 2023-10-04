@@ -44,5 +44,5 @@ async def init_connections(connection_list: list[dict]) -> None:
                     "add_event_func": tmp.push_event
                 })
                 asyncio.create_task(tmp.reconnect())
-                asyncio.create_task(tmp.setup_receive_loop())
+                # asyncio.create_task(tmp.setup_receive_loop())
                 del tmp
