@@ -43,6 +43,6 @@ async def init_connections(connection_list: list[dict]) -> None:
                     "object": (tmp := WebSocketClient(obc_config)),
                     "add_event_func": tmp.push_event
                 })
-                await tmp.reconnect()
+                asyncio.create_task(tmp.reconnect())
                 asyncio.create_task(tmp.setup_receive_loop())
                 del tmp
