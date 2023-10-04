@@ -2,8 +2,6 @@ import os.path
 import sys
 import json
 
-config = {}
-
 def set_config(conf: dict) -> None:
     global config
     config = conf
@@ -73,3 +71,5 @@ def create_empty_config() -> None:
     创建一个空配置
     """
     json.dump(BASE_CONFIG, open("config.json", "w", encoding="utf-8"), indent=4)
+
+config = get_config()

@@ -1,9 +1,4 @@
-import config as global_config
-
-CONFIG = global_config.get_config()
-VERSION = "0.1.0"
-global_config.set_config(CONFIG)
-
+from config import config
 import message_parser
 import file as _file
 import event
@@ -13,39 +8,39 @@ from logger import get_logger, init_logger, print_message_delete_log, print_mess
 import discord
 import discord.http
 import message_parser
-import call_action
 import api
 from connection import init_connections
+from version import VERSION
 
-init_logger(CONFIG["system"]["logger"])
+init_logger(config["system"]["logger"])
 logger = get_logger()
-logger.info("OneDisc (By This-is-XiaoDeng)")
+logger.info("OneDisc (By: IT Craft Development Team)")
 logger.info(f"当前版本：{VERSION}")
 
 intents = discord.Intents.default()
 intents.message_content = True
 intents.members = True
-discord.http.disable_ssl = CONFIG["system"].get("disable_ssl")
+discord.http.disable_ssl = config["system"].get("disable_ssl", False)
 
-client = discord.Client(intents=intents, proxy=CONFIG["system"]["proxy"])
+client = discord.Client(intents=intents, proxy=config["system"]["proxy"])
 
 @client.event
 async def on_ready() -> None:
     logger.info(f"成功登陆到 {client.user}")
     message_parser.init(client)
-    api.init(client, CONFIG)
-    call_action.init(CONFIG)
+    api.init(client)
     event.init(str(client.user.id))     # type: ignore
-    await init_connections(CONFIG["servers"])
-    asyncio.create_task(heartbeat_event.setup_heartbeat_event(CONFIG["system"].get("heartbeat", {})))
+    await init_connections(config["servers"])
+    asyncio.create_task(heartbeat_event.setup_heartbeat_event(config["system"].get("heartbeat", {})))
+    logger.info(config["system"].get("started_text", "OneDisc 已成功启动"))
 
 
 @client.event
 async def on_message(message: discord.Message) -> None:
-    if message.author == client.user and CONFIG["system"].get("ignore_self_events", True):
+    if message.author == client.user and config["system"].get("ignore_self_events", True):
         return
     print_message_log(message)
-    if message.guild and CONFIG["system"].get("enable_channel_event"):
+    if message.guild and config["system"].get("enable_channel_event"):
         event.new_event(
             _type="message",
             detail_type="channel",
@@ -81,14 +76,14 @@ async def on_message(message: discord.Message) -> None:
 
 @client.event
 async def on_message_delete(message: discord.Message) -> None:
-    if message.author == client.user and CONFIG["system"].get("ignore_self_events", True):
+    if message.author == client.user and config["system"].get("ignore_self_events", True):
         return
     print_message_delete_log(message)
-    if message.guild and CONFIG["system"].get("enable_channel_event"):
+    if message.guild and config["system"].get("enable_channel_event"):
         event.new_event(
             _type="notice",
             detail_type="channel_message_delete",
-            sub_type="" if CONFIG["system"].get("use_empty_for_unsupported_subtype", True) else "recall",
+            sub_type="" if config["system"].get("use_empty_for_unsupported_subtype", True) else "recall",
             message_id=str(message.id),
             user_id=str(message.author.id),
             channel_id=str(message.channel.id),
@@ -99,7 +94,7 @@ async def on_message_delete(message: discord.Message) -> None:
         event.new_event(
             _type="notice",
             detail_type="group_message_delete",
-            sub_type="" if CONFIG["system"].get("use_empty_for_unsupported_subtype", True) else "recall",
+            sub_type="" if config["system"].get("use_empty_for_unsupported_subtype", True) else "recall",
             message_id=str(message.id),
             user_id=str(message.author.id),
             group_id=str(message.channel.id),
@@ -116,7 +111,7 @@ async def on_message_delete(message: discord.Message) -> None:
 @client.event
 async def on_member_join(member: discord.Member) -> None:
     logger.info(f"用户 {member.name} ({member.id}) 加入了服务器 {member.guild.name} ({member.guild.id})")
-    if CONFIG["system"].get("enable_channel_event"):
+    if config["system"].get("enable_channel_event"):
         event.new_event(
             _type="notice",
             detail_type="guild_member_increase",
@@ -129,7 +124,7 @@ async def on_member_join(member: discord.Member) -> None:
 @client.event
 async def on_member_remove(member: discord.Member) -> None:
     logger.info(f"用户 {member.name} ({member.id}) 离开了服务器 {member.guild.name} ({member.guild.id})")
-    if CONFIG["system"].get("enable_channel_event"):
+    if config["system"].get("enable_channel_event"):
         event.new_event(
             _type="notice",
             detail_type="guild_member_decrease",
@@ -142,7 +137,7 @@ async def on_member_remove(member: discord.Member) -> None:
 @client.event
 async def on_guild_channel_create(channel: discord.TextChannel | discord.VoiceChannel | discord.CategoryChannel):
     logger.info(f"新的频道 {channel.name} ({channel.id}) 在 {channel.guild.name} ({channel.guild.id}) 上创建")
-    if CONFIG["system"].get("enable_channel_event"):
+    if config["system"].get("enable_channel_event"):
         event.new_event(
             _type="notice",
             detail_type="channel_create",
@@ -155,7 +150,7 @@ async def on_guild_channel_create(channel: discord.TextChannel | discord.VoiceCh
 @client.event
 async def on_guild_channel_delete(channel: discord.TextChannel | discord.VoiceChannel | discord.CategoryChannel):
     logger.info(f"频道 {channel.name} ({channel.id}) 在 {channel.guild.name} ({channel.guild.id}) 上被删除")
-    if CONFIG["system"].get("enable_channel_event"):
+    if config["system"].get("enable_channel_event"):
         event.new_event(
             _type="notice",
             detail_type="channel_delete",
@@ -165,5 +160,5 @@ async def on_guild_channel_delete(channel: discord.TextChannel | discord.VoiceCh
         )
 
 
-client.run(CONFIG["account_token"], log_handler=None)
+client.run(config["account_token"], log_handler=None)
 

@@ -1,3 +1,4 @@
+from config import config
 import discord
 from version import VERSION
 from typing import Callable
@@ -7,21 +8,18 @@ import message_parser
 from logger import get_logger
 
 client: discord.Client
-config: dict
 logger = get_logger()
 
 
-def init(_client: discord.Client, _config: dict) -> None:
+def init(_client: discord.Client) -> None:
     """
     初始化API
 
     Args:
         client (discord.Client): Discord客户端
-        config (dict): 全局配置
     """
-    global client, config
+    global client
     client = _client
-    config = _config
 
 
 async def send_message(
