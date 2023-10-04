@@ -4,6 +4,7 @@ from api import register_extra_action
 import checker
 import os.path
 import os
+import traceback
 import base64
 import uuid
 import hashlib
@@ -36,13 +37,16 @@ async def upload_file_from_url(
         sha256: str | None,
         retry_count: int = 0
 ) -> bool:
-    async with httpx.AsyncClient(proxies=proxy) as client:
-        response = await client.get(url, headers=headers)    
-        if response.status_code == 200 and verify_sha256(response.content, sha256):
-            with open(f".cache/files/{name}", "wb") as f:
-                f.write(response.content)
-            return True
-    logger.warning(f"下载文件 {url} (到 {name}) 失败：({response.status_code}) 远程返回错误或校验失败")
+    try:
+        async with httpx.AsyncClient(proxies=proxy) as client:
+            response = await client.get(url, headers=headers)    
+            if response.status_code == 200 and verify_sha256(response.content, sha256):
+                with open(f".cache/files/{name}", "wb") as f:
+                    f.write(response.content)
+                return True
+        logger.warning(f"下载文件 {url} (到 {name}) 失败：({response.status_code}) 远程返回错误或校验失败")
+    except:
+        logger.error(f"下载文件 {url} （到 {name}）时出现错误：{traceback.format_exc()}")
     if retry_count <= 0:
         return False
     return await upload_file_from_url(
@@ -172,7 +176,7 @@ async def upload_file(
 
         case "url":
             checker.check_aruments(name, url)
-            status = await upload_file_from_url(
+            is_successful = await upload_file_from_url(
                 url,
                 headers, 
                 name, 
@@ -180,25 +184,24 @@ async def upload_file(
                 sha256, 
                 config["system"].get("download_max_retry_count", 0)
             )
-            if status:
-                return return_object.get(status)
+            if not is_successful:
+                return return_object.get(33000)
             return return_object.get(
-                0,
-                file_id=new_file(name),
+                file_id=new_file(name)
             )
 
         case "name":
             checker.check_aruments(name, path)
-            status = upload_file_from_path(name, path)
-            if not status[0]:
-                return return_object.get(32001, status[1])
+            is_successful = upload_file_from_path(name, path)
+            if not is_successful[0]:
+                return return_object.get(32001, is_successful[1])
             return return_object.get(0, file_id=new_file(name))
 
         case "data":
             checker.check_aruments(name, data)
-            status = upload_file_from_data(name, data)
-            if not status[0]:
-                return return_object.get(32001, status[1])
+            is_successful = upload_file_from_data(name, data)
+            if not is_successful[0]:
+                return return_object.get(32001, is_successful[1])
             return return_object.get(0, file_id=new_file(name))
         
         case _:

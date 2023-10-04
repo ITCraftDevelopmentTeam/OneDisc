@@ -4,6 +4,7 @@ from config import config
 import discord
 import message_tokenizer
 import re
+import discord.file
 
 class BadSegmentData(Exception): pass
 class UnsupportedSegment(Exception): pass
@@ -23,7 +24,7 @@ def escape_mentions(text):
 
 def parse_message(message: list) -> dict:
     logger.debug(config)
-    message_data = {"content": "", "file": []}
+    message_data = {"content": "", "files": []}
     for segment in message:
         try:
             match segment["type"]:
@@ -34,7 +35,7 @@ def parse_message(message: list) -> dict:
                 case "mention_all":
                     message_data["content"] += "@everyone"
                 case "image" | "voice" | "audio" | "video" | "file":
-                    message_data["file"].append(file.get_file_path(file.get_file_name_by_id(segment["data"]["file_id"])))
+                    message_data["files"].append(discord.file.File(open(file.get_file_path(file.get_file_name_by_id(segment["data"]["file_id"])), "rb")))
                     if segment["type"] == "voice":
                         logger.warning("OneDisc 暂不支持 voice 消息段，将以 audio 消息段发送")
                 case "dc.emoji":
@@ -54,8 +55,8 @@ def parse_message(message: list) -> dict:
                         raise UnsupportedSegment(segment["type"])
         except KeyError:
             raise BadSegmentData(segment["type"])
-    if not message_data["file"]:
-        message_data.pop("file")
+    if not message_data["files"]:
+        message_data.pop("files")
     logger.debug(message_data)
     return message_data
 

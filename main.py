@@ -1,4 +1,9 @@
 import config as global_config
+
+CONFIG = global_config.get_config()
+VERSION = "0.1.0"
+global_config.set_config(CONFIG)
+
 import message_parser
 import file as _file
 import event
@@ -11,10 +16,6 @@ import message_parser
 import call_action
 import api
 from connection import init_connections
-
-CONFIG = global_config.get_config()
-VERSION = "0.1.0"
-global_config.set_config(CONFIG)
 
 init_logger(CONFIG["system"]["logger"])
 logger = get_logger()
