@@ -47,6 +47,8 @@ class WebSocketClient:
                 await self.receive_loop()
             except Exception:
                 logger.warning(f"接收任务异常退出：{traceback.format_exc()}")
+                await asyncio.sleep(self.config["reconnect_interval"] / 1000)
+                logger.info("正在重启接收任务")
 
     async def receive_loop(self) -> None:
         recv_data = json.loads(await self.websocket.recv())
