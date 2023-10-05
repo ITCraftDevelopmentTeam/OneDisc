@@ -30,9 +30,8 @@ jobs:
           pip install -U pip
           pip install -r requirements.txt
           pip install pyinstaller
-          sudo apt install binutils -y
-
-
+          sudo apt update
+          sudo apt install binutils git zip -y
 
       - name: Build on Linux
         run: |
@@ -47,8 +46,6 @@ jobs:
 
       - name: Compress file
         run: |
-          sudo apt update
-          sudo apt install zip git -y
           cd dist
           mv main onedisc
           zip -r "/tmp/OneDisc-linux-x86_64-dev.zip" onedisc
