@@ -159,7 +159,7 @@ async def upload_file_fragmented(
             return return_object.get(
                 file_id=new_file(file_name)
             )
-
+    return return_object.get(10003, f"无效的 stage 参数：{stage}")
 
 @register_extra_action("upload_file")
 async def upload_file(
