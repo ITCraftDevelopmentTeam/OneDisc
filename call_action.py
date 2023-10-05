@@ -5,14 +5,9 @@ from logger import get_logger
 import traceback
 from message_parser import UnsupportedSegment, BadSegmentData
 import random
+from config import config
 
 logger = get_logger()
-config = {}
-
-def init(conf: dict) -> None:
-    global config
-    config = conf
-
 
 async def on_call_action(action: str, params: dict, echo: str | None = None, **_) -> dict:
     if config['system'].get("allow_strike") and random.random() <= 0.1:
