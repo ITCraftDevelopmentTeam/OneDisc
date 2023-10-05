@@ -50,7 +50,7 @@ async def on_message(message: discord.Message) -> None:
             alt_message="",
             guild_id=str(message.guild.id),
             channel_id=str(message.channel.id),
-            user_id=message.author.id
+            user_id=str(message.author.id)
         )
     elif message.guild:
         event.new_event(
@@ -61,7 +61,7 @@ async def on_message(message: discord.Message) -> None:
             message=message_parser.parse_string(message.content),
             alt_message="",
             group_id=str(message.channel.id),
-            user_id=message.author.id
+            user_id=str(message.author.id)
         )
     else:
         event.new_event(
@@ -71,7 +71,7 @@ async def on_message(message: discord.Message) -> None:
             message_id=str(message.id),
             message=message_parser.parse_string(message.content),
             alt_message="",
-            user_id=message.author.id
+            user_id=str(message.author.id)
         )
 
 @client.event
