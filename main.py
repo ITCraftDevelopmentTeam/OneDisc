@@ -12,7 +12,7 @@ import api
 from connection import init_connections
 from version import VERSION
 
-init_logger(config["system"]["logger"])
+init_logger(config["system"].get("logger", {"level": 20}))
 logger = get_logger()
 logger.info("OneDisc (By: IT Craft Development Team)")
 logger.info(f"当前版本：{VERSION}")
