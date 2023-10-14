@@ -3,6 +3,9 @@ import sys
 from typing import List
 import fastapi
 import uvicorn
+from logger import get_logger
+
+logger = get_logger()
 
 
 class Server(uvicorn.Server):
@@ -32,3 +35,4 @@ async def run(app: fastapi.FastAPI, port: int, host: str = "0.0.0.0", **params):
     )
     server = Server(config)
     await server.run()
+    logger.info(f"成功在 {host}:{port} 上开启 Uvicorn 服务器")
