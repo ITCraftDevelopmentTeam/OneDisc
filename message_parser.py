@@ -1,6 +1,7 @@
 import file
 from logger import get_logger
 from config import config
+from client import client
 import discord
 import message_tokenizer
 import re
@@ -15,13 +16,8 @@ class UnsupportedSegment(Exception):
     pass
 
 
-client: discord.Client
 logger = get_logger()
 
-
-def init(_client: discord.Client):
-    global client
-    client = _client
 
 
 def escape_mentions(text):

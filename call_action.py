@@ -10,8 +10,9 @@ from config import config
 logger = get_logger()
 
 async def on_call_action(action: str, params: dict, echo: str | None = None, **_) -> dict:
+    logger.debug(f"请求执行动作：{action} ({params=}, {echo=})")
     if config['system'].get("allow_strike") and random.random() <= 0.1:
-        return return_object.get(36000)
+        return return_object.get(36000, "I am tried.")
     if action not in action_list.keys():
         return return_object.get(10002, "action not found")
     try:
@@ -33,4 +34,5 @@ async def on_call_action(action: str, params: dict, echo: str | None = None, **_
         return_data = return_object.get(20002, str(e))
     if echo:
         return_data["echo"] = echo
+    logger.debug(return_data)
     return return_data
