@@ -1,0 +1,42 @@
+from http_server import verify_access_token
+import uvicorn_server
+import fastapi
+import call_action
+
+BASE_CONFIG = {
+    "host": "0.0.0.0",
+    "port": 5700,
+    "access_token": None
+}
+
+class HTTPServer4OB11:
+
+    def __init__(self, config: dict) -> None:
+        self.config = BASE_CONFIG | config
+        self.app = fastapi.FastAPI()
+        self.app.add_route("/{action}", self.handle_request, ["GET", "POST"])
+
+    async def start_server(self) -> None:
+        await uvicorn_server.run(self.app, host=self.config["host"], port=self.config["port"])
+
+    async def handle_request(self, action: str, request: fastapi.Request) -> fastapi.responses.JSONResponse:
+        if not verify_access_token(request, self.config["access_token"]):
+            if "Authorization" in request.headers.keys() or request.query_params.get("access_token"):
+                raise fastapi.HTTPException(status_code=403, detail="Forbidden")
+            else:
+                raise fastapi.HTTPException(status_code=401, detail="Unauthorized")
+        match request.method:
+            case "GET":
+                params = dict(request.query_params)
+                if "access_token" in params.keys():
+                    del params["access_token"]
+            case "POST":
+                params = await request.json()
+
+        return fastapi.responses.JSONResponse(
+            await call_action.on_call_action(action, params)        # type: ignore
+        )
+    
+    async def push_event(self) -> None:
+        pass
+            

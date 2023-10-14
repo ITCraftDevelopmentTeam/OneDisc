@@ -97,8 +97,8 @@ class HTTPServer:
         Args:
             config (dict): 连接配置
         """
-        self.config = config
-        self.config.update(BASE_CONFIG)
+        self.config = BASE_CONFIG.copy()
+        self.config.update(config)
         self.event_list = []
 
         if self.config["event_enabled"] and self.config["event_buffer_size"] <= 0:

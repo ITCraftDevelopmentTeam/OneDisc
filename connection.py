@@ -1,6 +1,7 @@
 from http_server import HTTPServer
 import asyncio
 from http_webhook import HttpWebhookConnect
+from http_server_v11 import HTTPServer4OB11
 from logger import get_logger
 from ws import WebSocketServer
 from ws_reverse import WebSocketClient
@@ -12,8 +13,13 @@ connections = []
 async def init_connections(connection_list: list[dict]) -> None:
     for obc_config in connection_list:
         logger.debug(obc_config)
-        match obc_config["type"]:
-            case "http":
+
+        if "type" not in obc_config:
+            logger.error(f"无效的连接配置：{obc_config}")
+
+        match obc_config["type"], obc_config.get("protocol_version", 12):
+
+            case "http", 12:
                 connections.append({
                     "type": "http",
                     "config": obc_config,
@@ -22,7 +28,18 @@ async def init_connections(connection_list: list[dict]) -> None:
                 })
                 await tmp.start_server()
                 del tmp
-            case "http-webhook":
+
+            case "http", 11:
+                connection_list.append({
+                    "type": "http",
+                    "config": obc_config,
+                    "object": (tmp := HTTPServer4OB11(obc_config)),
+                    "add_event_func": tmp.push_event
+                })
+                await tmp.start_server()
+                del tmp
+            
+            case "http-webhook", 12:
                 connections.append({
                     "type": "http-webhook",
                     "config": obc_config,
@@ -30,7 +47,8 @@ async def init_connections(connection_list: list[dict]) -> None:
                     "add_event_func": tmp.on_event
                 })
                 del tmp
-            case "ws":
+            
+            case "ws", 12:
                 connections.append({
                     "type": "ws",
                     "config": obc_config,
@@ -39,7 +57,8 @@ async def init_connections(connection_list: list[dict]) -> None:
                 })
                 await tmp.start_server()
                 del tmp
-            case "ws-reverse":
+            
+            case "ws-reverse", 12:
                 connections.append({
                     "type": "ws-reverse",
                     "config": obc_config,
@@ -48,3 +67,7 @@ async def init_connections(connection_list: list[dict]) -> None:
                 })
                 asyncio.create_task(tmp.reconnect())
                 del tmp
+            
+
+            case _:
+                logger.warning(f"无效的连接类型或协议版本，已忽略: {obc_config['type']} (协议版本: {obc_config.get('protocol_version', 12)}")
