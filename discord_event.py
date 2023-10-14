@@ -1,6 +1,7 @@
 from client import client
 from config import config
 from connection import init_connections
+from basic_actions_v12 import get_status
 import heartbeat_event
 import message_parser
 import event
@@ -22,6 +23,11 @@ async def on_ready() -> None:
     await init_connections(config["servers"])
     asyncio.create_task(heartbeat_event.setup_heartbeat_event(config["system"].get("heartbeat", {})))
     logger.info(config["system"].get("started_text", "OneDisc 已成功启动"))
+    event.new_event(
+        "meta",
+        "status_update",
+        status=(await get_status())["data"]
+    )
 
 
 @client.event
