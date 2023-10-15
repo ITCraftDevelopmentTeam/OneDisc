@@ -52,10 +52,12 @@ def parse_message(message: list) -> dict:
                     )
                     if segment["type"] == "voice":
                         logger.warning("OneDisc 暂不支持 voice 消息段，将以 audio 消息段发送")
-                case "dc.emoji":
+                case "discord.emoji":
                     message_data[
                         "content"
                     ] += f'<:{segment["data"]["name"]}:{segment["data"]["id"]}>'
+                case "discord.channel":
+                    message_data["content"] += f"<#{segment['data']['channel_id']}>"
                 case "reply":
                     for msg in client.cached_messages:
                         if msg.id == int(segment["data"]["message_id"]):
@@ -88,6 +90,13 @@ def parse_string(string: str) -> list:
                 message.append({"type": "mention_all", "data": {}})
             case "text":
                 message.append({"type": "text", "data": {"text": token[1]}})
+            case "channel":
+                message.append({
+                    "type": "discord.channel",
+                    "data": {
+                        "channel_id": token[1][2:-1]
+                    }
+                })
             case "emoji":
                 message.append(
                     {
