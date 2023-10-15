@@ -31,12 +31,29 @@ class HTTPServer4OB11:
                 if "access_token" in params.keys():
                     del params["access_token"]
             case "POST":
-                params = await request.json()
+                params: dict = await request.json()
+            case _:
+                raise fastapi.HTTPException(
+                    status_code=405,
+                    detail=f"Method {request.method} not allowed"
+                )
+
+        content = await call_action.on_call_action(
+            action,
+            params,
+            params.get("echo"),
+            11
+        )
+        self.check_retcode(content["retcode"])
 
         return fastapi.responses.JSONResponse(
-            await call_action.on_call_action(action, params)        # type: ignore
+            content
         )
     
-    async def push_event(self) -> None:
+    async def push_event(self, event: dict) -> None:
         pass
-            
+
+    @staticmethod
+    def check_retcode(retcode: int) -> None:
+        if retcode == 10002:
+            raise fastapi.HTTPException(status_code=404, detail=f"API not found")
