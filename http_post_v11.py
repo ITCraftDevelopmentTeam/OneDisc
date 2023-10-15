@@ -1,4 +1,6 @@
 from logger import get_logger
+import asyncio
+import event
 import quick_reply
 import json
 from client import client
@@ -25,6 +27,19 @@ class HTTPPost4OB11:
             config (dict): 连接配置
         """
         self.config = BASE_CONFIG | config
+        asyncio.create_task(self.push_event(event.get_event_object(
+            "meta",
+            "lifecycle",
+            "enable"
+        )))
+
+
+    def __del__(self) -> None:
+        asyncio.create_task(self.push_event(event.get_event_object(
+            "meta",
+            "lifecycle",
+            "disable"
+        )))
 
     async def push_event(self, _event: dict) -> None:
         """

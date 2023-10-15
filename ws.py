@@ -25,6 +25,7 @@ class WebSocketServer:
         """
         self.config = BASE_CONFIG.copy()
         self.config.update(config)
+        self.clients: list[fastapi.WebSocket] = []
         self.app = fastapi.FastAPI()
         self.app.add_websocket_route("/", self.handle_ws_connect)
         
@@ -33,9 +34,10 @@ class WebSocketServer:
 
     async def handle_ws_connect(self, websocket: fastapi.WebSocket) -> None:
         if self.config["access_token"] and not verify_access_token(websocket, self.config["access_token"]):
-            raise fastapi.HTTPException(fastapi.status.HTTP_401_UNAUTHORIZED)
+            await websocket.close(fastapi.status.HTTP_401_UNAUTHORIZED)
+            return
         await websocket.accept()
-        self.websocket = websocket
+        self.clients.append(websocket)
         await websocket.send(event.get_event_object(
             "meta",
             "connect",
@@ -47,8 +49,14 @@ class WebSocketServer:
         while True:
             recv_data = await websocket.receive_json()
             logger.debug(recv_data)
-            await self.websocket.send_json(call_action.on_call_action(**recv_data))
+            await websocket.send_json(call_action.on_call_action(**recv_data))
 
     async def push_event(self, event: dict) -> None:
-        await self.websocket.send_json(event)
+        for websocket in self.clients:
+            try:
+                await websocket.send_json(event)
+            except Exception as e:
+                logger.error(f"在 {websocket} 推送事件失败：{e}")
+                await websocket.close()
+                self.clients.remove(websocket)
         

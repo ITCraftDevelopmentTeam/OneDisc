@@ -10,11 +10,12 @@ def translate_event(_event: dict) -> dict:
     event = _event.copy()
     # 键名替换
     event["time"] = int(event["time"]) 
-    event["self_id"] = int(event["self"]["user_id"])
+    event["self_id"] = int(event.pop("self")["user_id"])
     event["post_type"] = event.pop("type")
     if event["post_type"] == "meta":
         event["post_type"] = "meta_event"
     event[f"{event['post_type']}_type"] = event.pop("detail_type").replace("channel", "group")
+    event.pop("id")
     if event[f"{event['post_type']}_type"] == "channel":
         event[f"{event['post_type']}_type"] = "group"
     if not event["sub_type"]:
@@ -33,6 +34,9 @@ def translate_event(_event: dict) -> dict:
     if event["post_type"] == "message":
         if event["message_type"] == "private":
             event["sub_type"] = config["system"].get("default_message_sub_type", "group")
+        elif event["message_type"] == "group":
+            event["sub_type"] = "normal"
+            event["anonymous"] = None
         event["raw_message"] = event.pop("alt_message")
         sender = client.get_user(event["user_id"])
         event["sender"] = {
