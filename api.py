@@ -2,8 +2,7 @@ from typing import Callable
 from logger import get_logger
 
 logger = get_logger()
-action_list = {}
-ob11_api_list = {}
+action_list = {"v12": {}, "v11": {}}
 
 '''
 def register_action(name: str) -> Callable:
@@ -16,10 +15,9 @@ def register_action(name: str) -> Callable:
     return decorator
 '''
 
-def register_action(func: Callable) -> None:
-    action_list[func.__name__] = func
-    logger.debug(f"成功注册动作：{func.__name__}")
-
-def register_ob11_api(func: Callable) -> None:
-    ob11_api_list[func.__name__] = func
-    logger.debug(f"成功注册接口：{func.__name__} (OneBot V11)")
+def register_action(_type: str = "v12") -> Callable:
+    def _(func: Callable):
+        action_list[_type][func.__name__] = func
+        logger.debug(f"成功注册动作：{func.__name__} ({_type=})")
+        return func
+    return _

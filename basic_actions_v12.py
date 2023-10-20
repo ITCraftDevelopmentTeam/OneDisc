@@ -10,7 +10,7 @@ from api import register_action, action_list
 logger = get_logger()
 
 
-@register_action
+@register_action()
 async def send_message(
     detail_type: str,
     message: list,
@@ -58,7 +58,7 @@ async def send_message(
     return return_object.get(0, message_id=message_id, time=time.time())
 
 
-@register_action
+@register_action()
 async def get_supported_actions() -> dict:
     """
     获取支持的动作列表
@@ -69,7 +69,7 @@ async def get_supported_actions() -> dict:
     return {
         "status": "ok",
         "retcode": 0,
-        "data": list(action_list.keys()),
+        "data": list(action_list["v12"].keys()),
         "message": "",
     }
 
@@ -87,12 +87,12 @@ async def get_status() -> dict:
     )
 
 
-@register_action
+@register_action()
 async def get_version() -> dict:
     return return_object.get(0, impl="onedisc", version=VERSION, onebot_version="12")
 
 
-@register_action
+@register_action()
 async def delete_message(message_id: str) -> dict:
     for message in client.cached_messages[::-1]:
         if str(message.id) == message_id:
@@ -108,14 +108,14 @@ async def delete_message(message_id: str) -> dict:
     return return_object.get(0)
 
 
-@register_action
+@register_action()
 async def get_self_info() -> dict:
     return return_object.get(
         0, user_id=str(client.user.id), user_name=client.user.name, user_displayname=""
     )
 
 
-@register_action
+@register_action()
 async def get_user_info(user_id: str) -> dict:
     if not (user := client.get_user(int(user_id))):
         return return_object.get(35003, "用户不存在")
@@ -128,19 +128,19 @@ async def get_user_info(user_id: str) -> dict:
     )
 
 
-@register_action
+@register_action()
 async def get_friend_list() -> dict:
     return return_object._get(0, [])
 
 
-@register_action
+@register_action()
 async def get_group_info(group_id: str) -> dict:
     if not (channel := client.get_channel(int(group_id))):
         return return_object.get(35001, "频道不存在")
     return return_object.get(0, group_id=str(channel.id), group_name=channel.name)
 
 
-@register_action
+@register_action()
 async def get_group_list() -> dict:
     channel_list = []
     for channel in client.get_all_channels():
@@ -148,7 +148,7 @@ async def get_group_list() -> dict:
     return return_object._get(0, channel_list)
 
 
-@register_action
+@register_action()
 async def get_group_member_info(group_id: str, user_id: str) -> dict:
     if not (channel := client.get_channel(int(group_id))):
         return return_object.get(35001, "频道不存在")
@@ -163,7 +163,7 @@ async def get_group_member_info(group_id: str, user_id: str) -> dict:
     )
 
 
-@register_action
+@register_action()
 async def get_group_member_list(group_id: str) -> dict:
     if not (channel := client.get_channel(int(group_id))):
         return return_object.get(35001, "频道不存在")
@@ -179,12 +179,12 @@ async def get_group_member_list(group_id: str) -> dict:
     return return_object._get(0, member_list)
 
 
-@register_action
+@register_action()
 async def set_group_name(group_id: str, group_name: str) -> dict:
     return return_object.get(10002, "不支持机器人修改频道名")
 
 
-@register_action
+@register_action()
 async def leave_group(group_id: str) -> dict:
     if not (channel := client.get_channel(int(group_id))):
         return return_object.get(35001, "频道不存在")
@@ -192,14 +192,14 @@ async def leave_group(group_id: str) -> dict:
     return return_object.get(0)
 
 
-@register_action
+@register_action()
 async def get_guild_info(guild_id: str) -> dict:
     if not (guild := client.get_guild(int(guild_id))):
         return return_object.get(35004, "服务器不存在")
     return return_object.get(0, guild_id=str(guild.id), guild_name=guild.name)
 
 
-@register_action
+@register_action()
 async def get_guild_list() -> dict:
     guild_list = []
     for guild in client.guilds:
@@ -207,12 +207,12 @@ async def get_guild_list() -> dict:
     return return_object._get(0, guild_list)
 
 
-@register_action
+@register_action()
 async def set_guild_name(guild_id: str, guild_name: str) -> dict:
     return return_object.get(10002, "不支持机器人修改群组名")
 
 
-@register_action
+@register_action()
 async def get_guild_member_info(guild_id: str, user_id: str) -> dict:
     if not (guild := client.get_guild(int(guild_id))):
         return return_object.get(35004, "服务器不存在")
@@ -227,7 +227,7 @@ async def get_guild_member_info(guild_id: str, user_id: str) -> dict:
     )
 
 
-@register_action
+@register_action()
 async def get_guild_member_list(guild_id: str) -> dict:
     if not (guild := client.get_guild(int(guild_id))):
         return return_object.get(35004, "服务器不存在")
@@ -243,7 +243,7 @@ async def get_guild_member_list(guild_id: str) -> dict:
     return return_object._get(0, member_list)
 
 
-@register_action
+@register_action()
 async def leave_guild(guild_id: str) -> dict:
     if not (guild := client.get_guild(int(guild_id))):
         return return_object.get(35004, "服务器不存在")
@@ -274,7 +274,7 @@ def _parse_channel_action_data(_data: dict) -> dict:
     return data
 
 
-@register_action
+@register_action()
 async def get_channel_list(guild_id: str, joined_only: bool = False) -> dict:
     if not (guild := client.get_guild(int(guild_id))):
         return return_object.get(35004, "服务器不存在")
@@ -291,21 +291,21 @@ async def get_channel_list(guild_id: str, joined_only: bool = False) -> dict:
     return return_object._get(0, channel_list)
 
 
-@register_action
+@register_action()
 async def set_channel_name(guild_id: str, channel_id: str, channel_name: str) -> dict:
     return return_object.get(10002, "不支持机器人修改频道名")
 
 
-@register_action
+@register_action()
 async def get_channel_member_info(guild_id: str, channel_id: str, user_id: str) -> dict:
     return _parse_channel_action_data(await get_group_member_info(channel_id, user_id))
 
 
-@register_action
+@register_action()
 async def get_channel_member_list(guild_id: str, channel_id: str) -> dict:
     return _parse_channel_action_data(await get_group_member_list(channel_id))
 
 
-@register_action
+@register_action()
 async def leave_channel(guild_id: str, channel_id: str) -> dict:
     return _parse_channel_action_data(await leave_group(channel_id))

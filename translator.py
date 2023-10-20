@@ -37,6 +37,7 @@ def translate_event(_event: dict) -> dict:
         elif event["message_type"] == "group":
             event["sub_type"] = "normal"
             event["anonymous"] = None
+            event["font"] = 0
         event["raw_message"] = event.pop("alt_message")
         sender = client.get_user(event["user_id"])
         event["sender"] = {
@@ -50,3 +51,35 @@ def translate_event(_event: dict) -> dict:
         event["message"] = message_parser_v11.parse_text(event["raw_message"])
     logger.debug(event)
     return event
+
+
+def translate_action_response(_response: dict) -> dict:
+    response = _response.copy()
+    if isinstance(response["data"], dict):
+        for key, value in response["data"].items():
+            if key.endswith("_id"):
+                try:
+                    response["data"][key] = int(value)
+                except ValueError:
+                    pass
+    elif isinstance(response["data"], list):
+        length = 0
+        for item in response["data"]:
+            response["data"][length] = translate_action_response(item)
+            length += 1
+    return response
+
+def translate_message_array(_message: list) -> list:
+    message = _message.copy()
+    length = -1
+    for item in message:
+        length += 1
+        match item["type"]:
+            case "at":
+                message[length]["type"] = "mention"
+                message[length]["data"]["user_id"] = message[length]["data"].pop("qq")
+            case "reply":
+                message[length]["data"]["message_id"] = message[length]["data"].pop("id")
+    return message
+            
+        

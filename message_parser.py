@@ -70,9 +70,9 @@ def parse_message(message: list) -> dict:
                     if config["system"].get("ignore_unsupported_segment"):
                         logger.warning(f"不支持的消息段类型：{segment['type']}，已忽略")
                     else:
-                        raise UnsupportedSegment(segment["type"])
-        except KeyError:
-            raise BadSegmentData(segment["type"])
+                        raise UnsupportedSegment(f'不支持的消息段: {segment["type"]}')
+        except KeyError as e:
+            raise BadSegmentData(f"无效的参数：{e} (在 {segment['type']} 中)")
     if not message_data["files"]:
         message_data.pop("files")
     logger.debug(message_data)

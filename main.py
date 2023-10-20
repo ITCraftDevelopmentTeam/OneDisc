@@ -12,7 +12,7 @@ logger.info(f"当前版本：{VERSION}")
 import discord_event
 import file
 import basic_actions_v12
-
+import basic_api_v11
 
 client.run(config["account_token"], log_handler=None)
 

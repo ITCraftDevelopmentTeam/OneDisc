@@ -88,7 +88,7 @@ def upload_file_from_path(name: str, path: str) -> tuple[bool, str]:
         return False, str(e)
 
 
-@register_action
+@register_action()
 async def get_file_fragmented(
         stage: str,
         file_id: str,
@@ -120,7 +120,7 @@ async def get_file_fragmented(
 
 uploading_files = {}
 
-@register_action
+@register_action()
 async def upload_file_fragmented(
         stage: str,
         name: str | None = None,
@@ -161,7 +161,7 @@ async def upload_file_fragmented(
             )
     return return_object.get(10003, f"无效的 stage 参数：{stage}")
 
-@register_action
+@register_action()
 async def upload_file(
         type: str,
         name: str,
@@ -218,7 +218,7 @@ def get_file_name_by_id(file_id: str) -> str:
 def get_file_path(file_name: str) -> str:
     return os.path.abspath(f".cache/files/{file_name}")
 
-@register_action
+@register_action()
 async def get_file(file_id: str, type: str) -> dict:
     """
     获取文件

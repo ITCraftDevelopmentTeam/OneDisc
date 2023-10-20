@@ -6,7 +6,7 @@ import json
 from client import client
 import httpx
 import hmac
-import event_12_to_11
+import translator
 
 logger = get_logger()
 BASE_CONFIG = {
@@ -48,7 +48,7 @@ class HTTPPost4OB11:
         Args:
             event (dict): 事件
         """
-        event = event_12_to_11.translate_event(_event)
+        event = translator.translate_event(_event)
         async with httpx.AsyncClient(timeout=self.config["timeout"]) as client:
             response = await client.post(
                 self.config["url"],

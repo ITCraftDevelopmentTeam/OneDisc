@@ -1,5 +1,5 @@
 from client import client
-import event_12_to_11
+import translator
 import websockets
 import json
 import json
@@ -49,11 +49,12 @@ class WebSocketClient4OB11:
         except Exception:
             pass
         await self.event_ws.send(json.dumps(
-            event_12_to_11.translate_event(event.get_event_object(
+            translator.translate_event(event.get_event_object(
                 "meta",
                 "lifecycle",
                 "connect"
         ))))
+        asyncio.create_task(self.handle_api_requests())
 
     async def reconnect(self) -> None:
         if hasattr(self, "reconnect_task"):
@@ -87,13 +88,14 @@ class WebSocketClient4OB11:
         try:
             await self.event_ws.send(
                 json.dumps(
-                    event_12_to_11.translate_event(
+                    translator.translate_event(
                         event
                     )
                 )
             )
         except Exception:
-            logger.warning(f"推送事件时出现错误：{traceback.format_exc()}")
+            if not hasattr(self, "event_ws"):
+                logger.warning(f"推送事件时出现错误：{traceback.format_exc()}")
             await self.reconnect()
             await self.push_event(event)
 
