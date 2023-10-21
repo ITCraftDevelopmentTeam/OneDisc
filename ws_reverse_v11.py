@@ -94,7 +94,7 @@ class WebSocketClient4OB11:
                 )
             )
         except Exception:
-            if not hasattr(self, "event_ws"):
+            if hasattr(self, "event_ws"):
                 logger.warning(f"推送事件时出现错误：{traceback.format_exc()}")
             await self.reconnect()
             await self.push_event(event)
