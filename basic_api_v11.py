@@ -4,6 +4,7 @@ import translator
 import message_parser_v11
 import return_object
 from client import client
+import message_parser_v11
 
 
 @register_action("v11")
@@ -81,4 +82,27 @@ async def get_stranger_info(
 async def get_login_info() -> dict:
     return translator.translate_action_response(
         await basic_actions_v12.get_self_info()
+    )
+
+@register_action("v11")
+async def get_msg(message_id: int) -> dict:
+    for msg in client.cached_messages:
+        if msg.id == message_id:
+            return return_object.get(
+                0,
+                time=-1,
+                message_type="normal",
+                message_id=msg.id,
+                real_id=msg.id,
+                sender={
+                    "user_id": msg.author.id,
+                    "nickname": msg.author.name,
+                    "card": msg.author.display_name,
+                    "sex": "unknown"
+                },
+                message=message_parser_v11.parse_text(msg.content)
+            )
+    return return_object.get(
+        1404,
+        "消息不存在！"
     )
