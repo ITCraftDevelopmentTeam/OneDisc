@@ -59,7 +59,7 @@ async def translate_event(_event: dict) -> dict:
 def translate_action_response(_response: dict) -> dict:
     response = _response.copy()
     if isinstance(response["data"], dict):
-        for key, value in response["data"].items():
+        for key, value in list(response["data"].items()):
             if isinstance(value, dict):
                 response["data"][key] = translate_action_response({"data": value})["data"]
             elif key.endswith("_id"):
