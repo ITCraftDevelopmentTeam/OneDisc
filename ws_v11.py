@@ -40,7 +40,7 @@ class WebSocket4OB11:
             return
         await websocket.accept()
         self.clients_on_event_route.append(websocket)
-        await websocket.send_json(translator.translate_event(event.get_event_object(
+        await websocket.send_json(await translator.translate_event(event.get_event_object(
             "meta",
             "lifecycle",
             "connect"
@@ -86,7 +86,7 @@ class WebSocket4OB11:
             await websocket.send_json(resp_data)
 
     async def push_event(self, _event: dict) -> None:
-        event = translator.translate_event(_event)
+        event = await translator.translate_event(_event)
         for client in self.clients_on_event_route:
             try:
                 await client.send_json(event)

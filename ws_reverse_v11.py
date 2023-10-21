@@ -10,7 +10,7 @@ import traceback
 import websockets.client
 import websockets.exceptions
 from logger import get_logger
-from version import VERSION
+# from version import VERSION
 
 BASE_CONFIG = {
     "url": None,
@@ -49,7 +49,7 @@ class WebSocketClient4OB11:
         except Exception:
             pass
         await self.event_ws.send(json.dumps(
-            translator.translate_event(event.get_event_object(
+            await translator.translate_event(event.get_event_object(
                 "meta",
                 "lifecycle",
                 "connect"
@@ -88,7 +88,7 @@ class WebSocketClient4OB11:
         try:
             await self.event_ws.send(
                 json.dumps(
-                    translator.translate_event(
+                    await translator.translate_event(
                         event
                     )
                 )

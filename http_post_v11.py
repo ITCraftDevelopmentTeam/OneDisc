@@ -48,7 +48,7 @@ class HTTPPost4OB11:
         Args:
             event (dict): 事件
         """
-        event = translator.translate_event(_event)
+        event = await translator.translate_event(_event)
         async with httpx.AsyncClient(timeout=self.config["timeout"]) as client:
             response = await client.post(
                 self.config["url"],

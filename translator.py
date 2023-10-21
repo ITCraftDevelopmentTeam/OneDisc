@@ -1,12 +1,13 @@
 from config import config
 import message_parser_v11
 from client import client
+import basic_api_v11
 from logger import get_logger
 
 logger = get_logger()
 
 
-def translate_event(_event: dict) -> dict:
+async def translate_event(_event: dict) -> dict:
     event = _event.copy()
     # 键名替换
     event["time"] = int(event["time"]) 
@@ -49,6 +50,8 @@ def translate_event(_event: dict) -> dict:
                 "card": sender.display_name
             })
         event["message"] = message_parser_v11.parse_text(event["raw_message"])
+    elif event["post_type"] == "meta_event" and event["meta_event_type"] == "heartbeat":
+        event["status"] = (await basic_api_v11.get_status())["data"]
     logger.debug(event)
     return event
 

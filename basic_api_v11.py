@@ -2,7 +2,6 @@ import basic_actions_v12
 from api import register_action
 from discord.abc import PrivateChannel
 from discord.channel import CategoryChannel, ForumChannel
-from discord.types.channel import ThreadChannel
 from logger import get_logger
 import translator
 import message_parser_v11
@@ -11,7 +10,6 @@ from config import config
 from client import client
 import message_parser_v11
 import version
-
 
 logger = get_logger()
 
@@ -123,7 +121,7 @@ async def get_msg(message_id: int) -> dict:
 async def set_group_kick(group_id: int, user_id: int, reason: str | None = None, reject_add_request: bool = False) -> dict:
     if not (group := client.get_channel(group_id)):
         return return_object.get(1400, f"不存在的频道：{group_id}")
-    if isinstance(group, PrivateChannel | ForumChannel | ThreadChannel | CategoryChannel):
+    if isinstance(group, PrivateChannel | ForumChannel | CategoryChannel):
         return return_object.get(1400, f"不支持的操作：从 {type(group)} 中移除 {user_id}")
     for user in group.members:
         if user.id == user_id:
@@ -137,7 +135,7 @@ async def set_group_kick(group_id: int, user_id: int, reason: str | None = None,
 async def set_group_ban(group_id: int, user_id: int, duration: int = 1800, reason: str | None = None) -> dict:
     if not (group := client.get_channel(group_id)):
         return return_object.get(1400, f"不存在的频道：{group_id}")
-    if isinstance(group, PrivateChannel | ForumChannel | ThreadChannel | CategoryChannel):
+    if isinstance(group, PrivateChannel | ForumChannel | CategoryChannel):
         return return_object.get(1400, f"不支持的操作：从 {type(group)} 中禁言 {user_id}")
     for user in group.members:
         if user.id == user_id:
