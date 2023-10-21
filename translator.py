@@ -68,7 +68,7 @@ def translate_action_response(_response: dict) -> dict:
                 except ValueError:
                     pass
             elif key == "user_name":
-                response["data"]["nickname"] = value["user_name"]
+                response["data"]["nickname"] = value
     elif isinstance(response["data"], list):
         length = 0
         for item in response["data"]:
