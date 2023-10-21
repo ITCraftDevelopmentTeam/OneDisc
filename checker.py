@@ -38,9 +38,12 @@ def check_request_params(func: Callable, params: dict) -> tuple[bool, dict]:
             continue
         try:
             if key in arg_spec.annotations.keys() and not isinstance(params[key], arg_spec.annotations[key]):
-                if not config["system"].get("ignore_error_types"):
+                logger.warning(f"参数 {key} ({type(params[key])}，应为 {arg_spec.annotations[key]}) 类型不正确，尝试强制转换")
+                try:
+                    params[key] = arg_spec.annotations[key](params[key])
+                except Exception:
+                    logger.error(f"强制转换类型失败：{traceback.format_exc()}")
                     return False, return_object.get(10001, f"参数 {key} ({type(params[key])}，应为 {arg_spec.annotations[key]}) 类型不正确")
-                logger.warning(f"参数 {key} ({type(params[key])}，应为 {arg_spec.annotations[key]}) 类型不正确，已忽略")
         except TypeError:
             logger.warning(f"检查参数 {key} 的类型时出现错误：{traceback.format_exc()}")
     return True, {}
