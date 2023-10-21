@@ -63,11 +63,22 @@ async def get_stranger_info(
     user_id: int,
     no_cache: bool = False
 ) -> dict:
-    resp_data = translator.translate_action_response(
+    # resp_data = translator.translate_action_response(
+        # await basic_actions_v12.get_user_info(
+            # str(user_id)
+        # )
+    # )
+    # resp_data["data"]["nickname"] = resp_data["data"].get("user_name", "")
+    # resp_data["data"]["sex"] = "unknown"
+    return translator.translate_action_response(
         await basic_actions_v12.get_user_info(
             str(user_id)
         )
     )
-    resp_data["data"]["nickname"] = resp_data["data"].get("user_name", "")
-    resp_data["data"]["sex"] = "unknown"
-    return resp_data
+
+
+@register_action("v11")
+async def get_login_info() -> dict:
+    return translator.translate_action_response(
+        await basic_actions_v12.get_self_info()
+    )

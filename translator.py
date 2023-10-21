@@ -57,15 +57,19 @@ def translate_action_response(_response: dict) -> dict:
     response = _response.copy()
     if isinstance(response["data"], dict):
         for key, value in response["data"].items():
-            if key.endswith("_id"):
+            if isinstance(value, dict):
+                response["data"][key] = translate_action_response({"data": value})["data"]
+            elif key.endswith("_id"):
                 try:
                     response["data"][key] = int(value)
                 except ValueError:
                     pass
+            elif key == "user_name":
+                response["data"]["nickname"] = value["user_name"]
     elif isinstance(response["data"], list):
         length = 0
         for item in response["data"]:
-            response["data"][length] = translate_action_response(item)
+            response["data"][length] = translate_action_response({"data": item})["data"]
             length += 1
     return response
 
