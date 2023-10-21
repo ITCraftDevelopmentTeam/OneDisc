@@ -49,7 +49,7 @@ async def translate_event(_event: dict) -> dict:
                 "nickname": sender.global_name,
                 "card": sender.display_name
             })
-        event["message"] = message_parser_v11.parse_text(event["raw_message"])
+        event["message"] = message_parser_v11.parse_raw_text(event["raw_message"])
     elif event["post_type"] == "meta_event" and event["meta_event_type"] == "heartbeat":
         event["status"] = (await basic_api_v11.get_status())["data"]
     logger.debug(event)
@@ -83,10 +83,27 @@ def translate_message_array(_message: list) -> list:
         length += 1
         match item["type"]:
             case "at":
-                message[length]["type"] = "mention"
-                message[length]["data"]["user_id"] = message[length]["data"].pop("qq")
+                if item["data"]["qq"] != "all":
+                    message[length]["type"] = "mention"
+                    message[length]["data"]["user_id"] = message[length]["data"].pop("qq")
+                else:
+                    message[length]["type"] = "mention_all"
+                    message[length]["data"] = {}
             case "reply":
-                message[length]["data"]["message_id"] = message[length]["data"].pop("id")
+                message[length]["data"]["message_id"] = str(message[length]["data"].pop("id"))
     return message
-            
-        
+           
+def translate_v12_message_to_v11(v12_message: list) -> list:
+    message = v12_message.copy()
+    for i in range(len(message)):
+        match message[i]["type"]:
+            case "mention":
+                message[i]["type"] = "at"
+                message[i]["data"]["qq"] = int(message[i]["data"]["user_id"])
+            case "mention_all":
+                message[i]["type"] = "at"
+                message[i]["data"]["qq"] = "all"
+            case "reply":
+                message[i]["data"]["id"] = int(message[i]["data"]["message_id"])
+    return message
+

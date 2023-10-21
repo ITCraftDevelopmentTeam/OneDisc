@@ -15,9 +15,9 @@ def register_action(name: str) -> Callable:
     return decorator
 '''
 
-def register_action(_type: str = "v12") -> Callable:
+def register_action(_type: str = "v12", name: str | None = None) -> Callable:
     def _(func: Callable):
-        action_list[_type][func.__name__] = func
+        action_list[_type][name or func.__name__] = func
         logger.debug(f"成功注册动作：{func.__name__} ({_type=})")
         return func
     return _

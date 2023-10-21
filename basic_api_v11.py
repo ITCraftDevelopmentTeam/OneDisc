@@ -20,7 +20,7 @@ async def send_group_msg(
     auto_escape: bool = False
 ) -> dict:
     if isinstance(message, str) and not auto_escape:
-        message = message_parser_v11.parse_text(message)
+        message = message_parser_v11.parse_string_to_array(message)
     elif isinstance(message, str):
         message = [{
             "type": "text",
@@ -47,7 +47,7 @@ async def send_msg(
     auto_escape: bool = False
 ) -> dict:
     if isinstance(message, str) and not auto_escape:
-        message = message_parser_v11.parse_text(message)
+        message = message_parser_v11.parse_string_to_array(message)
     elif isinstance(message, str):
         message = [{
             "type": "text",
@@ -110,7 +110,7 @@ async def get_msg(message_id: int) -> dict:
                     "card": msg.author.display_name,
                     "sex": "unknown"
                 },
-                message=message_parser_v11.parse_text(msg.content)
+                message=message_parser_v11.parse_string_to_array(msg.content)
             )
     return return_object.get(
         1404,
