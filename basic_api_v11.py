@@ -10,6 +10,7 @@ import return_object
 from config import config
 from client import client
 import message_parser_v11
+import version
 
 
 logger = get_logger()
@@ -65,6 +66,10 @@ async def send_msg(
         )
     )
 
+
+@register_action("v11")
+async def delete_message(message_id: int) -> dict:
+    return await basic_actions_v12.delete_message(str(message_id))
 
 @register_action("v11")
 async def get_stranger_info(
@@ -175,6 +180,49 @@ async def get_group_list() -> dict:
         })
     return return_object._get(0, channel_list)
 
+
+@register_action("v11")
+async def get_group_member_info(group_id: int, user_id: int, no_cache: bool = False) -> dict:
+    if not (channel := client.get_channel(group_id)):
+        return return_object.get(1400, f"不存在的频道：{group_id}")
+    for member in channel.members:
+        if member.id == user_id:
+            user = member
+            break
+    else:
+        return return_object.get(1400, f"不存在的用户（在 {channel.id} 中）：{user_id}")
+    return return_object.get(
+        0,
+        group_id=channel.id,
+        user_id=user.id,
+        nickname=user.name,
+        card=user.display_name,
+        sex="unknown",
+        join_time=int(user.joined_at.timestamp())
+    )
+
+@register_action("v11")
+async def can_send_image() -> dict:
+    return return_object.get(0, yes=True)
+
+
+@register_action("v11")
+async def can_send_record() -> dict:
+    return return_object.get(0, yes=config["system"].get("can_send_record", False))
+
+
+@register_action("v11")
+async def get_status() -> dict:
+    return return_object.get(0, online=client.is_ready() and not client.is_closed(), good=True)
+
+@register_action("v11")
+async def get_version_info() -> dict:
+    return return_object.get(
+        0,
+        app_name="onedisc",
+        app_version=version.VERSION,
+        protocol_version="v11"
+    )
 
 
 
