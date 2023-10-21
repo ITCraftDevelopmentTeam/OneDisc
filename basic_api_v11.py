@@ -7,6 +7,7 @@ from logger import get_logger
 import translator
 import message_parser_v11
 import return_object
+from config import config
 from client import client
 import message_parser_v11
 
@@ -116,7 +117,7 @@ async def get_msg(message_id: int) -> dict:
 @register_action("v11")
 async def set_group_kick(group_id: int, user_id: int, reason: str | None = None, reject_add_request: bool = False) -> dict:
     if not (group := client.get_channel(group_id)):
-        return return_object.get(1404, f"不存在的频道：{group_id}")
+        return return_object.get(1400, f"不存在的频道：{group_id}")
     if isinstance(group, PrivateChannel | ForumChannel | ThreadChannel | CategoryChannel):
         return return_object.get(1400, f"不支持的操作：从 {type(group)} 中移除 {user_id}")
     for user in group.members:
@@ -130,7 +131,7 @@ async def set_group_kick(group_id: int, user_id: int, reason: str | None = None,
 @register_action("v11")
 async def set_group_ban(group_id: int, user_id: int, duration: int = 1800, reason: str | None = None) -> dict:
     if not (group := client.get_channel(group_id)):
-        return return_object.get(1404, f"不存在的频道：{group_id}")
+        return return_object.get(1400, f"不存在的频道：{group_id}")
     if isinstance(group, PrivateChannel | ForumChannel | ThreadChannel | CategoryChannel):
         return return_object.get(1400, f"不支持的操作：从 {type(group)} 中禁言 {user_id}")
     for user in group.members:
@@ -152,7 +153,28 @@ async def get_friend_list() -> dict:
 
 @register_action("v11")
 async def get_group_info(group_id: int, no_cache: bool = False) -> dict:
-    return translator.translate_action_response(await basic_actions_v12.get_group_info(str(group_id)))
+    if not (channel := client.get_channel(group_id)):
+        return return_object.get(1400, "频道不存在")
+    return return_object.get(
+        0,
+        group_id=channel.id,
+        group_name=channel.name if hasattr(channel, "name") else "",        # type: ignore
+        member_count=channel.member_count if hasattr(channel, "member_count") else -1,      # type: ignore
+        max_member_count=config["system"].get("default_max_member_count", -1)
+    )
+
+@register_action("v11")
+async def get_group_list() -> dict:
+    channel_list = []
+    for channel in client.get_all_channels():
+        channel_list.append({
+            "group_id": channel.id,
+            "group_name": channel.name if hasattr(channel, "name") else "",
+            "member_count": channel.member_count if hasattr(channel, "member_count") else "",        # type: ignore
+            "max_member_count": config["system"].get("default_max_member_count", -1)
+        })
+    return return_object._get(0, channel_list)
+
 
 
 
