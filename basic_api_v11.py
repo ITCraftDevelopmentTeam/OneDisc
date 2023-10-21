@@ -141,5 +141,18 @@ async def set_group_ban(group_id: int, user_id: int, duration: int = 1800, reaso
     return return_object.get(1400, f"未找到用户：{user_id} （在 {group.id} 中）")
 
 
+@register_action("v11")
+async def set_group_leave(group_id: int, is_dismiss: bool = False) -> dict:
+    return translator.translate_action_response(await basic_actions_v12.leave_group(str(group_id)))
+
+
+@register_action("v11")
+async def get_friend_list() -> dict:
+    return return_object._get(0, [])
+
+@register_action("v11")
+async def get_group_info(group_id: int, no_cache: bool = False) -> dict:
+    return translator.translate_action_response(await basic_actions_v12.get_group_info(str(group_id)))
+
 
 
