@@ -27,7 +27,7 @@ def escape_mentions(text):
     return text
 
 
-def parse_message(message: list) -> dict:
+async def parse_message(message: list) -> dict:
     logger.debug(config)
     message_data = {"content": "", "files": []}
     for segment in message:
@@ -44,7 +44,7 @@ def parse_message(message: list) -> dict:
                         discord.file.File(
                             open(
                                 file.get_file_path(
-                                    file.get_file_name_by_id(segment["data"]["file_id"])
+                                    await file.get_file_name_by_id(segment["data"]["file_id"])
                                 ),
                                 "rb",
                             )

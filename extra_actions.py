@@ -10,7 +10,7 @@ import translator
 async def edit_message(message_id: str, content: list) -> dict:
     for message in client.cached_messages:
         if message.id == int(message_id):
-            await message.edit(content=message_parser.parse_message(content)["content"])
+            await message.edit(content=await message_parser.parse_message(content)["content"])
             return return_object.get(0)
     return return_object.get(35002, f"消息 {message_id} 不存在")
 
