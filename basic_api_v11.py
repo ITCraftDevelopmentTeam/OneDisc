@@ -116,24 +116,29 @@ async def get_msg(message_id: int) -> dict:
 @register_action("v11")
 async def set_group_kick(group_id: int, user_id: int, reason: str | None = None, reject_add_request: bool = False) -> dict:
     if not (group := client.get_channel(group_id)):
-        return return_object.get(
-            1404,
-            f"不存在的频道：{group_id}"
-        )
+        return return_object.get(1404, f"不存在的频道：{group_id}")
     if isinstance(group, PrivateChannel | ForumChannel | ThreadChannel | CategoryChannel):
-        return return_object.get(
-            1400,
-            f"不支持的操作：从 {type(group)} 中移除 {user_id}"
-        )
+        return return_object.get(1400, f"不支持的操作：从 {type(group)} 中移除 {user_id}")
     for user in group.members:
         if user.id == user_id:
             await user.kick(reason=reason)  # type: ignore
             logger.info(f"已将 {user.name} ({user.id}) 从频道 {group.name} 中移除") # type: ignore
             return return_object.get(0)
-    return return_object.get(
-        1400,
-        f"未找到用户：{user_id} （在 {group.id} 中）"
-    )
+    return return_object.get(1400, f"未找到用户：{user_id} （在 {group.id} 中）")
+
+
+@register_action("v11")
+async def set_group_ban(group_id: int, user_id: int, duration: int = 1800, reason: str | None = None) -> dict:
+    if not (group := client.get_channel(group_id)):
+        return return_object.get(1404, f"不存在的频道：{group_id}")
+    if isinstance(group, PrivateChannel | ForumChannel | ThreadChannel | CategoryChannel):
+        return return_object.get(1400, f"不支持的操作：从 {type(group)} 中禁言 {user_id}")
+    for user in group.members:
+        if user.id == user_id:
+            await user.ban(delete_message_seconds=duration, reason=reason)  # type: ignore
+            logger.info(f"已将 {user.name} ({user.id}) 从频道 {group.name} 中移除") # type: ignore
+            return return_object.get(0)
+    return return_object.get(1400, f"未找到用户：{user_id} （在 {group.id} 中）")
 
 
 
