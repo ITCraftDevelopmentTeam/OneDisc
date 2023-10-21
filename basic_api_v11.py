@@ -1,11 +1,17 @@
 import basic_actions_v12
 from api import register_action
+from discord.abc import PrivateChannel
+from discord.channel import CategoryChannel, ForumChannel
+from discord.types.channel import ThreadChannel
+from logger import get_logger
 import translator
 import message_parser_v11
 import return_object
 from client import client
 import message_parser_v11
 
+
+logger = get_logger()
 
 @register_action("v11")
 async def send_group_msg(
@@ -106,3 +112,29 @@ async def get_msg(message_id: int) -> dict:
         1404,
         "消息不存在！"
     )
+
+@register_action("v11")
+async def set_group_kick(group_id: int, user_id: int, reason: str | None = None, reject_add_request: bool = False) -> dict:
+    if not (group := client.get_channel(group_id)):
+        return return_object.get(
+            1404,
+            f"不存在的频道：{group_id}"
+        )
+    if isinstance(group, PrivateChannel | ForumChannel | ThreadChannel | CategoryChannel):
+        return return_object.get(
+            1400,
+            f"不支持的操作：从 {type(group)} 中移除 {user_id}"
+        )
+    for user in group.members:
+        if user.id == user_id:
+            await user.kick(reason=reason)  # type: ignore
+            logger.info(f"已将 {user.name} ({user.id}) 从频道 {group.name} 中移除") # type: ignore
+            return return_object.get(0)
+    return return_object.get(
+        1400,
+        f"未找到用户：{user_id} （在 {group.id} 中）"
+    )
+
+
+
+
