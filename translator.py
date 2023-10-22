@@ -49,7 +49,7 @@ async def translate_event(_event: dict) -> dict:
                 "nickname": sender.global_name,
                 "card": sender.display_name
             })
-        event["message"] = message_parser_v11.parse_raw_text(event["raw_message"])
+        event["message"] = translate_v12_message_to_v11(event["message"])
     elif event["post_type"] == "meta_event" and event["meta_event_type"] == "heartbeat":
         event["status"] = (await basic_api_v11.get_status())["data"]
     logger.debug(event)
