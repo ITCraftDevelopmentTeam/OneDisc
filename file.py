@@ -148,7 +148,7 @@ uploading_files = {}
 async def upload_file_fragmented(
         stage: str,
         name: str | None = None,
-        total_size: str | None = None,
+        total_size: int | None = None,
         file_id: str | None = None,
         offset: int | None = None,
         data: str | None = None,
