@@ -40,6 +40,8 @@ def create_url_cache(name: str, url: str) -> str:
         "name": name,
         "url": url
     }
+    with open(".cache/cached_url.json", "w", encoding="utf-8") as f:
+        json.dump(cache, f)
     return file_id
 
 async def upload_file_from_url(

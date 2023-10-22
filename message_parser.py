@@ -79,7 +79,7 @@ async def parse_message(message: list) -> dict:
     return message_data
 
 
-def parse_string(string: str) -> list:
+def parse_string(string: str, msg: discord.Message | None = None) -> list:
     message = []
     tokenized_messages = message_tokenizer.tokenizer(string)
     for token in tokenized_messages:
@@ -107,5 +107,10 @@ def parse_string(string: str) -> list:
                         },
                     }
                 )
+    for attachment in msg.attachments:
+        if attachment.content_type.startswith("image"):
+            message.append({"type": "image", "data": {"file_id": file.create_url_cache(attachment.filename, attachment.url)}})
+        else:
+            message.append({"type": "file", "data": {"file_id": file.create_url_cache(attachment.filename, attachment.url)}})
     logger.debug(message)
     return message

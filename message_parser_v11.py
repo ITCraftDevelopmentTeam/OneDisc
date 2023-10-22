@@ -19,8 +19,8 @@ def tokenizer(code):
 
     return tokens
 
-def parse_raw_message(raw_message: str) -> list:
-    return translator.translate_v12_message_to_v11(message_parser.parse_string(raw_message))
+# def parse_raw_message(raw_message: str) -> list:
+#     return translator.translate_v12_message_to_v11(message_parser.parse_string(raw_message))
 
 def parse_primary_string(string: str) -> str:
     return string.replace("&#91;", "[")\

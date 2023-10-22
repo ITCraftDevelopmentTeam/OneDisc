@@ -41,7 +41,7 @@ async def on_message(message: discord.Message) -> None:
             detail_type="channel",
             _time=message.created_at.timestamp(),
             message_id=str(message.id),
-            message=message_parser.parse_string(message.content),
+            message=message_parser.parse_string(message.content, message),
             alt_message=message.content,
             guild_id=str(message.guild.id),
             channel_id=str(message.channel.id),
@@ -53,7 +53,7 @@ async def on_message(message: discord.Message) -> None:
             detail_type="group",
             _time=message.created_at.timestamp(),
             message_id=str(message.id),
-            message=message_parser.parse_string(message.content),
+            message=message_parser.parse_string(message.content, message),
             alt_message=message.content,
             group_id=str(message.channel.id),
             user_id=str(message.author.id)
@@ -64,7 +64,7 @@ async def on_message(message: discord.Message) -> None:
             detail_type="private",
             _time=message.created_at.timestamp(),
             message_id=str(message.id),
-            message=message_parser.parse_string(message.content),
+            message=message_parser.parse_string(message.content, message),
             alt_message=message.content,
             user_id=str(message.author.id)
         )
