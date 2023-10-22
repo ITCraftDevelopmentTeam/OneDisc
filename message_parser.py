@@ -108,8 +108,10 @@ def parse_string(string: str, msg: discord.Message | None = None) -> list:
                     }
                 )
     for attachment in msg.attachments:
-        if attachment.content_type.startswith("image"):
-            message.append({"type": "image", "data": {"file_id": file.create_url_cache(attachment.filename, attachment.url)}})
+        for file_type in ["image", "video", "audio"]:
+            if attachment.content_type.startswith(file_type):
+                message.append({"type": file_type, "data": {"file_id": file.create_url_cache(attachment.filename, attachment.url)}})
+                break
         else:
             message.append({"type": "file", "data": {"file_id": file.create_url_cache(attachment.filename, attachment.url)}})
     logger.debug(message)
