@@ -94,12 +94,19 @@ async def translate_message_array(_message: list) -> list:      # v11 -> v12
             case "reply":
                 message[length]["data"]["message_id"] = str(message[length]["data"].pop("id"))
             case "image" | "record" | "video":
-                if item["data"]["file"].startswith("file") or item["data"]["file"].startswith("http"):
+                if item["data"]["file"].startswith("http"):
                     file_name = (splited_url := item["data"]["file"].split("/"))[-1] or splited_url[-2] or f"{int(time.time())}"
                     message[length]["data"]["file_id"] = (await file.upload_file(
                         "url",
                         file_name,
                         item["data"]["file"]
+                    ))["data"]["file_id"]
+                elif item["data"]["file"].startswith("file"):
+                    file_name = (splited_url := item["data"]["file"].split("/"))[-1] or splited_url[-2] or f"{int(time.time())}"
+                    message[length]["data"]["file_id"] = (await file.upload_file(
+                        "name",
+                        file_name,
+                        path=item["data"]["file"][7:]
                     ))["data"]["file_id"]
                 elif item["data"]["file"].startswith("base64"):
                     message[length]["data"]["file_id"] = (await file.upload_file(
