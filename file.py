@@ -18,9 +18,9 @@ except OSError:
     pass
 
 try:
-    json.load(open(".cache/.file_list.json", "r", encoding="utf-8"))
+    json.load(open(".cache/file_list.json", "r", encoding="utf-8"))
 except Exception:
-    json.dump({}, open(".cache/.file_list.json", "w", encoding="utf-8"))
+    json.dump({}, open(".cache/file_list.json", "w", encoding="utf-8"))
 
 logger = get_logger()
 
@@ -68,17 +68,14 @@ def upload_file_from_data(name: str, data: str) -> tuple[bool, str]:
         return False, str(e)
 
 
-def register_file(data: dict) -> str:
+def new_file(name: str) -> str:
     file_id = str(uuid.uuid1())
-    with open(".cache/.file_list.json", "r", encoding="utf-8") as f:
+    with open(".cache/file_list.json", "r", encoding="utf-8") as f:
         file_list = json.load(f)
-    file_list[file_id] = data
-    with open(".cache/.file_list.json", "w", encoding="utf-8") as f:
+    file_list[file_id] = name
+    with open(".cache/file_list.json", "w", encoding="utf-8") as f:
         json.dump(file_list, f, ensure_ascii=False, indent=4)
     return file_id
-
-def register_saved_file(name: str) -> str:
-    return register_file({"type": "saved", "name": name})
 
 def upload_file_from_path(name: str, path: str) -> tuple[bool, str]:
     try:
@@ -98,7 +95,7 @@ async def get_file_fragmented(
         offset: int | None = None,
         size: int | None = None
 ) -> dict:
-    if not (file_name := await get_file_name_by_id(file_id)):
+    if not (file_name := get_file_name_by_id(file_id)):
         return return_object.get(31001, f"文件 {file_id} 不存在")
     with open(get_file_path(file_name), "rb") as f:
         content = f.read()
@@ -160,51 +157,9 @@ async def upload_file_fragmented(
                 f.write(bytes(uploading_files.pop(file_id)["content"]))
             # TODO sha256 校验
             return return_object.get(
-                file_id=register_saved_file(file_name)
+                file_id=new_file(file_name)
             )
     return return_object.get(10003, f"无效的 stage 参数：{stage}")
-
-async def clean_cache() -> None:
-    with open(f".cache/.file_list.json", "r", encoding="utf-8") as f:
-        file_list = json.load(f)
-    logger.info("正在清理已经上传的文件")
-    for file_id, file_data in list(file_list.items()):
-        if file_id not in file_list.keys():
-            continue
-        match file_data["type"]:
-            case "saved":
-                if not os.path.exists(get_file_path(file_data["name"])):
-                    logger.warning(f"文件 {file_data['name']} ({file_id}, type=name) 未存在于 files 中")
-                    file_list.pop(file_id)
-                    continue
-            case "name":
-                if not os.path.exists(file_data["path"]):
-                    logger.warning(f"文件 {file_data['name']} ({file_id}, type=name) 未存在于 {file_data['path']} 中")
-                    file_list.pop(file_id)
-                    continue
-            case "url":
-                pass        # TODO
-        for _id, _file in list(file_list.items()):
-            if _file["name"]  == file_data["name"]:
-                a = -config["system"].get("file_priority", ["url", "saved", "path"]).index(_file["type"])
-                b = -config["system"].get("file_priority", ["url", "saved", "path"]).index(file_data["type"])
-                if a >= b:
-                    file_list.pop(file_id)
-                    continue
-                else:
-                    file_list.pop(_id)
-    for file in os.listdir(".cache/files"):
-        for file_data in file_list.values():
-            if file_data == file:
-                break
-        else:
-            logger.warning(f"文件 {file} 不存在于索引中！")
-            os.remove(file)
-    with open(".cache/.file_list.json", "w", encoding="utf-8") as f:
-        json.dump(file_list, f)
-    logger.info("清理文件完成！")
-
-
 
 @register_action()
 async def upload_file(
@@ -215,73 +170,50 @@ async def upload_file(
         path: str | None = None,
         data: str | None = None,
         sha256: str | None = None,
-        proxy: str | None = None,
-        use_cache: bool | None = None
+        proxy: str | None = None
 ) -> dict:
     match type:
 
         case "url":
             checker.check_aruments(name, url)
-            if not (config["system"].get("use_cache_for_url", True) or use_cache):
-                is_successful = await upload_file_from_url(
-                    url,
-                    headers, 
-                    name, 
-                    proxy, 
-                    sha256, 
-                    config["system"].get("download_max_retry_count", 0)
-                )
-                if not is_successful:
-                    return return_object.get(33000)
-                return return_object.get(
-                    file_id=register_saved_file(name)
-                )
-            else:
-                return return_object.get(
-                    file_id=register_file({
-                    "type": "url",
-                    "url": url,
-                    "name": name,
-                    "headers": headers,
-                    "proxy": proxy,
-                    "sha256": sha256
-                }))
-               
+            is_successful = await upload_file_from_url(
+                url,
+                headers, 
+                name, 
+                proxy, 
+                sha256, 
+                config["system"].get("download_max_retry_count", 0)
+            )
+            if not is_successful:
+                return return_object.get(33000)
+            return return_object.get(
+                file_id=new_file(name)
+            )
 
         case "name":
             checker.check_aruments(name, path)
-            if not (config["system"].get("use_cache_for_name", False) or use_cache):
-                is_successful = upload_file_from_path(name, path)
-                if not is_successful[0]:
-                    return return_object.get(32001, is_successful[1]) 
-                return return_object.get(0, file_id=register_saved_file(name))
-            else:
-                return return_object.get(0, file_id=register_file({
-                    "type": "name",
-                    "name": name,
-                    "path": path
-                }))
+            is_successful = upload_file_from_path(name, path)
+            if not is_successful[0]:
+                return return_object.get(32001, is_successful[1])
+            return return_object.get(0, file_id=new_file(name))
 
         case "data":
             checker.check_aruments(name, data)
             is_successful = upload_file_from_data(name, data)
             if not is_successful[0]:
                 return return_object.get(32001, is_successful[1])
-            return return_object.get(0, file_id=register_saved_file(name))
+            return return_object.get(0, file_id=new_file(name))
         
         case _:
             return return_object.get(10003, f"无效的 type 参数：{type}")
 
-async def get_file_name_by_id(file_id: str) -> str:
+def get_file_name_by_id(file_id: str) -> str:
     """
     根据文件 ID 获取文件名
     """
-    with open(f".cache/.file_list.json", "r", encoding="utf-8") as f:
+    with open(f".cache/file_list.json", "r", encoding="utf-8") as f:
         file_list = json.load(f)
-    file = file_list.get(file_id)
-    if file["type"] != "saved":
-        return await get_file_name_by_id((await upload_file(**file, use_cache = False))["data"]["file_id"])
-    return file["name"]
+    return file_list.get(file_id)
 
 def get_file_path(file_name: str) -> str:
     return os.path.abspath(f".cache/files/{file_name}")
