@@ -149,7 +149,7 @@ async def translate_v12_message_to_v11(v12_message: list) -> list:
                     cached_url = json.load(f)
                 if message[i]["data"]["file_id"] in cached_url:
                     message[i]["data"]["file"] = cached_url[message[i]["data"]["file_id"]]["name"]
-                    message[i]["data"]["url"] = cached_url[message[i]["data"]["file_id"]]["name"]
+                    message[i]["data"]["url"] = cached_url[message[i]["data"]["file_id"]]["url"]
                 else:
                     message[i]["data"]["file"] = await file.get_file_name_by_id(message[i]["data"]["file_id"])
                     message[i]["data"]["url"] = f'file://{file.get_file_path(message[i]["data"]["file"])}'
