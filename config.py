@@ -16,6 +16,8 @@ def read_local_config() -> dict:
     # config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
     with open("config.json", 'r', encoding='utf-8') as f:
         config = json.load(f)
+    if config.get("flatten_system"):
+        config["system"] = config.copy()
     return config
 
 
