@@ -37,6 +37,10 @@ async def send_group_msg(
     )
 
 
+@register_action("v11")
+async def delete_msg(message_id: int) -> dict:
+    return await basic_actions_v12.delete_message(str(message_id))
+
 
 @register_action("v11")
 async def send_msg(
