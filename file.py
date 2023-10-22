@@ -191,7 +191,7 @@ async def upload_file_fragmented(
 async def upload_file(
         type: str,
         name: str,
-        url: str,
+        url: str | None = None,
         headers: dict = {},
         path: str | None = None,
         data: str | None = None,

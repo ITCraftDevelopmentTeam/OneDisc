@@ -31,7 +31,7 @@ async def send_group_msg(
     return translator.translate_action_response(
         await basic_actions_v12.send_message(
             "group",
-            translator.translate_message_array(message),
+            await translator.translate_message_array(message),
             group_id = str(group_id)
         )
     )
@@ -58,7 +58,7 @@ async def send_msg(
     return translator.translate_action_response(
         await basic_actions_v12.send_message(
             message_type,
-            translator.translate_message_array(message),
+            await translator.translate_message_array(message),
             group_id=str(group_id),
             user_id=str(user_id)
         )

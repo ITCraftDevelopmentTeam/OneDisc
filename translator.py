@@ -1,5 +1,7 @@
 from config import config
-import message_parser_v11
+import json
+import time
+import file
 from client import client
 import basic_api_v11
 from logger import get_logger
@@ -49,7 +51,7 @@ async def translate_event(_event: dict) -> dict:
                 "nickname": sender.global_name,
                 "card": sender.display_name
             })
-        event["message"] = translate_v12_message_to_v11(event["message"])
+        event["message"] = await translate_v12_message_to_v11(event["message"])
     elif event["post_type"] == "meta_event" and event["meta_event_type"] == "heartbeat":
         event["status"] = (await basic_api_v11.get_status())["data"]
     logger.debug(event)
@@ -76,7 +78,7 @@ def translate_action_response(_response: dict) -> dict:
             length += 1
     return response
 
-def translate_message_array(_message: list) -> list:
+async def translate_message_array(_message: list) -> list:      # v11 -> v12
     message = _message.copy()
     length = -1
     for item in message:
@@ -91,9 +93,39 @@ def translate_message_array(_message: list) -> list:
                     message[length]["data"] = {}
             case "reply":
                 message[length]["data"]["message_id"] = str(message[length]["data"].pop("id"))
+            case "image" | "record" | "video":
+                if item["data"]["file"].startswith("file") or item["data"]["file"].startswith("http"):
+                    file_name = (splited_url := item["data"]["file"].split("/"))[-1] or splited_url[-2] or f"{int(time.time())}"
+                    message[length]["data"]["file_id"] = (await file.upload_file(
+                        "url",
+                        file_name,
+                        item["data"]["file"]
+                    ))["data"]["file_id"]
+                elif item["data"]["file"].startswith("base64"):
+                    message[length]["data"]["file_id"] = (await file.upload_file(
+                        "data",
+                        f"{int(time.time())}",
+                        data=item["data"]["file"][9:]
+                    ))["data"]["file_id"]
+                if item["type"] == "record":
+                    item["type"] = "voice"
+            # case "image" | "record" | "video":
+            #     if item["data"].get("url") or item["data"].get("file", "").startswith("http") or item["data"].get("file", "").startswith("file"):
+            #         file_url = item["data"].get("url") or item["data"].get("file")
+            #         file_name = (tmp := file_url.split("/"))[-1] or tmp[-2] or f"_tmp_file_{int(time.time())}"
+            #         message[length]["data"]["file_id"] = file.create_url_cache(file_name, file_url)
+            #     elif item["data"]["file"].startswith("base64://"):
+            #         message[length]["data"]["file_id"] = (
+            #             await file.upload_file(
+            #                 "data",
+            #                 f"_tmp_file_{int(time.time())}",
+            #                 data=item["data"]["file"].split("base64://")[1]
+            #             )
+            #         )["data"]["file_id"]
+
     return message
            
-def translate_v12_message_to_v11(v12_message: list) -> list:
+async def translate_v12_message_to_v11(v12_message: list) -> list:
     message = v12_message.copy()
     for i in range(len(message)):
         match message[i]["type"]:
@@ -105,5 +137,14 @@ def translate_v12_message_to_v11(v12_message: list) -> list:
                 message[i]["data"]["qq"] = "all"
             case "reply":
                 message[i]["data"]["id"] = int(message[i]["data"]["message_id"])
+            case "image" | "voice" | "audio" | "video":
+                with open(".cache/cached_url.json", "r", encoding="utf-8") as f:
+                    cached_url = json.load(f)
+                if message[i]["data"]["file_id"] in cached_url:
+                    message[i]["data"]["file"] = cached_url[message[i]["data"]["file_id"]]["name"]
+                    message[i]["data"]["url"] = cached_url[message[i]["data"]["file_id"]]["name"]
+                else:
+                    message[i]["data"]["file"] = await file.get_file_name_by_id(message[i]["data"]["file_id"])
+                    message[i]["data"]["url"] = f'file://{file.get_file_path(message[i]["data"]["file"])}'
     return message
 

@@ -20,6 +20,6 @@ async def edit_message_v11(message_id: int, content: list | str) -> dict:
         message = message_parser_v11.parse_string_to_array(content)
     else:
         message = content.copy()
-    message = translator.translate_message_array(message)
+    message = await translator.translate_message_array(message)
     return await edit_message(str(message_id), message)
 
