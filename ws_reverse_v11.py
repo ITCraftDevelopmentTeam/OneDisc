@@ -52,6 +52,7 @@ class WebSocketClient4OB11:
                     self.config["api_url"], "API"
                 )
             if not self.event_ws.open:
+                del self.event_ws
                 self.event_ws = await self.create_websocker_connection(
                     self.config["event_url"], "Event"
                 )
@@ -71,7 +72,7 @@ class WebSocketClient4OB11:
         if hasattr(self, "reconnect_task"):
             await self.reconnect_task
             return
-        self.reconnect_task = asyncio.create_task(self.connect())
+        self.reconnect_task = asyncio.create_task(self.connect(is_reconnect=True))
 
     async def close(self) -> None:
         try:
@@ -96,18 +97,18 @@ class WebSocketClient4OB11:
 
     async def push_event(self, event: dict) -> None:
         try:
-            await self.event_ws.send(
+            return await self.event_ws.send(
                 json.dumps(
                     await translator.translate_event(
                         event
                     )
                 )
             )
-        except Exception:
-            if hasattr(self, "event_ws"):
-                logger.warning(f"推送事件时出现错误：{traceback.format_exc()}")
+        except websockets.exceptions.ConnectionClosedError:
             await self.reconnect()
-            await self.push_event(event)
+        except Exception:
+            logger.warning(f"推送事件出错：{traceback.format_exc()}")
+        await self.push_event(event)
 
     async def handle_api_requests(self) -> None:
         while True:
