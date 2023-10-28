@@ -106,6 +106,8 @@ class WebSocketClient4OB11:
             )
         except websockets.exceptions.ConnectionClosedError:
             await self.reconnect()
+        except AttributeError:
+            await self.reconnect()
         except Exception:
             logger.warning(f"推送事件出错：{traceback.format_exc()}")
         await self.push_event(event)
