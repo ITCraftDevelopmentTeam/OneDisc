@@ -36,6 +36,31 @@ async def send_group_msg(
         )
     )
 
+@register_action("v11")
+async def send_private_msg(
+    user_id: int,
+    message: str | list[dict],
+    auto_escape: bool = False
+) -> dict:
+    if isinstance(message, str) and not auto_escape:
+        message = message_parser_v11.parse_string_to_array(message)
+    elif isinstance(message, str):
+        message = [{
+            "type": "text",
+            "data": {
+                "text": message
+            }
+        }]
+    return translator.translate_action_response(
+        await basic_actions_v12.send_message(
+            "private",
+            await translator.translate_message_array(message),
+            user_id=str(user_id)
+        )
+    )
+
+
+
 
 @register_action("v11")
 async def delete_msg(message_id: int) -> dict:
