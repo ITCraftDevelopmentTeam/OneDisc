@@ -92,36 +92,36 @@ def translate_action_response(_response: dict) -> dict:
 
 async def translate_message_array(_message: list) -> list:      # v11 -> v12
     message = _message.copy()
-    length = -1
+    i = -1
     for item in message:
-        length += 1
+        i += 1
         match item["type"]:
             case "at":
                 if item["data"]["qq"] != "all":
-                    message[length]["type"] = "mention"
-                    message[length]["data"]["user_id"] = message[length]["data"].pop("qq")
+                    message[i]["type"] = "mention"
+                    message[i]["data"]["user_id"] = message[i]["data"].pop("qq")
                 else:
-                    message[length]["type"] = "mention_all"
-                    message[length]["data"] = {}
+                    message[i]["type"] = "mention_all"
+                    message[i]["data"] = {}
             case "reply":
-                message[length]["data"]["message_id"] = str(message[length]["data"].pop("id"))
+                message[i]["data"]["message_id"] = str(message[i]["data"].pop("id"))
             case "image" | "record" | "video":
                 if item["data"]["file"].startswith("http"):
                     file_name = (splited_url := item["data"]["file"].split("/"))[-1] or splited_url[-2] or f"{int(time.time())}"
-                    message[length]["data"]["file_id"] = (await file.upload_file(
+                    message[i]["data"]["file_id"] = (await file.upload_file(
                         "url",
                         file_name,
                         item["data"]["file"]
                     ))["data"]["file_id"]
                 elif item["data"]["file"].startswith("file"):
                     file_name = (splited_url := item["data"]["file"].split("/"))[-1] or splited_url[-2] or f"{int(time.time())}"
-                    message[length]["data"]["file_id"] = (await file.upload_file(
+                    message[i]["data"]["file_id"] = (await file.upload_file(
                         "name",
                         file_name,
                         path=item["data"]["file"][7:]
                     ))["data"]["file_id"]
                 elif item["data"]["file"].startswith("base64"):
-                    message[length]["data"]["file_id"] = (await file.upload_file(
+                    message[i]["data"]["file_id"] = (await file.upload_file(
                         "data",
                         f"{int(time.time())}",
                         data=item["data"]["file"][9:]
@@ -129,10 +129,18 @@ async def translate_message_array(_message: list) -> list:      # v11 -> v12
                 if item["type"] == "record":
                     item["type"] = "voice"
             case "emoji" | "discord.emoji":
-                message[length]["type"] = "discord.emoji"
+                message[i]["type"] = "discord.emoji"
             case "channel" | "discord.channel":
-                message[length]["type"] = "discord.channel"
-                message[length]["data"]["channel_id"] = str(message[length]["data"]["channel_id"])
+                message[i]["type"] = "discord.channel"
+                message[i]["data"]["channel_id"] = str(message[i]["data"]["channel_id"])
+            case "share":
+                message[i]["type"] = "discord.embed"
+                if message[i]["data"].get("content"):
+                    message[i]["data"]["description"] = message[i]["data"].pop("content")
+                message[i]["data"]["fields"] = [{
+                    "name": "URL",
+                    "value": message[i]["data"]["url"]
+                }]
             # case "image" | "record" | "video":
             #     if item["data"].get("url") or item["data"].get("file", "").startswith("http") or item["data"].get("file", "").startswith("file"):
             #         file_url = item["data"].get("url") or item["data"].get("file")
@@ -146,7 +154,7 @@ async def translate_message_array(_message: list) -> list:      # v11 -> v12
             #                 data=item["data"]["file"].split("base64://")[1]
             #             )
             #         )["data"]["file_id"]
-
+    logger.debug(message)
     return message
            
 async def translate_v12_message_to_v11(v12_message: list) -> list:

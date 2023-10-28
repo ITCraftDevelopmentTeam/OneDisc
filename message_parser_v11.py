@@ -1,11 +1,12 @@
 import re
-import message_parser
-import translator
+from logger import get_logger
+
+logger = get_logger()
 
 
 def tokenizer(code):
     tokens = []
-    matches = list(re.finditer(re.compile(r"\[CQ:[^\].]+\]", re.DOTALL), code))
+    matches = list(re.finditer(re.compile(r"\[CQ:[^\]]+\]", re.DOTALL), code))
     
     start = 0
     for match in matches:
@@ -56,7 +57,7 @@ def parse_string_to_array(string: str) -> list:
             data = {}
             for raw_argv in cqcode:
                 argv = raw_argv.split("=")
-                data[parse_string_inside_cqcode(argv.pop(0))] = parse_string_inside_cqcode("=".join(argv))
+                data[parse_string_inside_cqcode(argv[0])] = parse_string_inside_cqcode("=".join(argv[1:]))
             message.append({
                 "type": _type,
                 "data": data
@@ -69,9 +70,9 @@ def parse_string_to_array(string: str) -> list:
                     "text": parse_primary_string(token[1])
                 }
             })
+    logger.debug(message)
     return message
 
 if __name__ == "__main__":
 
-    print(tokenizer("awa[CQ:at,qq=114514]]qwq"))
-    print(tokenizer("awa[CQ:at,qq=114 514]]qwq"))
+    print(tokenizer("[CQ:share,url=https://onedisc.itcdt.top/,title=OneDisc]"))

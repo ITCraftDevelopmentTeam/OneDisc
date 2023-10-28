@@ -32,7 +32,7 @@ def get_embed_color(color: str | None, is_default: bool = False) -> discord.Colo
                     return get_embed_color(config["system"].get("embed_default_color"), is_default=True)
                 return get_embed_color(None, True)
     elif not is_default:
-        return get_embed_color(config["system"].get("embed_default_color"))
+        return get_embed_color(config["system"].get("embed_default_color"), True)
     else:
         return discord.Color.default()
 

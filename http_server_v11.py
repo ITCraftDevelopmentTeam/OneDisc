@@ -19,7 +19,7 @@ class HTTPServer4OB11:
     async def start_server(self) -> None:
         await uvicorn_server.run(self.app, host=self.config["host"], port=self.config["port"])
 
-    async def handle_request(self, action: str, request: fastapi.Request) -> fastapi.responses.JSONResponse:
+    async def handle_request(self, request: fastapi.Request) -> fastapi.responses.JSONResponse:
         if not verify_access_token(request, self.config["access_token"]):
             if "Authorization" in request.headers.keys() or request.query_params.get("access_token"):
                 raise fastapi.HTTPException(status_code=403, detail="Forbidden")
@@ -39,7 +39,7 @@ class HTTPServer4OB11:
                 )
 
         content = await call_action.on_call_action(
-            action,
+            request.url.path[1:],
             params,
             params.get("echo"),
             11

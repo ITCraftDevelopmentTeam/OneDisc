@@ -3,6 +3,7 @@ import discord
 from version import VERSION
 import return_object
 import time
+import traceback
 import message_parser
 from logger import get_logger
 from api import register_action, action_list
@@ -55,6 +56,7 @@ async def send_message(
     try:
         msg = await channel.send(**parsed_message)  # type: ignore
     except discord.HTTPException:
+        logger.debug(traceback.format_exc())
         return return_object.get(34000, "发送消息失败：消息过长！每条普通消息需要小于 2000 字符。")
     message_id = msg.id
 

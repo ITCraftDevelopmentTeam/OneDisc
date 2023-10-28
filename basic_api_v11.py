@@ -29,6 +29,7 @@ async def send_group_msg(
                 "text": message
             }
         }]
+    logger.debug(message)
     return translator.translate_action_response(
         await basic_actions_v12.send_message(
             "group",
