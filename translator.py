@@ -128,6 +128,11 @@ async def translate_message_array(_message: list) -> list:      # v11 -> v12
                     ))["data"]["file_id"]
                 if item["type"] == "record":
                     item["type"] = "voice"
+            case "emoji" | "discord.emoji":
+                message[length]["type"] = "discord.emoji"
+            case "channel" | "discord.channel":
+                message[length]["type"] = "discord.channel"
+                message[length]["data"]["channel_id"] = str(message[length]["data"]["channel_id"])
             # case "image" | "record" | "video":
             #     if item["data"].get("url") or item["data"].get("file", "").startswith("http") or item["data"].get("file", "").startswith("file"):
             #         file_url = item["data"].get("url") or item["data"].get("file")
@@ -165,5 +170,10 @@ async def translate_v12_message_to_v11(v12_message: list) -> list:
                 else:
                     message[i]["data"]["file"] = await file.get_file_name_by_id(message[i]["data"]["file_id"])
                     message[i]["data"]["url"] = f'file://{file.get_file_path(message[i]["data"]["file"])}'
+            case "discord.channel" | "discord.emoji":
+                message[i]["type"] = message[i]["type"][8:]
+                for key in message[i]["data"].keys():
+                    if key.endswith("id"):
+                        message[i]["data"][key] = int(message[i]["data"][key])
     return message
 
