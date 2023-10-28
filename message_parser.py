@@ -19,6 +19,22 @@ class UnsupportedSegment(Exception):
 logger = get_logger()
 
 
+def get_embed_color(color: str | None, is_default: bool = False) -> discord.Color:
+    if color:
+        if hasattr(discord.Color, color):
+            return getattr(discord.Color, color)()
+        else:
+            try:
+                return discord.Color.from_str(color)
+            except ValueError:
+                logger.warning(f"无效的颜色：{color}")
+                if not is_default:
+                    return get_embed_color(config["system"].get("embed_default_color"), is_default=True)
+                return get_embed_color(None, True)
+    elif not is_default:
+        return get_embed_color(config["system"].get("embed_default_color"))
+    else:
+        return discord.Color.default()
 
 def escape_mentions(text):
     text = text.replace("<", "<\u200B").replace(">", "\u200B>")
@@ -65,6 +81,22 @@ async def parse_message(message: list) -> dict:
                             break
                     else:
                         logger.warning(f"解析消息段 {segment} 时出现错误：找不到指定消息，已忽略")
+
+                case "discord.embed":
+                    message_data["embed"] = discord.Embed(
+                        title=segment["data"]["title"],
+                        description=segment["data"].get("description"),
+                        color=get_embed_color(segment["data"].get("color")),
+                        url=segment["data"].get("url")
+                    )
+                    if segment["data"].get("fields"):
+                        for field in segment["data"]["fields"]:
+                            message_data["embed"].add_field(
+                                name=field.get("name"),
+                                value=field.get("value"),
+                                inline=field.get("inline")
+                            )
+        
 
                 case _:
                     if config["system"].get("ignore_unsupported_segment"):
