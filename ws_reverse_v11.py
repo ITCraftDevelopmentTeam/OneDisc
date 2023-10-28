@@ -32,18 +32,29 @@ class WebSocketClient4OB11:
             self.config["event_url"] = self.config["event_url"] or self.config["url"]
         self.reconnect_task = asyncio.create_task(self.connect())
 
-    async def connect(self) -> None:
-        if self.config["use_universal_client"]:
+    async def connect(self, is_reconnect: bool = False) -> None:
+        if self.config["use_universal_client"] and not is_reconnect:
             self.api_ws = self.event_ws = await self.create_websocker_connection(
                 self.config["url"], "Universal"
             )
-        else:
+        elif not is_reconnect:
             self.api_ws = await self.create_websocker_connection(
                 self.config["api_url"], "API"
             )
             self.event_ws = await self.create_websocker_connection(
                 self.config["event_url"], "Event"
             )
+        else:
+            if (not self.api_ws.open) and self.config["use_universal_client"]:
+                return await self.connect(is_reconnect=False)
+            elif not self.api_ws.open:
+                self.api_ws = await self.create_websocker_connection(
+                    self.config["api_url"], "API"
+                )
+            if not self.event_ws.open:
+                self.event_ws = await self.create_websocker_connection(
+                    self.config["event_url"], "Event"
+                )
         try:
             del self.reconnect_task
         except Exception:
@@ -60,7 +71,6 @@ class WebSocketClient4OB11:
         if hasattr(self, "reconnect_task"):
             await self.reconnect_task
             return
-        await self.close()
         self.reconnect_task = asyncio.create_task(self.connect())
 
     async def close(self) -> None:
