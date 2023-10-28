@@ -10,6 +10,7 @@ from config import config
 from client import client
 import message_parser_v11
 import version
+import file
 
 logger = get_logger()
 
@@ -66,6 +67,10 @@ async def send_private_msg(
 async def delete_msg(message_id: int) -> dict:
     return await basic_actions_v12.delete_message(str(message_id))
 
+@register_action("v11")
+async def clean_cache() -> dict:
+    await file.clean_files()
+    return return_object.get(0)
 
 @register_action("v11")
 async def send_msg(
