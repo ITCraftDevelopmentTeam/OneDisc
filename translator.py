@@ -18,23 +18,35 @@ async def translate_event(_event: dict) -> dict:
     if event["post_type"] == "meta":
         event["post_type"] = "meta_event"
     event[f"{event['post_type']}_type"] = event.pop("detail_type").replace("channel", "group")
-    event.pop("id")
-    if event[f"{event['post_type']}_type"] == "channel":
-        event[f"{event['post_type']}_type"] = "group"
+    del event["id"]
+    # if event[f"{event['post_type']}_type"] == "channel":
+    #     event[f"{event['post_type']}_type"] = "group"
     if not event["sub_type"]:
         del event["sub_type"]
     if "channel_id" in event.keys():
         event["group_id"] = int(event.pop("channel_id"))
+        del event["guild_id"]
     # 类型替换
-    if "user_id" in event.keys():
-        event["user_id"] = int(event["user_id"])
-    if "group_id" in event.keys():
-        event["group_id"] = int(event["group_id"])
-    if "operator_id" in event.keys():
-        event["operator_id"] = int(event["operator_id"])
-    if "message_id" in event.keys():
-        event["message_id"] = int(event["message_id"])
-    if event["post_type"] == "message":
+    for key in event.keys():
+        if key.endswith("_id"):
+            event[key] = int(event[key])
+    # if "user_id" in event.keys():
+    #     event["user_id"] = int(event["user_id"])
+    # if "group_id" in event.keys():
+    #     event["group_id"] = int(event["group_id"])
+    # if "operator_id" in event.keys():
+    #     event["operator_id"] = int(event["operator_id"])
+    # if "message_id" in event.keys():
+    #     event["message_id"] = int(event["message_id"])
+
+    if event["post_type"] == "notice":
+        match event["notice_type"]:
+            case "group_message_delete":
+                event["notice_type"] = "group_recall"
+                del event["sub_type"]
+            case "private_message_delete":
+                event["notice_type"] = "friend_recall"
+    elif event["post_type"] == "message":
         if event["message_type"] == "private":
             event["sub_type"] = config["system"].get("default_message_sub_type", "group")
         elif event["message_type"] == "group":
