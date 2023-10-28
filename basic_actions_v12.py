@@ -52,7 +52,10 @@ async def send_message(
         logger.warning(f"频道 {group_id} 不存在")
         return return_object.get(35001, "频道（群号）不存在")
     parsed_message = await message_parser.parse_message(message)
-    msg = await channel.send(**parsed_message)  # type: ignore
+    try:
+        msg = await channel.send(**parsed_message)  # type: ignore
+    except discord.HTTPException:
+        return return_object.get(34000, "发送消息失败：消息过长！每条普通消息需要小于 2000 字符。")
     message_id = msg.id
 
     return return_object.get(0, message_id=message_id, time=time.time())

@@ -49,6 +49,8 @@ async def on_call_action(action: str, params: dict, echo: str | None = None, pro
     except Exception as e:
         logger.error(traceback.format_exc())
         return_data = return_object.get(20002, str(e))
+    if not (isinstance(return_data, dict) or 0 <= return_data.get("retcode", -1) <= 90000):
+        return_data = return_object.get(20001)
     if echo:
         return_data["echo"] = echo
     logger.debug(return_data)
