@@ -10,6 +10,7 @@ from config import config
 from client import client
 import message_parser_v11
 import version
+import discord
 import file
 
 logger = get_logger()
@@ -213,6 +214,12 @@ async def get_group_list() -> dict:
         })
     return return_object._get(0, channel_list)
 
+def get_role(member: discord.Member) -> str:
+    for role in member.roles:
+        if role.permissions.administrator:
+            return "admin"
+    return "member"
+
 
 @register_action("v11")
 async def get_group_member_info(group_id: int, user_id: int, no_cache: bool = False) -> dict:
@@ -230,6 +237,7 @@ async def get_group_member_info(group_id: int, user_id: int, no_cache: bool = Fa
         user_id=user.id,
         nickname=user.name,
         card=user.display_name,
+        role=get_role(user),
         sex="unknown",
         join_time=int(user.joined_at.timestamp())
     )
@@ -257,5 +265,15 @@ async def get_version_info() -> dict:
         protocol_version="v11"
     )
 
-
+@register_action("v11")
+async def set_group_card(group_id: int, user_id: int, card: str) -> dict:
+    try:
+        client.get_channel(group_id).guild.get_member(user_id).edit(
+            nick=card
+        )
+    except discord.Forbidden:
+        return return_object.get(1400, "权限错误！")
+    except AttributeError as e:
+        return return_object.get(1400, f"不存在的群聊或用户（{e}）")
+    return return_object.get(0)
 

@@ -47,23 +47,28 @@ async def translate_event(_event: dict) -> dict:
             case "private_message_delete":
                 event["notice_type"] = "friend_recall"
     elif event["post_type"] == "message":
+        event["raw_message"] = event.pop("alt_message")
+        event["sender"] = {
+            "user_id": event["user_id"]
+        }
+        event["message"] = await translate_v12_message_to_v11(event["message"])
+
+        if (sender := client.get_user(event["user_id"])):
+            event["sender"]["nickname"] = sender.name
+        
         if event["message_type"] == "private":
             event["sub_type"] = config["system"].get("default_message_sub_type", "group")
+        
         elif event["message_type"] == "group":
             event["sub_type"] = "normal"
             event["anonymous"] = None
             event["font"] = 0
-        event["raw_message"] = event.pop("alt_message")
-        sender = client.get_user(event["user_id"])
-        event["sender"] = {
-            "user_id": event["user_id"]
-        }
-        if sender:
-            event["sender"].update({
-                "nickname": sender.global_name,
-                "card": sender.display_name
-            })
-        event["message"] = await translate_v12_message_to_v11(event["message"])
+            if (sender := client.get_channel(event["group_id"]).guild.get_member(event["user_id"])):
+                event["sender"]["card"] = sender.nick
+                event["sender"]["role"] = basic_api_v11.get_role(sender)
+
+        
+       
     elif event["post_type"] == "meta_event" and event["meta_event_type"] == "heartbeat":
         event["status"] = (await basic_api_v11.get_status())["data"]
     logger.debug(event)
