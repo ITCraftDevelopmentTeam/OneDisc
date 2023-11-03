@@ -24,14 +24,16 @@ class NodeItemData(TypedDict):
     nickname: Optional[str] 
 
 class NodeItemDataWithMessageId(TypedDict):
-    message_id: int
+    id: int
 
 class NodeItem(TypedDict):
     type: str
     data: NodeItemData | NodeItemDataWithMessageId
 
 async def get_message(node_item_data: NodeItemDataWithMessageId | NodeItemData) -> NodeItemData | None:
-    if "message_id" not in node_item_data:
+    if "id" not in node_item_data.keys():
+        if "uin" in node_item_data.keys():
+            node_item_data["user_id"] = int(node_item_data["uin"])
         if (not node_item_data.get("nickname")) and (user := client.get_user(node_item_data["user_id"])):
             node_item_data["nickname"] = user.name
         elif node_item_data.get("nickname"):
@@ -41,7 +43,7 @@ async def get_message(node_item_data: NodeItemDataWithMessageId | NodeItemData) 
         return node_item_data
     else:
         for message in client.cached_messages:
-            if message.id == node_item_data["message_id"]:
+            if message.id == node_item_data["id"]:
                 return {
                     "user_id": message.author.id,
                     "nickname": message.author.name,
@@ -51,7 +53,7 @@ async def get_message(node_item_data: NodeItemDataWithMessageId | NodeItemData) 
                         )
                     )
                 }
-        logger.warning(f"解析合并转发消息时出错：找不到 ID 为 {node_item_data['message_id']} 的消息")
+        logger.warning(f"解析合并转发消息时出错：找不到 ID 为 {node_item_data['id']} 的消息")
 
 
 def get_user_name(user_id: int) -> str:
