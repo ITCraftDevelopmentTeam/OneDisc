@@ -2,6 +2,7 @@ import os.path
 import sys
 import json
 
+
 def set_config(conf: dict) -> None:
     global config
     config = conf

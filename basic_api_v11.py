@@ -1,6 +1,7 @@
 import basic_actions_v12
 from api import register_action
 from discord.abc import PrivateChannel
+import node2image
 from discord.channel import CategoryChannel, ForumChannel
 from logger import get_logger
 import translator
@@ -12,6 +13,7 @@ import message_parser_v11
 import version
 import discord
 import file
+import os.path
 
 logger = get_logger()
 
@@ -277,3 +279,16 @@ async def set_group_card(group_id: int, user_id: int, card: str) -> dict:
         return return_object.get(1400, f"不存在的群聊或用户（{e}）")
     return return_object.get(0)
 
+
+@register_action("v11")
+async def send_group_forward_msg(group_id: int, messages: list) -> dict:
+    path = await node2image.node2image(messages)
+    return await send_group_msg(
+        group_id=group_id,
+        message=[{
+            "type": "image",
+            "data": {
+                "file": f"file://{os.path.abspath(path)}"
+            }
+        }]
+    )

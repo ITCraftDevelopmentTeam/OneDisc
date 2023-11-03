@@ -1,0 +1,67 @@
+{
+  "text": {
+    "font-size": 32
+  },
+  "h1": {
+    "font-size": 64,
+    "margin": 32,
+    "font-weight": "bold"
+  },
+  "h2": {
+    "font-size": 48,
+    "margin": 24,
+    "font-weight": "bold"
+  },
+  "h3": {
+    "font-size": 36,
+    "margin": 18,
+    "font-weight": "bold"
+  },
+  "h4": {
+    "font-size": 32,
+    "margin": 16,
+    "font-weight": "bold"
+  },
+  "h5": {
+    "font-size": 28,
+    "margin": 14,
+    "font-weight": "bold"
+  },
+  "h6": {
+    "font-size": 24,
+    "margin": 12,
+    "font-weight": "bold"
+  },
+  "p": {
+    "font-size": 32,
+    "margin": 8
+  },
+  "strong": {
+    "font-weight": "bold"
+  },
+  "html": {
+    "margin-top": 16,
+    "margin-bottom": 16,
+    "margin-left": 16,
+    "margin-right": 16
+  },
+  "code": {
+    "color": "#ff0000",
+    "background-color": "#ccc"
+  },
+  "pre": {
+    "width": "100%",
+    "background-color": "#ccc",
+    "margin": 10
+  },
+  "ul": {
+    "margin": 20
+  },
+  "ol": {
+    "margin": 20
+  },
+  "blockquote": {
+    "background-color": "#ccc",
+    "color": "#0000ff"
+  }
+}
