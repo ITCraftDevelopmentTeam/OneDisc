@@ -282,7 +282,7 @@ async def set_group_card(group_id: int, user_id: int, card: str) -> dict:
 
 @register_action("v11")
 async def send_group_forward_msg(group_id: int, messages: list) -> dict:
-    path = await node2image.node2image(messages)
+    path = node2image.node2image(messages)
     return await send_group_msg(
         group_id=group_id,
         message=[{
