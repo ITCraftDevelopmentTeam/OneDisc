@@ -50,15 +50,16 @@ def message2html(message: list[dict[str, Any]]) -> str:
             case "text": html += segment["data"]["text"]
             case "image": html += f'<img src="{segment["data"]["url"]}">'
             case "at": html += f'<strong>@{get_nickname_by_id(segment["data"]["qq"])}</strong>'
-    return html
+    return html.replace("\n", "br") if config["system"].get("replace_nl_to_br", True) else html
 
 def node2html(messages: list[dict[str, Any]]) -> str:
     html = '<!DOCTYPE html><html><head><link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet" /></html><body style="background-color: #f1f1f1;"><div class="container"><br><h1>合并转发消息</h1>'
     for item in messages:
         if not (message := get_message(item["data"])):
             continue
-        html += f'<hr><h3><strong>{message["nickname"]}</strong>: </h3>'
+        html += f'<hr><h3><strong>{message["nickname"]}</strong>: </h3><p>'
         html += message2html(message["content"])
+        html += "</p>"
     return html + f"<br></div></body></html>"
 
 if config["system"].get("wkhtmltopdf"):
