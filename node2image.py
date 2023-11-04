@@ -50,7 +50,7 @@ def message2html(message: list[dict[str, Any]]) -> str:
             case "text": html += segment["data"]["text"]
             case "image": html += f'<img src="{segment["data"]["url"]}">'
             case "at": html += f'<strong>@{get_nickname_by_id(segment["data"]["qq"])}</strong>'
-    return html.replace("\n", "br") if config["system"].get("replace_nl_to_br", True) else html
+    return html.replace("\n", config["system"].get("node_linebreak_replacement", "<br>"))
 
 def node2html(messages: list[dict[str, Any]]) -> str:
     html = '<!DOCTYPE html><html><head><link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet" /></html><body style="background-color: #f1f1f1;"><div class="container"><br><h1>合并转发消息</h1>'
