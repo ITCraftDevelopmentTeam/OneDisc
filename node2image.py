@@ -1,121 +1,92 @@
+from time import time
 from config import config
+from typing import Any, Literal
 from logger import get_logger
 from client import client
-from typing import (
-    Any,
-    TypedDict,
-    Optional
-)
-import time
 import message_parser_v11
-import translator
 import message_parser
-import markdown2image
+import translator
+import imgkit
 
 logger = get_logger()
 
-class MessageSegment(TypedDict):
-    data: dict[str, Any]
-    type: str
+def get_message_by_id(message_id: int) -> dict | None:
+    for message in client.cached_messages:
+        if message.id == message_id:
+            return {
+                "user_id": message.author.id,
+                "content": translator.translate_v12_message_to_v11(message_parser.parse_string(message.content)),
+                "nickname": message.author.name
+            }
+    logger.warning(f"解析合并转发节点时出现错误：找不到消息：{message_id}")
 
-class NodeItemData(TypedDict):
-    content: list[MessageSegment]
-    user_id: int
-    nickname: Optional[str] 
+def get_nickname_by_id(user_id: int | Literal["all"]) -> str:
+    if user_id == "all":
+        return "全体成员"
+    elif (user := client.get_user(user_id)):
+        return user.name
+    return str(user_id)
 
-class NodeItemDataWithMessageId(TypedDict):
-    id: int
+def init_dict_message(message: dict[str, Any]) -> dict[str, Any] | None:
+    message["user_id"] = message.get("user_id") or message.get("uin")
+    if not (message["user_id"] and message.get("content")):
+        logger.warning(f"解析合并转发节点时出现错误：无效的节点：{message}")
+        return
+    if not message.get("nickname"):
+        message["nickname"] = get_nickname_by_id(message["user_id"])
+    if isinstance(message["content"], str):
+        message["content"] = message_parser_v11.parse_string_to_array(message["content"])
+    return message
 
-class NodeItem(TypedDict):
-    type: str
-    data: NodeItemData | NodeItemDataWithMessageId
+def get_message(message: dict[str, Any]) -> dict[str, Any] | None:
+    if "message_id" in message:
+        return get_message_by_id(message["message_id"])
+    return init_dict_message(message)
 
-async def get_message(node_item_data: NodeItemDataWithMessageId | NodeItemData) -> NodeItemData | None:
-    if "id" not in node_item_data.keys():
-        if "uin" in node_item_data.keys():
-            node_item_data["user_id"] = int(node_item_data["uin"])
-        if (not node_item_data.get("nickname")) and (user := client.get_user(node_item_data["user_id"])):
-            node_item_data["nickname"] = user.name
-        elif node_item_data.get("nickname"):
-            node_item_data["nickname"] = str(node_item_data["user_id"])
-        if isinstance(node_item_data["content"], str):
-            node_item_data["content"] = message_parser_v11.parse_string_to_array(node_item_data["content"])
-        return node_item_data
-    else:
-        for message in client.cached_messages:
-            if message.id == node_item_data["id"]:
-                return {
-                    "user_id": message.author.id,
-                    "nickname": message.author.name,
-                    "content": await translator.translate_v12_message_to_v11(
-                        message_parser.parse_string(
-                            message.content
-                        )
-                    )
-                }
-        logger.warning(f"解析合并转发消息时出错：找不到 ID 为 {node_item_data['id']} 的消息")
+def message2html(message: list[dict[str, Any]]) -> str:
+    html = ""
+    for segment in message:
+        match segment["type"]:
+            case "text": html += segment["data"]["text"]
+            case "image": html += f'<img src="{segment["data"]["url"]}">'
+            case "at": html += f'<strong>@{get_nickname_by_id(segment["data"]["qq"])}</strong>'
+    return html
 
-
-def get_user_name(user_id: int) -> str:
-    try:
-        return client.get_user(user_id).name or str(user_id)
-    except AttributeError:
-        return str(user_id)
-
-
-async def node2markdown(node: list[NodeItem]) -> str:
-    markdown = config["system"].get("node_title", "### 合并转发消息\n\n")
-    for node_item in node:
-        if node_item["type"] != "node":
+def node2html(messages: list[dict[str, Any]]) -> str:
+    html = '<!DOCTYPE html><html><head><link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet" /></html><body style="background-color: #f1f1f1;"><div class="container"><br><h1>合并转发消息</h1>'
+    for item in messages:
+        if not (message := get_message(item["data"])):
             continue
-        node_item["data"] = await get_message(node_item["data"])
-        if not node_item["data"]: continue
-        markdown += f"##### {node_item['data']['nickname']}: \n\n"#<blockquote>"
-        for s in node_item['data']['content']:
-            match s['type']:
-                case "text":
-                    markdown += s["data"]["text"]
-                case "at":
-                    markdown += f'`@{get_user_name(s["data"]["qq"])}`'
-            markdown += ""
-        markdown += "\n\n"#</blockquote>\n\n"
-    return markdown
-    
+        html += f'<hr><h3><strong>{message["nickname"]}</strong>: </h3>'
+        html += message2html(message["content"])
+    return html + f"<br></div></body></html>"
 
+if config["system"].get("wkhtmltopdf"):
+    imgkit_config = imgkit.config(wkhtmltoimage=config["system"]["wkhtmltopdf"])
+else:
+    imgkit_config = None
 
-async def node2image(node: list[NodeItem]) -> str:
-    markdown2image.md2img(await node2markdown(node), n := f".cache/node.{time.time()}.png")
-    return n
-   
+def node2image(messages: list[dict[str, Any]]) -> str:
+    file_name = f".cache/node.{time()}.png"
+    imgkit.from_string(node2html(messages), file_name, config=imgkit_config)
+    return file_name
 
 if __name__ == "__main__":
-    import asyncio
-
-    asyncio.run(node2image([
+    print(node2image([
         {
             "type": "node",
             "data": {
-                "user_id": 1006777034564968498,
-                "content": "HelloWorld,[CQ:at,qq=114514]",
-                "nickname": "XiaoDeng3386"
+                "user_id": 114514,
+                "nickname": "XiaoDeng3386",
+                "content": "Hello world",
             }
         },
         {
             "type": "node",
             "data": {
-                "user_id": 1006777034564968498,
-                "content": "HelloWorld,[CQ:at,qq=114514]",
-                "nickname": None
-            }
-        },
-        {
-            "type": "node",
-            "data": {
-                "user_id": 1006777034564968498,
-                "content": "HelloWorld,[CQ:at,qq=114514]",
-                "nickname": None
+                "user_id": 114514,
+                "nickname": "XiaoDeng3386",
+                "content": "Hello, [CQ:at,qq=114514]",
             }
         }
-
-
-    ])) 
+    ]))
