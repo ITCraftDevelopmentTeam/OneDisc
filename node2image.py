@@ -68,7 +68,7 @@ else:
     imgkit_config = None
 
 def node2image(messages: list[dict[str, Any]]) -> str:
-    file_name = f".cache/node.{time()}.png"
+    file_name = f".cache/node.{time()}.{config['system'].get('node_image_type', 'jpg')}"
     imgkit.from_string(node2html(messages), file_name, config=imgkit_config)
     return file_name
 
