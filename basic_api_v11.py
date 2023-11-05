@@ -4,6 +4,7 @@ from discord.abc import PrivateChannel
 import node2image
 from discord.channel import CategoryChannel, ForumChannel
 from logger import get_logger
+import os
 import translator
 import message_parser_v11
 import return_object
@@ -71,9 +72,18 @@ async def send_private_msg(
 async def delete_msg(message_id: int) -> dict:
     return await basic_actions_v12.delete_message(str(message_id))
 
+def clean_node_cache() -> None:
+    for file in os.listdir(".cache"):
+        if file.startswith("node."):
+            os.remove(os.path.join(".cache", file))
+
 @register_action("v11")
 async def clean_cache() -> dict:
     await file.clean_files()
+    try:
+        clean_node_cache()
+    except Exception:
+        pass
     return return_object.get(0)
 
 @register_action("v11")
