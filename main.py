@@ -1,12 +1,12 @@
 from config import config
 from client import client
 from logger import get_logger, init_logger
-from version import VERSION
+from version import VERSION, SUB_VER
 
 init_logger(config["system"].get("logger", {"level": 20}))
 logger = get_logger()
 logger.info("OneDisc (By: IT Craft Development Team)")
-logger.info(f"当前版本：{VERSION}")
+logger.info(f"当前版本：{VERSION}.{SUB_VER}")
 
 # 导入插件
 import discord_event

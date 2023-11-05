@@ -35,16 +35,17 @@ jobs:
           sudo apt update
           sudo apt install binutils git zip -y
 
-      - name: Build on Linux
-        run: |
-          pyinstaller --onefile main.py
-      
       - name: Get version number
         run: |
           export VERSION=$(python -c 'print(__import__("version").VERSION)')
           export SUB_VER=$(git rev-list --no-merges --count $(git describe --tags --abbrev=0)..HEAD)
           echo "VERSION=$VERSION.$SUB_VER" >> $GITHUB_ENV
           echo "Currect Version Number: $VERSION.$SUB_VER"
+          echo "SUB_VER = $SUB_VER" >> version.py
+
+      - name: Build on Linux
+        run: |
+          pyinstaller --onefile main.py
 
       - name: Compress file
         run: |
