@@ -55,16 +55,48 @@ def get_file_url(file: str) -> str:
 
 def message2html(message: list[dict[str, Any]]) -> str:
     html = ""
+    is_node = False
     for segment in message:
+        if segment["type"] != "node" and is_node:
+            is_node = False
+            html += '</div>'
         match segment["type"]:
             case "text": html += segment["data"]["text"]
-            case "image": html += f'<img src="{get_file_url(segment["data"]["file"])}">'
+            case "image": html += f'<img src="{get_file_url(segment["data"]["file"])}" width="100%" />'
             case "at": html += f'<strong>@{get_nickname_by_id(segment["data"]["qq"])}</strong>'
             case "channel": html += f'<strong>#{get_channel_name(segment["data"]["id"])}</strong>'
+
+            case "node":
+                if not is_node:
+                    html += (
+                        '<div style="mapping: 10px;border: 2px solid #000; padding: 10px;">'
+                        '<h2>嵌套合并转发消息</h2>'
+                    )
+                    is_node = True
+                if not (message := get_message(segment["data"])):
+                    continue
+                html += f'<hr><h4><strong>{message["nickname"]}</strong>: </h4><p>'
+                html += message2html(message["content"])
+                html += "</p>"
+    if is_node:
+        html += "</div>"
+
     return html.replace("\n", config["system"].get("node_linebreak_replacement", "<br>"))
 
 def node2html(messages: list[dict[str, Any]]) -> str:
-    html = '<!DOCTYPE html><html><head><link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet" /></html><body style="background-color: #f1f1f1;"><div class="container"><br><h1>合并转发消息</h1>'
+    html = (
+        '<!DOCTYPE html>'
+        '<html>'
+        '<head>'
+        '<meta charset="utf-8">'
+        '<link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/6.1.0/mdb.min.css" rel="stylesheet" />'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        '</head>'
+        '<body style="background-color: #f1f1f1;">'
+        '<div class="container">'
+        '<br>'
+        '<h1>合并转发消息</h1>'
+    )
     for item in messages:
         if not (message := get_message(item["data"])):
             continue
@@ -101,5 +133,41 @@ if __name__ == "__main__":
                 "nickname": "XiaoDeng3386",
                 "content": "Hello, [CQ:at,qq=114514]",
             }
-        }
+        },
+
+        {
+            "type": "node",
+            "data": {
+                "user_id": 114514,
+                "nickname": "XiaoDeng3386",
+                "content": [
+                    {
+                        "type": "node",
+                        "data": {
+                            "user_id": 114514,
+                            "nickname": "XiaoDeng3386",
+                            "content": [
+                    {
+                        "type": "node",
+                        "data": {
+                            "user_id": 114514,
+                            "nickname": "XiaoDeng3386",
+                            "content": "Hello, [CQ:at,qq=114514]",
+                        }
+                    }
+                ],
+
+                        }
+                    }
+                ],
+            }
+        },
+{
+            "type": "node",
+            "data": {
+                "user_id": 114514,
+                "nickname": "XiaoDeng3386",
+                "content": "[CQ:image,file=https://www.dmoe.cc/random.php]",
+            }
+        },
     ]))
