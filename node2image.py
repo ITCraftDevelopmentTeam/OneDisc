@@ -43,6 +43,11 @@ def get_message(message: dict[str, Any]) -> dict[str, Any] | None:
         return get_message_by_id(message["message_id"])
     return init_dict_message(message)
 
+def get_channel_name(channel_id: int) -> str:
+    if not (channel := client.get_channel(channel_id)):
+        return "未知频道"
+    return channel.name
+
 def message2html(message: list[dict[str, Any]]) -> str:
     html = ""
     for segment in message:
@@ -50,6 +55,7 @@ def message2html(message: list[dict[str, Any]]) -> str:
             case "text": html += segment["data"]["text"]
             case "image": html += f'<img src="{segment["data"]["url"]}">'
             case "at": html += f'<strong>@{get_nickname_by_id(segment["data"]["qq"])}</strong>'
+            case "discord.channel": html += f'<strong>#{get_channel_name(segment["data"]["id"])}</strong>'
     return html.replace("\n", config["system"].get("node_linebreak_replacement", "<br>"))
 
 def node2html(messages: list[dict[str, Any]]) -> str:
