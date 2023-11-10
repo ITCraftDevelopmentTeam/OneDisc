@@ -48,14 +48,19 @@ def get_channel_name(channel_id: int) -> str:
         return "未知频道"
     return channel.name
 
+def get_file_url(file: str) -> str:
+    if file.startswith("base64://"):
+        return f"data:image/png;base64,{file[9:]}"
+    return file
+
 def message2html(message: list[dict[str, Any]]) -> str:
     html = ""
     for segment in message:
         match segment["type"]:
             case "text": html += segment["data"]["text"]
-            case "image": html += f'<img src="{segment["data"]["url"]}">'
+            case "image": html += f'<img src="{get_file_url(segment["data"]["file"])}">'
             case "at": html += f'<strong>@{get_nickname_by_id(segment["data"]["qq"])}</strong>'
-            case "discord.channel": html += f'<strong>#{get_channel_name(segment["data"]["id"])}</strong>'
+            case "channel": html += f'<strong>#{get_channel_name(segment["data"]["id"])}</strong>'
     return html.replace("\n", config["system"].get("node_linebreak_replacement", "<br>"))
 
 def node2html(messages: list[dict[str, Any]]) -> str:
@@ -69,6 +74,7 @@ def node2html(messages: list[dict[str, Any]]) -> str:
     return html + f"<br></div></body></html>"
 
 if config["system"].get("wkhtmltopdf"):
+    logger.info(f"WKHTMLTOPDF 路径：{config['system']['wkhtmltopdf']}")
     imgkit_config = imgkit.config(wkhtmltoimage=config["system"]["wkhtmltopdf"])
 else:
     imgkit_config = None
