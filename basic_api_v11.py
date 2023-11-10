@@ -302,3 +302,16 @@ async def send_group_forward_msg(group_id: int, messages: list) -> dict:
             }
         }]
     )
+
+@register_action("v11")
+async def send_private_forward_msg(user_id: int, messages: list) -> dict:
+    path = node2image.node2image(messages)
+    return await send_private_msg(
+        user_id=user_id,
+        message=[{
+            "type": "image",
+            "data": {
+                "file": f"file://{os.path.abspath(path)}"
+            }
+        }]
+    )
