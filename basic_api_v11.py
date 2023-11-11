@@ -43,6 +43,10 @@ async def send_group_msg(
     )
 
 @register_action("v11")
+async def set_group_name(group_id: int, group_name: str) -> dict:
+    return await basic_actions_v12.set_group_name(str(group_id), group_name)
+
+@register_action("v11")
 async def send_private_msg(
     user_id: int,
     message: str | list[dict],
