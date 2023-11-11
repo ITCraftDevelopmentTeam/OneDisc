@@ -246,6 +246,24 @@ def get_role(member: discord.Member) -> str:
             return "admin"
     return "member"
 
+@register_action("v11")
+async def get_group_member_list(group_id: int, no_cache: bool = False) -> dict:
+    if not (channel := client.get_channel(group_id)):
+        return return_object.get(1400, f"不存在的频道：{group_id}")
+    member_list = []
+    for member in channel.members:
+        member_list.append({
+            "user_id": member.id,
+            "nickname": member.name,
+            "card": member.display_name,
+            "join_time": int(member.joined_at.timestamp()),
+            "sex": "unknown",
+            "role": get_role(member)
+        })
+    return return_object._get(
+        0,
+        member_list
+    )
 
 @register_action("v11")
 async def get_group_member_info(group_id: int, user_id: int, no_cache: bool = False) -> dict:
