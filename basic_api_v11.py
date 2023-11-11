@@ -1,9 +1,10 @@
+import httpx
 import basic_actions_v12
 from api import register_action
 from discord.abc import PrivateChannel
 import node2image
 from discord.channel import CategoryChannel, ForumChannel
-from logger import get_logger
+from logger import discord_api_failed, get_logger
 import os
 import translator
 import message_parser_v11
@@ -199,6 +200,15 @@ async def set_group_ban(group_id: int, user_id: int, duration: int = 1800, reaso
 
 @register_action("v11")
 async def set_group_leave(group_id: int, is_dismiss: bool = False) -> dict:
+    if is_dismiss:
+        async with httpx.AsyncClient(proxies=config["system"].get("proxy")) as client:
+            response = await client.delete(
+                f"https://discord.com/api/v10/channels/{group_id}",
+                headers={"Authorization": f"Bot {config['account_token']}"}
+            )
+        if response.status_code == 400:
+            return discord_api_failed(response)
+        return return_object.get(0)
     return translator.translate_action_response(await basic_actions_v12.leave_group(str(group_id)))
 
 
