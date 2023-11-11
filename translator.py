@@ -101,7 +101,7 @@ async def translate_message_array(_message: list) -> list:      # v11 -> v12
     for item in message:
         i += 1
         if item["type"] == "face":
-            item = {
+            item = message[i] = {
                 "type": "image",
                 "data": {
                     "file": f"https://raw.githubusercontent.com/richardchien/coolq-http-api/master/docs/qq-face/{item['data']['id']}.gif"

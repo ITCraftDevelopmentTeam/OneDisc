@@ -48,16 +48,15 @@ async def parse_message(message: list) -> dict:
     message_data = {"content": "", "files": []}
     for segment in message:
         try:
-            match segment["type"]:
-                case "location":
-                    segment = {
-                        "type": "discord.embed",
-                        "data": {
-                            "title": segment["data"]["title"],
-                            "description": segment["data"]["content"],
-                            "url": f"https://www.google.com/maps/place/{segment['data']['latitude']},{segment['data']['longitude']}"
-                        }
+            if segment["type"] == "location":
+                segment = {
+                    "type": "discord.embed",
+                    "data": {
+                        "title": segment["data"]["title"],
+                        "description": segment["data"]["content"],
+                        "url": f"https://www.google.com/maps/place/{segment['data']['latitude']},{segment['data']['longitude']}"
                     }
+                }
             match segment["type"]:
                 case "text":
                     message_data["content"] += escape_mentions(segment["data"]["text"])
