@@ -1,3 +1,4 @@
+import httpx
 from client import client
 import discord
 from version import VERSION
@@ -5,7 +6,8 @@ import return_object
 import time
 import traceback
 import message_parser
-from logger import get_logger
+from config import config
+from logger import get_logger, discord_api_failed
 from api import register_action, action_list
 
 logger = get_logger()
@@ -91,6 +93,39 @@ async def get_status() -> dict:
         ],
     )
 
+
+@register_action()
+async def set_group_name(group_id: str, group_name: str) -> dict:
+    async with httpx.AsyncClient(proxies=config["system"].get("proxy")) as client:
+        response = await client.patch(
+            f"https://discord.com/api/v10/channels/{group_id}",
+            data={"name": group_name},
+            headers={
+                "Authorization": f"Bot {config['account_token']}"
+            }
+        )
+    if response.status_code == 400:
+        return discord_api_failed(response)
+    return return_object.get(0)
+        
+
+@register_action()
+async def set_guild_name(guild_id: str, guild_name: str) -> dict:
+    async with httpx.AsyncClient(proxies=config["system"].get("proxy")) as client:
+        response = await client.patch(
+            f"https://discord.com/api/v10/guilds/{guild_id}",
+            data={"name": guild_name},
+            headers={
+                "Authorization": f"Bot {config['account_token']}"
+            }
+        )
+    if response.status_code == 400:
+        return discord_api_failed(response)
+    return return_object.get(0)
+
+@register_action()
+async def set_channel_name(guild_id: str, channel_id: str, channel_name: str) -> dict:
+    return await set_group_name(channel_id, channel_name)
 
 @register_action()
 async def get_version() -> dict:
@@ -185,11 +220,6 @@ async def get_group_member_list(group_id: str) -> dict:
 
 
 @register_action()
-async def set_group_name(group_id: str, group_name: str) -> dict:
-    return return_object.get(10002, "不支持机器人修改频道名")
-
-
-@register_action()
 async def leave_group(group_id: str) -> dict:
     if not (channel := client.get_channel(int(group_id))):
         return return_object.get(35001, "频道不存在")
@@ -210,11 +240,6 @@ async def get_guild_list() -> dict:
     for guild in client.guilds:
         guild_list.append({"guild_id": str(guild.id), "guild_name": guild.name})
     return return_object._get(0, guild_list)
-
-
-@register_action()
-async def set_guild_name(guild_id: str, guild_name: str) -> dict:
-    return return_object.get(10002, "不支持机器人修改群组名")
 
 
 @register_action()
@@ -294,11 +319,6 @@ async def get_channel_list(guild_id: str, joined_only: bool = False) -> dict:
             {"channel_id": str(channel.id), "channel_name": channel.name}
         )
     return return_object._get(0, channel_list)
-
-
-@register_action()
-async def set_channel_name(guild_id: str, channel_id: str, channel_name: str) -> dict:
-    return return_object.get(10002, "不支持机器人修改频道名")
 
 
 @register_action()
