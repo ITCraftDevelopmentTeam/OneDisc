@@ -117,6 +117,7 @@ def node2image(messages: list[dict[str, Any]]) -> str:
     return file_name
 
 if __name__ == "__main__":
+    """
     print(node2image([
         {
             "type": "node",
@@ -171,3 +172,45 @@ if __name__ == "__main__":
             }
         },
     ]))
+
+
+    """
+    node = [
+        {
+            "type": "node",
+            "data": {
+                "user_id": 114514,
+                "nickname": "XiaoDeng3386",
+                "content": "Hello, [CQ:at,qq=114514]",
+            }
+        },
+        {
+            "type": "node",
+            "data": {
+                "user_id": 114514,
+                "nickname": "XiaoDeng3386",
+                "content": "[CQ:image,file=https://www.dmoe.cc/random.php]",
+            }
+        }
+    ]
+
+    for i in range(100):
+        node = [
+            {
+                "type": "node",
+                "data": {
+                    "user_id": 114514,
+                    "nickname": "XiaoDeng3386",
+                    "content": "Hello, [CQ:at,qq=114514]",
+                }
+            },
+            {
+                "type": "node",
+                "data": {
+                    "user_id": 114514,
+                    "nickname": "XiaoDeng3386",
+                    "content": node,
+                }
+            }
+        ]
+    print(node2image(node))
