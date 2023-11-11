@@ -92,6 +92,7 @@ class WebSocketClient4OB11:
                     url, extra_headers=self.get_headers(role)
                 )
                 logger.info(f"已连接到反向 WebSocket {role} 服务器：{url}")
+                return connection
             except Exception as e:
                 logger.warning(f"连接到反向 WebSocket {role} 时出现错误：{e}")
                 await asyncio.sleep(self.config["reconnect_interval"] / 1000)
