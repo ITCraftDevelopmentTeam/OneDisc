@@ -1,12 +1,14 @@
 from client import client
 from config import config
 from connection import init_connections
-from basic_actions_v12 import get_status
 import heartbeat_event
 import message_parser
 import event
 import discord
 import asyncio
+
+from basic_actions_v12 import get_status
+from basic_api_v11 import get_role
 
 from logger import (
     get_logger,
@@ -153,5 +155,37 @@ async def on_guild_channel_delete(channel: discord.TextChannel | discord.VoiceCh
             channel_id=str(channel.id),
             operator_id="-1"  # 暂时使用 -1，因为不直接知道删除该频道的用户
         )
+
+@client.event
+async def on_member_update(before: discord.Member, after: discord.Member) -> None:
+    # 这是一个 OneBot V11 事件
+    if not config["system"].get("enable_group_admin", True):
+        return
+    match get_role(before), get_role(after):
+        case "member", "admin":
+            logger.info(f"{after.name} ({after.id}) 被设为服务器 {after.guild.name} ({after.guild.id}) 的管理员")
+            sub_type = "set"
+        case "admin", "member":
+            sub_type = "unset"
+        case _:
+            return
+    if config["system"].get("guild_id_for_group_admin"):
+        event.new_event(
+            "notice",
+            "group_admin",
+            sub_type,
+            group_id=after.guild.id
+        )
+    else:
+        for channel in after.guild.channels:
+            if (not isinstance(channel, discord.TextChannel)) and config["system"].get("group_admin_text_channel"):
+                continue
+            event.new_event(
+                "notice",
+                "group_admin",
+                sub_type,
+                group_id=channel.id,
+                guild_id=after.guild.id
+            )
 
 logger.info("事件响应器注册完成！")
