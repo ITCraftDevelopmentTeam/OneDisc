@@ -57,9 +57,9 @@ async def send_message(
     parsed_message = await message_parser.parse_message(message)
     try:
         msg = await channel.send(**parsed_message)  # type: ignore
-    except discord.HTTPException:
+    except discord.HTTPException as e:
         logger.debug(traceback.format_exc())
-        return return_object.get(34000, "发送消息失败：消息过长！每条普通消息需要小于 2000 字符。")
+        return return_object.get(34000, str(e))
     message_id = msg.id
 
     return return_object.get(0, message_id=message_id, time=time.time())
