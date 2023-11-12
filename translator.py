@@ -107,6 +107,8 @@ async def translate_message_array(_message: list) -> list:      # v11 -> v12
                     "file": f"https://raw.githubusercontent.com/richardchien/coolq-http-api/master/docs/qq-face/{item['data']['id']}.{'png' if config['system'].get('use_static_face') else 'gif'}"
                 }
             }
+        elif item["type"] in ["channel", "emoji", "role", "timestamp", "navigation"]:
+            message[i]["type"] = item["type"] = f'discord.{item["type"]}'
         match item["type"]:
             case "location":
                 message[i] = {
@@ -150,10 +152,7 @@ async def translate_message_array(_message: list) -> list:      # v11 -> v12
                     ))["data"]["file_id"]
                 if item["type"] == "record":
                     item["type"] = "voice"
-            case "emoji" | "discord.emoji":
-                message[i]["type"] = "discord.emoji"
-            case "channel" | "discord.channel":
-                message[i]["type"] = "discord.channel"
+            case "discord.channel":
                 message[i]["data"]["channel_id"] = str(message[i]["data"]["channel_id"])
             case "share":
                 message[i]["type"] = "discord.embed"
@@ -200,10 +199,11 @@ async def translate_v12_message_to_v11(v12_message: list) -> list:
                 else:
                     message[i]["data"]["file"] = await file.get_file_name_by_id(message[i]["data"]["file_id"])
                     message[i]["data"]["url"] = f'file://{file.get_file_path(message[i]["data"]["file"])}'
-            case "discord.channel" | "discord.emoji":
-                message[i]["type"] = message[i]["type"][8:]
-                for key in message[i]["data"].keys():
-                    if key.endswith("id"):
-                        message[i]["data"][key] = int(message[i]["data"][key])
+            case _:
+                if message[i]["type"].startswith("discord."):
+                    message[i]["type"] = message[i]["type"][8:]
+                    for key in message[i]["data"].keys():
+                        if key.endswith("id"):
+                            message[i]["data"][key] = int(message[i]["data"][key])
     return message
 
