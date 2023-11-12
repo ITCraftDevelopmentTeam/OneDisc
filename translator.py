@@ -108,6 +108,16 @@ async def translate_message_array(_message: list) -> list:      # v11 -> v12
                 }
             }
         match item["type"]:
+            case "location":
+                message[i] = {
+                    "type": "location",
+                    "data": {
+                        "latitude": item["data"]["lat"],
+                        "longitude": item["data"]["lon"],
+                        "title": item["data"].get("title", "位置分享"),
+                        "content": item["data"].get("content", config["system"].get("location_default_content", "机器人向你发送了一个位置"))
+                    }
+                }
             case "at":
                 if item["data"]["qq"] != "all":
                     message[i]["type"] = "mention"
