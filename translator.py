@@ -154,6 +154,8 @@ async def translate_message_array(_message: list) -> list:      # v11 -> v12
                     item["type"] = "voice"
             case "discord.channel":
                 message[i]["data"]["channel_id"] = str(message[i]["data"]["channel_id"])
+            case "discord.role":
+                message[i]["data"]["id"] = str(message[i]["data"]["id"])
             case "share":
                 message[i]["type"] = "discord.embed"
                 if message[i]["data"].get("content"):
