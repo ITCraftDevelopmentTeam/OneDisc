@@ -83,6 +83,16 @@ async def parse_message(message: list) -> dict:
                     ] += f'<:{segment["data"]["name"]}:{segment["data"]["id"]}>'
                 case "discord.channel":
                     message_data["content"] += f"<#{segment['data']['channel_id']}>"
+                case "discord.role":
+                    message_data["content"] += f"<@&{segment['data']['id']}>"
+                case "discord.timestamp":
+                    if segment["data"].get("style"):
+                        style = f':{segment["data"]["style"]}'
+                    else:
+                        style = ""
+                    message_data["content"] += f"<t:{segment['data']['time']}{style}>"
+                case "discord.navigation":
+                    message_data["content"] += f"<id:{segment['data']['type']}>"
                 case "reply":
                     for msg in client.cached_messages:
                         if msg.id == int(segment["data"]["message_id"]):
@@ -148,6 +158,28 @@ def parse_string(string: str, msg: discord.Message | None = None) -> list:
                         },
                     }
                 )
+            case "role":
+                message.append({
+                    "type": "discord.role",
+                    "data": {
+                        "id": token[1][3:-1]
+                    }
+                })
+            case "navigation":
+                message.append({
+                    "type": "discord.navigation",
+                    "data": {
+                        "type": token[1][4:-1]
+                    }
+                })
+            case "timestamp":
+                message.append({
+                    "type": "discord.timestamp",
+                    "data": {
+                        "time": int(re.search("[0-9]+", token[1]).group(0)),
+                        "style": token[1][-2] if token[1][-2] in ["s", "m", "h", "d"] else "d"
+                    }
+                })
     for attachment in msg.attachments:
         for file_type in ["image", "video", "audio"]:
             if attachment.content_type.startswith(file_type):
