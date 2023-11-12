@@ -1,3 +1,5 @@
+#!python3
+
 from config import config
 from client import client
 from logger import get_logger, init_logger

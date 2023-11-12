@@ -1,3 +1,5 @@
+import asyncio
+import sys
 import httpx
 import basic_actions_v12
 from api import register_action
@@ -347,3 +349,22 @@ async def send_private_forward_msg(user_id: int, messages: list) -> dict:
             }
         }]
     )
+
+async def _restart() -> None:
+    script = sys.argv[0]
+    args = sys.argv[1:]
+    sec = config['system'].get('restart_wait_time', 3)
+    logger.warning(f"程序将在 {sec}s 后重启")
+    await asyncio.sleep(sec)
+    os.execv(sys.executable, [sys.executable] + [script] + args)
+
+
+@register_action("v11")
+async def set_restart() -> dict:
+    asyncio.create_task(_restart())
+    return {
+        "status": "async",
+        "retcode": 1,
+        "data": None,
+        "message": ""
+    }
