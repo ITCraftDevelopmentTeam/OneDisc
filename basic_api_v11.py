@@ -320,7 +320,7 @@ async def set_group_card(group_id: int, user_id: int, card: str) -> dict:
     except discord.Forbidden:
         return return_object.get(1400, "权限错误！")
     except AttributeError as e:
-        return return_object.get(1400, f"不存在的群聊或用户（{e}）")
+        return return_object.get(1400, f"不存在的群聊或用（{e}）")
     return return_object.get(0)
 
 
@@ -368,3 +368,18 @@ async def set_restart() -> dict:
         "data": None,
         "message": ""
     }
+
+@register_action("v11")
+async def set_group_admin(group_id: int, user_id: int, enable: bool = True) -> dict:
+    if not (channel := client.get_channel(group_id)):
+        return return_object.get(1400, f"不存在的群聊：{group_id}")
+    for m in channel.members:
+        if m.id == user_id:
+            member = m
+            break
+    else:
+        return return_object.get(1400, f"不存在的用户：{user_id}")
+    overwrites = channel.overwrites
+    overwrites[member] = discord.PermissionOverwrite(manage_channels=enable, manage_permissions=enable)
+    await channel.edit(overwrites=overwrites)
+    return return_object.get(0)
