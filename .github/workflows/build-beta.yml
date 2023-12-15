@@ -59,7 +59,7 @@ jobs:
           cd /tmp
           rm -rf OneDisc-Build
 
-          git clone https://github.com/This-is-XiaoDeng/OneDisc-Build.git
+          git clone https://github.com/This-is-XiaoDeng/OneDisc-Build.git --depth=1
           cd OneDisc-Build
           git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/This-is-XiaoDeng/OneDisc-Build.git
   
