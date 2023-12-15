@@ -53,7 +53,7 @@ class WebSocketClient:
     async def create_connection(self) -> None:
         self.ws = await websockets.client.connect(
             self.get_url(),
-            headers=self.get_headers()
+            extra_headers=self.get_headers()
         )
     
     async def reconnect(self) -> None:

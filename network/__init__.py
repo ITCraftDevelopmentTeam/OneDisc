@@ -8,9 +8,7 @@
 # from network.v12.ws import WebSocketServer
 # from network.v12.ws_reverse import WebSocketClient
 
-from sqlite3 import connect
-from turtle import setup
-from typing import Any, Callable, Coroutine, Union
+from typing import Callable, Coroutine, Union
 import network.v12.http
 import network.v12.http_webhook
 import network.v12.ws
