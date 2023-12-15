@@ -1,6 +1,6 @@
 from client import client
 from config import config
-from connection import init_connections
+from network import init_connections
 import heartbeat_event
 import message_parser
 import event

@@ -4,7 +4,7 @@ import event
 from version import VERSION
 import uvicorn_server
 from logger import get_logger
-from http_server import verify_access_token
+from network.authentication import verify_access_token
 
 logger = get_logger()
 BASE_CONFIG = {

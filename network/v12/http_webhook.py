@@ -12,7 +12,7 @@ BASE_CONFIG = {
 logger = get_logger()
 
 
-class HttpWebhookConnect:
+class HttpWebhook:
     
     def __init__(self, config: dict) -> None:
         """

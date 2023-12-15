@@ -16,7 +16,7 @@ BASE_CONFIG = {
 }
 
 
-class HTTPPost4OB11:
+class HttpPost:
 
 
     def __init__(self, config: dict) -> None:

@@ -1,4 +1,4 @@
-from typing import Callable, Literal
+from typing import Callable, Coroutine, Literal
 from client import client
 import translator
 import websockets
@@ -23,7 +23,7 @@ BASE_CONFIG = {
 }
 logger = get_logger()
 
-class WebSocket:
+class WebSocketClient:
 
     def __init__(self, config: dict) -> None:
         self.config = BASE_CONFIG | config
@@ -82,7 +82,7 @@ class WebSocket:
             await self.reconnect()
             await self.send(data)
 
-class APIClient(WebSocket):
+class APIClient(WebSocketClient):
 
     def __init__(self, config: dict) -> None:
         super().__init__(config)
@@ -105,7 +105,7 @@ class APIClient(WebSocket):
             await self.reconnect()
             return await self.get_api_request()
 
-class EventClient(WebSocket):
+class EventClient(WebSocketClient):
 
     def __init__(self, config: dict) -> None:
         super().__init__(config)
@@ -120,7 +120,7 @@ class UniversalClient(APIClient, EventClient):
         super().__init__(config)
         self.role = "Universal"
 
-def init_websocket_reverse_connection(config: dict) -> Callable:
+async def init_websocket_reverse_connection(config: dict) -> Callable:
     if config["use_universal_client"]:
         client = UniversalClient(config)
         client.connect_task = asyncio.create_task(client.connect())

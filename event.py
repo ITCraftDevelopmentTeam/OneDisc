@@ -1,7 +1,7 @@
 import uuid
 import asyncio
 import traceback
-import connection
+import network as network
 from client import client
 import time
 from logger import get_logger
@@ -40,7 +40,7 @@ def new_event(
     **params,
 ) -> None:
     event_object = get_event_object(_type, detail_type, sub_type, _time, params)
-    for conn in connection.connections:
+    for conn in network.connections:
         try:
             asyncio.create_task(conn["add_event_func"](event_object))
         except Exception:

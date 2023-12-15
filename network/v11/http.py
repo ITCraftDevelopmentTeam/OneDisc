@@ -1,4 +1,4 @@
-from http_server import verify_access_token
+from network.authentication import verify_access_token
 import uvicorn_server
 import fastapi
 import call_action
@@ -9,7 +9,7 @@ BASE_CONFIG = {
     "access_token": None
 }
 
-class HTTPServer4OB11:
+class HttpServer:
 
     def __init__(self, config: dict) -> None:
         self.config = BASE_CONFIG | config

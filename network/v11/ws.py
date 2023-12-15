@@ -1,6 +1,6 @@
 import translator
 import event
-from http_server import verify_access_token
+from network.authentication import verify_access_token
 from logger import get_logger
 import uvicorn_server
 import fastapi
@@ -13,7 +13,7 @@ BASE_CONFIG = {
     "access_token": None
 }
 
-class WebSocket4OB11:
+class WebSocket:
 
     def __init__(self, config: dict) -> None:
         self.config = BASE_CONFIG | config
