@@ -112,7 +112,9 @@ class EventClient(WebSocketClient):
         self.role = "Event"
 
     async def push_event(self, event: dict) -> None:
-        await self.ws.send(await translator.translate_event(event))
+        if not hasattr(self, "ws"):
+            await self.reconnect()
+        await self.ws.send(json.dumps(await translator.translate_event(event)))
 
 class UniversalClient(APIClient, EventClient):
 
@@ -124,10 +126,12 @@ async def init_websocket_reverse_connection(config: dict) -> Callable:
     if config["use_universal_client"]:
         client = UniversalClient(config)
         client.connect_task = asyncio.create_task(client.connect())
+        asyncio.create_task(client.handle_api_requests())
         return client.push_event
     else:
         api_client = APIClient(config)
         api_client.connect_task = asyncio.create_task(api_client.connect())
+        asyncio.create_task(api_client.handle_api_requests())
         event_client = EventClient(config)
         event_client.connect_task = asyncio.create_task(event_client.connect())
         return event_client.push_event
