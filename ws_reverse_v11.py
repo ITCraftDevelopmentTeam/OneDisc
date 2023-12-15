@@ -1,3 +1,4 @@
+from typing import Callable, Literal
 from client import client
 import translator
 import websockets
@@ -22,119 +23,111 @@ BASE_CONFIG = {
 }
 logger = get_logger()
 
-
-class WebSocketClient4OB11:
+class WebSocket:
 
     def __init__(self, config: dict) -> None:
         self.config = BASE_CONFIG | config
         if not self.config["use_universal_client"]:
             self.config["api_url"] = self.config["api_url"] or self.config["url"]
             self.config["event_url"] = self.config["event_url"] or self.config["url"]
-        self.reconnect_task = asyncio.create_task(self.connect())
+        self.connect_task: asyncio.Task | None = None
 
-    async def connect(self, is_reconnect: bool = False) -> None:
-        if self.config["use_universal_client"] and not is_reconnect:
-            self.api_ws = self.event_ws = await self.create_websocker_connection(
-                self.config["url"], "Universal"
-            )
-        elif not is_reconnect:
-            self.api_ws = await self.create_websocker_connection(
-                self.config["api_url"], "API"
-            )
-            self.event_ws = await self.create_websocker_connection(
-                self.config["event_url"], "Event"
-            )
-        else:
-            if (not self.api_ws.open) and self.config["use_universal_client"]:
-                return await self.connect(is_reconnect=False)
-            elif not self.api_ws.open:
-                self.api_ws = await self.create_websocker_connection(
-                    self.config["api_url"], "API"
-                )
-            if not self.event_ws.open:
-                del self.event_ws
-                self.event_ws = await self.create_websocker_connection(
-                    self.config["event_url"], "Event"
-                )
+        self.role: Literal["API", "Universal", "Event"]
+        self.ws: websockets.client.WebSocketClientProtocol
+
+    def is_ready(self) -> bool:
         try:
-            del self.reconnect_task
-        except Exception:
-            pass
-        await self.event_ws.send(json.dumps(
-            await translator.translate_event(event.get_event_object(
-                "meta",
-                "lifecycle",
-                "connect"
-        ))))
-        asyncio.create_task(self.handle_api_requests())
-
-    async def reconnect(self) -> None:
-        if hasattr(self, "reconnect_task"):
-            await self.reconnect_task
-            return
-        self.reconnect_task = asyncio.create_task(self.connect(is_reconnect=True))
-
-    async def close(self) -> None:
-        try:
-            await self.api_ws.close()
-        except Exception:
-            pass
-        try:
-            await self.event_ws.close()
-        except Exception:
-            pass
-
-    async def create_websocker_connection(self, url: str, role: str) -> websockets.client.WebSocketClientProtocol:
-        while True:
-            try:
-                logger.info(f"正在连接到反向 WebSocket {role} 服务器：{url}")
-                connection = await websockets.client.connect(
-                    url, extra_headers=self.get_headers(role)
-                )
-                logger.info(f"已连接到反向 WebSocket {role} 服务器：{url}")
-                return connection
-            except Exception as e:
-                logger.warning(f"连接到反向 WebSocket {role} 时出现错误：{e}")
-                await asyncio.sleep(self.config["reconnect_interval"] / 1000)
-
-    async def push_event(self, event: dict) -> None:
-        try:
-            return await self.event_ws.send(
-                json.dumps(
-                    await translator.translate_event(
-                        event
-                    )
-                )
-            )
-        except websockets.exceptions.ConnectionClosedError:
-            await self.reconnect()
+            return self.ws.open
         except AttributeError:
-            await self.reconnect()
-        except Exception:
-            logger.warning(f"推送事件出错：{traceback.format_exc()}")
-        await self.push_event(event)
+            return False
 
-    async def handle_api_requests(self) -> None:
-        while True:
-            try:
-                recv_data = json.loads(await self.api_ws.recv())
-                resp_data = await call_action.on_call_action(
-                    **recv_data,
-                    protocol_version=11
-                )
-                resp_data["retcode"] = {
-                    10001: 1400,
-                    10002: 1404
-                }.get(resp_data["retcode"], resp_data["retcode"])
-                await self.api_ws.send(json.dumps(resp_data))
-            except Exception:
-                logger.warning(f"处理 API 请求时出现错误：{traceback.format_exc()}")
-                break
-        await self.reconnect()
-
-
-    def get_headers(self, role: str) -> dict:
+    def get_url(self) -> str:
+        return self.config["url"] if self.config["use_universal_client"] else self.config[f"{self.role.lower()}_url"]
+    
+    def get_headers(self) -> dict:
         return {
             "X-Self-ID": client.user.id,
-            "X-Client-Role": role
+            "X-Client-Role": self.role
         } | ({"Authorization": f'Bearer {self.config["access_token"]}'} if self.config["access_token"] else {})
+    
+    async def create_connection(self) -> None:
+        self.ws = await websockets.client.connect(
+            self.get_url(),
+            headers=self.get_headers()
+        )
+    
+    async def reconnect(self) -> None:
+        # 但愿别 tm 出 bug
+        if not self.connect_task:
+            self.connect_task = asyncio.create_task(self.connect())
+        await self.connect_task
+
+    async def connect(self) -> None:
+        while True:
+            try:
+                logger.info(f"正在尝试连接反向 WebSocket {self.role} 服务器: {self.get_url()}")
+                await self.create_connection()
+                break
+            except Exception:
+                logger.warning(f"连接到反向 WebSocket {self.role} 时出现错误: {traceback.format_exc()}")
+                await asyncio.sleep(self.config["reconnect_interval"] * 1000)
+        logger.info(f"成功连接到反向 WebSocket {self.role} 服务器")
+        self.connect_task = None
+    
+    async def send(self, data: dict) -> None:
+        try:
+            await self.ws.send(json.dumps(data))
+        except websockets.exceptions.ConnectionClosed:
+            logger.warning(f"从反向 WebSocket {self.role} 断开连接: {traceback.format_exc()}")
+            await self.reconnect()
+            await self.send(data)
+
+class APIClient(WebSocket):
+
+    def __init__(self, config: dict) -> None:
+        super().__init__(config)
+        self.role = "API"
+    
+    async def handle_api_requests(self) -> None:
+        while True:
+            await self.send(translator.translate_action_response(
+                await call_action.on_call_action(
+                    **(await self.get_api_request()),
+                    protocol_version=11
+                )
+            ))
+
+    async def get_api_request(self) -> dict:
+        try:
+            return json.loads(await self.ws.recv())
+        except websockets.exceptions.ConnectionClosed:
+            logger.warning(f"从反向 WebSocket {self.role} 断开连接: {traceback.format_exc()}")
+            await self.reconnect()
+            return await self.get_api_request()
+
+class EventClient(WebSocket):
+
+    def __init__(self, config: dict) -> None:
+        super().__init__(config)
+        self.role = "Event"
+
+    async def push_event(self, event: dict) -> None:
+        await self.ws.send(await translator.translate_event(event))
+
+class UniversalClient(APIClient, EventClient):
+
+    def __init__(self, config: dict) -> None:
+        super().__init__(config)
+        self.role = "Universal"
+
+def init_websocket_reverse_connection(config: dict) -> Callable:
+    if config["use_universal_client"]:
+        client = UniversalClient(config)
+        client.connect_task = asyncio.create_task(client.connect())
+        return client.push_event
+    else:
+        api_client = APIClient(config)
+        api_client.connect_task = asyncio.create_task(api_client.connect())
+        event_client = EventClient(config)
+        event_client.connect_task = asyncio.create_task(event_client.connect())
+        return event_client.push_event

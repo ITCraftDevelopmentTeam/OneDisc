@@ -4,7 +4,7 @@ from http_webhook import HttpWebhookConnect
 from http_server_v11 import HTTPServer4OB11
 from http_post_v11 import HTTPPost4OB11
 from ws_v11 import WebSocket4OB11
-from ws_reverse_v11 import WebSocketClient4OB11
+from ws_reverse_v11 import init_websocket_reverse_connection
 from logger import get_logger
 from ws import WebSocketServer
 from ws_reverse import WebSocketClient
@@ -99,10 +99,9 @@ async def init_connections(connection_list: list[dict]) -> None:
                 connections.append({
                     "type": "ws-reverse",
                     "config": obc_config,
-                    "object": (tmp := WebSocketClient4OB11(obc_config)),
-                    "add_event_func": tmp.push_event
+                    "object": None,
+                    "add_event_func": init_websocket_reverse_connection(obc_config)
                 })
-                del tmp
 
             case _:
                 logger.warning(f"无效的连接类型或协议版本，已忽略: {obc_config['type']} (协议版本: {obc_config.get('protocol_version', 12)}")
