@@ -147,3 +147,26 @@ jobs:
         with:
           name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
           path: build/onedisc
+
+  deloy-pages:
+    needs: [get-version-number, build, build-windows]
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: "Checkout"
+        uses: actions/checkout@v3
+
+      - name: "Get output files"
+        run: |
+          mkdir output
+          echo '{"version": "$VERSION"}' > output/beta.json
+          curl -o output/artifacts.json https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/runs/$RUN_ID/artifacts
+        env:
+          VERSION: ${{ needs.get-version-number.outputs.VERSION }}
+          RUN_ID: ${{ github.run_id }}
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: output
