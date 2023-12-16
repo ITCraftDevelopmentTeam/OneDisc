@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="./onedisc_logo.png" width="180" height="180" />
+<img src="./onedisc.png" width="180" height="180" />
 
 # OneDisc
 

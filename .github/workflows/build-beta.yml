@@ -7,77 +7,86 @@ on:
   workflow_dispatch:
 
 jobs:
-  
-  build:
 
-    runs-on: [self-hosted, linux, x64]
-
+  get-version-number:
+    runs-on: ubuntu-latest    
     steps:
 
-      - name: Check out the repository
+      - name: "Checkout"
         uses: actions/checkout@v3
         with: 
-          fetch-depth: 0  # 这里获取所有历史记录和标签
+          fetch-depth: 0
 
-      - name: Setting up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10.12'
-          cache: 'pip'
-          cache-dependency-path: |
-            requirements.txt
-
-      - name: Update Pip and Install Requirements
-        run: |
-          pip install -U pip
-          pip install -r -U requirements.txt
-          pip install -U pyinstaller
-          sudo apt update
-          sudo apt install binutils git zip -y
-
-      - name: Get version number
+      - name: "Get version number"
+        id: get_version
         run: |
           export VERSION=$(python -c 'print(__import__("version").VERSION)')
           export SUB_VER=$(git rev-list --no-merges --count $(git describe --tags --abbrev=0)..HEAD)
-          echo "VERSION=$VERSION.$SUB_VER" >> $GITHUB_ENV
           echo "Currect Version Number: $VERSION.$SUB_VER"
           echo "SUB_VER = $SUB_VER" >> version.py
-
-      - name: Build on Linux
-        run: |
-          pyinstaller --onefile main.py
-
-      - name: Compress file
-        run: |
-          cd dist
-          mv main onedisc
-          zip -r "/tmp/OneDisc-linux-x86_64-dev.zip" onedisc
-
-
-      - name: Publish application
-        run: |
-          cd /tmp
-          rm -rf OneDisc-Build
-
-          git clone https://github.com/This-is-XiaoDeng/OneDisc-Build.git --depth=1
-          cd OneDisc-Build
-          git remote set-url origin https://x-access-token:${GH_TOKEN}@github.com/This-is-XiaoDeng/OneDisc-Build.git
-  
-          mkdir beta --parents
-          cd beta
-          mv /tmp/OneDisc-linux-x86_64-dev.zip .
-          cd /tmp/OneDisc-Build
+          echo "::set-output name=VERSION::$VERSION.$SUB_VER.0"
+          echo "::set-output name=SUB_VER::$SUB_VER"
     
-          cat ./version.json
-          export VER_JSON=$(python3 -c 'os = __import__("os");json = __import__("json");data = json.load(open("./version.json", encoding="utf-8"));data["beta"] = os.environ["VERSION"];print(json.dumps(data))')
-          echo $VER_JSON > version.json
+    outputs:
+      version: ${{ steps.get_version.outputs.VERSION }}
+      sub_ver: ${{ steps.get_version.outputs.SUB_VER }}
 
-          git add -A
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "action@github.com"
-          git commit -m "Update version to $VERSION"
-          git push
+  build:
+    needs: get-version-number
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        arch: [x86, x64, arm64]
+    steps:
+
+      - name: "Checkout"
+        uses: actions/checkout@v3
+      
+      - name: "Setup Python"
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.11  # 保证兼容性
+
+      - name: "Install requirements"
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r -U requirements.txt
+          pip install -r -U nuitka
+      
+      - name: "Write version number (Windows)"
+        if: matrix.os == 'windows-latest'
+        run: |
+          Add-Content -Path "version.py" -Value "SUB_VER = `$env:SUB_VER"
         env:
-          VERSION: ${{ env.VERSION }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN_1 }}
+          SUB_VER: ${{ needs.get-version-number.outputs.sub_ver }}
+        
+      - name: "Write version number"
+        if: matrix.os != 'windows-latest'
+        run: |
+          echo "SUB_VER = $SUB_VER" >> version.py
+        env:
+          SUB_VER: ${{ needs.get-version-number.outputs.sub_ver }}
+          
+      - name: "Build executeable"
+        run: |
+          python -m nuitka\
+            --onefile\
+            --standalone\
+            --follow-imports\
+            --show-modules\
+            --output-dir=build\
+            --lto=yes\
+            --windows-icon-from-ico=icon.ico\
+            --windows-file-version=$env:VERSION\
+            --windows-product-version=$env:VERSION\
+            --windows-version-string=$env:VERSION\
+            main.py
+        env:
+          VERSION: ${{ needs.get-version-number.outputs.version }}
 
+      - name: "Upload build"
+        uses: actions/upload-artifact@v3
+        with:
+          name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}
+          path: build/*
