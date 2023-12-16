@@ -73,7 +73,7 @@ jobs:
           
       - name: "Build executeable"
         run: |
-          python -m nuitka --onefile --standalone --follow-imports --show-modules --output-dir=build --lto=yes --windows-icon-from-ico=icon.ico --windows-file-version=$VERSION --windows-product-version=$VERSION --show-progress --windows-product-name=OneDisc --windows-file-description="Discord 的 OneBot 实现" --windows-copyright="Copyright © 2023 IT Craft Development Team." main.py
+          python -m nuitka --onefile --standalone --follow-imports --show-modules --output-dir=build --lto=yes --windows-icon-from-ico=icon.ico --windows-file-version=$VERSION --windows-product-version=$VERSION --show-progress --windows-product-name=OneDisc --windows-file-description="Discord 的 OneBot 实现" main.py
         env:
           VERSION: ${{ needs.get-version-number.outputs.VERSION }}
 
