@@ -1,9 +1,9 @@
 import fastapi
 import call_action
-import event
+import utils.event as event
 from version import VERSION
-import uvicorn_server
-from logger import get_logger
+import utils.uvicorn_server as uvicorn_server
+from utils.logger import get_logger
 from network.authentication import verify_access_token
 
 logger = get_logger()

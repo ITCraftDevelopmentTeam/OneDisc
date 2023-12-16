@@ -1,9 +1,9 @@
-import file
-from logger import get_logger
-from config import config
-from client import client
+import actions.v12.file as file
+from utils.logger import get_logger
+from utils.config import config
+from utils.client import client
 import discord
-import message_tokenizer
+import utils.message.v12.tokenizer as tokenizer
 import re
 import discord.file
 
@@ -132,7 +132,7 @@ async def parse_message(message: list) -> dict:
 
 def parse_string(string: str, msg: discord.Message | None = None) -> list:
     message = []
-    tokenized_messages = message_tokenizer.tokenizer(string)
+    tokenized_messages = tokenizer.tokenizer(string)
     for token in tokenized_messages:
         match token[0]:
             case "mention":

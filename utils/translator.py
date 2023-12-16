@@ -1,10 +1,10 @@
-from config import config
+from utils.config import config
 import json
 import time
-import file
-from client import client
-import basic_api_v11
-from logger import get_logger
+import actions.v12.file as file
+from utils.client import client
+import actions.v11.basic as basic
+from utils.logger import get_logger
 
 logger = get_logger()
 
@@ -65,12 +65,12 @@ async def translate_event(_event: dict) -> dict:
             event["font"] = 0
             if (sender := client.get_channel(event["group_id"]).guild.get_member(event["user_id"])):
                 event["sender"]["card"] = sender.nick
-                event["sender"]["role"] = basic_api_v11.get_role(sender)
+                event["sender"]["role"] = basic.get_role(sender)
 
         
        
     elif event["post_type"] == "meta_event" and event["meta_event_type"] == "heartbeat":
-        event["status"] = (await basic_api_v11.get_status())["data"]
+        event["status"] = (await basic.get_status())["data"]
     logger.debug(event)
     return event
 

@@ -1,11 +1,11 @@
 from time import time
-from config import config
+from utils.config import config
 from typing import Any, Literal
-from logger import get_logger
-from client import client
-import message_parser_v11
-import message_parser
-import translator
+from utils.logger import get_logger
+from utils.client import client
+import utils.message.v11.parser as parser
+import utils.message.v12.parser as parser
+import utils.translator as translator
 import imgkit
 
 logger = get_logger()
@@ -15,7 +15,7 @@ def get_message_by_id(message_id: int) -> dict | None:
         if message.id == message_id:
             return {
                 "user_id": message.author.id,
-                "content": translator.translate_v12_message_to_v11(message_parser.parse_string(message.content)),
+                "content": translator.translate_v12_message_to_v11(parser.parse_string(message.content)),
                 "nickname": message.author.name
             }
     logger.warning(f"解析合并转发节点时出现错误：找不到消息：{message_id}")
@@ -35,7 +35,7 @@ def init_dict_message(message: dict[str, Any]) -> dict[str, Any] | None:
     if not message.get("nickname"):
         message["nickname"] = get_nickname_by_id(message["user_id"])
     if isinstance(message["content"], str):
-        message["content"] = message_parser_v11.parse_string_to_array(message["content"])
+        message["content"] = parser.parse_string_to_array(message["content"])
     return message
 
 def get_message(message: dict[str, Any]) -> dict[str, Any] | None:

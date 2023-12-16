@@ -2,9 +2,9 @@ import uuid
 import asyncio
 import traceback
 import network as network
-from client import client
+from utils.client import client
 import time
-from logger import get_logger
+from utils.logger import get_logger
 
 logger = get_logger()
 

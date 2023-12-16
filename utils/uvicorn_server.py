@@ -3,7 +3,7 @@ import sys
 from typing import List
 import fastapi
 import uvicorn
-from logger import get_logger
+from utils.logger import get_logger
 
 logger = get_logger()
 

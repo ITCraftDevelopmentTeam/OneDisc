@@ -1,16 +1,16 @@
 from typing import Callable, Coroutine, Literal
-from client import client
-import translator
+from utils.client import client
+import utils.translator as translator
 import websockets
 import json
 import json
-import event
+import utils.event as event
 import call_action
 import asyncio
 import traceback
 import websockets.client
 import websockets.exceptions
-from logger import get_logger
+from utils.logger import get_logger
 # from version import VERSION
 
 BASE_CONFIG = {

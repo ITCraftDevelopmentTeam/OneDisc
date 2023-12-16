@@ -1,13 +1,13 @@
-from api import action_list
+from actions import action_list
 from typing import Callable
-from checker import check_request_params
-import return_object 
-from checker import BadParam
-from logger import get_logger
+from utils.checker import check_request_params
+import utils.return_object as return_object 
+from utils.checker import BadParam
+from utils.logger import get_logger
 import traceback
-from message_parser import UnsupportedSegment, BadSegmentData
+from utils.message.v12.parser import UnsupportedSegment, BadSegmentData
 import random
-from config import config
+from utils.config import config
 
 logger = get_logger()
 

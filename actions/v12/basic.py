@@ -1,14 +1,14 @@
 import httpx
-from client import client
+from utils.client import client
 import discord
 from version import VERSION
-import return_object
+import utils.return_object as return_object
 import time
 import traceback
-import message_parser
-from config import config
-from logger import get_logger, discord_api_failed
-from api import register_action, action_list
+import utils.message.v12.parser as parser
+from utils.config import config
+from utils.logger import get_logger, discord_api_failed
+from actions import register_action, action_list
 
 logger = get_logger()
 
@@ -54,7 +54,7 @@ async def send_message(
     if not (channel := client.get_channel(int(_channel_id))):
         logger.warning(f"频道 {group_id} 不存在")
         return return_object.get(35001, "频道（群号）不存在")
-    parsed_message = await message_parser.parse_message(message)
+    parsed_message = await parser.parse_message(message)
     try:
         msg = await channel.send(**parsed_message)  # type: ignore
     except discord.HTTPException as e:

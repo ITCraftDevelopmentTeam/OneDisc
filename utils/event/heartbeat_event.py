@@ -1,4 +1,4 @@
-import event
+import utils.event as event
 import asyncio
 
 

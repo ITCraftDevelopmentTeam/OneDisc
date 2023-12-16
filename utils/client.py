@@ -1,4 +1,4 @@
-from config import config
+from utils.config import config
 import discord
 import discord.http
 

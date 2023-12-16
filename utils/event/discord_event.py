@@ -1,16 +1,16 @@
-from client import client
-from config import config
+from utils.client import client
+from utils.config import config
 from network import init_connections
-import heartbeat_event
-import message_parser
-import event
+import utils.event.heartbeat_event as heartbeat_event
+import utils.message.v12.parser as parser
+import utils.event as event
 import discord
 import asyncio
 
-from basic_actions_v12 import get_status
-from basic_api_v11 import get_role
+from actions.v12.basic import get_status
+from actions.v11.basic import get_role
 
-from logger import (
+from utils.logger import (
     get_logger,
     print_message_delete_log,
     print_message_log
@@ -43,7 +43,7 @@ async def on_message(message: discord.Message) -> None:
             detail_type="channel",
             _time=message.created_at.timestamp(),
             message_id=str(message.id),
-            message=message_parser.parse_string(message.content, message),
+            message=parser.parse_string(message.content, message),
             alt_message=message.content,
             guild_id=str(message.guild.id),
             channel_id=str(message.channel.id),
@@ -55,7 +55,7 @@ async def on_message(message: discord.Message) -> None:
             detail_type="group",
             _time=message.created_at.timestamp(),
             message_id=str(message.id),
-            message=message_parser.parse_string(message.content, message),
+            message=parser.parse_string(message.content, message),
             alt_message=message.content,
             group_id=str(message.channel.id),
             user_id=str(message.author.id)
@@ -66,7 +66,7 @@ async def on_message(message: discord.Message) -> None:
             detail_type="private",
             _time=message.created_at.timestamp(),
             message_id=str(message.id),
-            message=message_parser.parse_string(message.content, message),
+            message=parser.parse_string(message.content, message),
             alt_message=message.content,
             user_id=str(message.author.id)
         )

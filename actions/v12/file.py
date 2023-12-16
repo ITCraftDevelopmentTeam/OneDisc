@@ -1,7 +1,7 @@
-from logger import get_logger
-from config import config
-from api import register_action
-import checker
+from utils.logger import get_logger
+from utils.config import config
+from actions import register_action
+import utils.checker as checker
 import os.path
 import os
 import traceback
@@ -10,7 +10,7 @@ import uuid
 import hashlib
 import json
 import httpx
-import return_object
+import utils.return_object as return_object
 
 try:
     os.makedirs(".cache/files")

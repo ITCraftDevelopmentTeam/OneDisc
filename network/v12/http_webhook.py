@@ -1,7 +1,7 @@
 import httpx
 import call_action
 import json
-from logger import get_logger
+from utils.logger import get_logger
 from version import VERSION
 
 BASE_CONFIG = {

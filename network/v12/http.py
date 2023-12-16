@@ -1,11 +1,11 @@
 import asyncio
 from network.authentication import verify_access_token
-import uvicorn_server
+import utils.uvicorn_server as uvicorn_server
 import call_action
 import json
 import fastapi
-import return_object
-from logger import get_logger
+import utils.return_object as return_object
+from utils.logger import get_logger
 
 BASE_CONFIG = {
     "host": "0.0.0.0",

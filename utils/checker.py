@@ -1,9 +1,9 @@
 import inspect
 import traceback
-import return_object
-from config import config
+import utils.return_object as return_object
+from utils.config import config
 from typing import Callable
-from logger import get_logger
+from utils.logger import get_logger
 
 logger = get_logger()
 

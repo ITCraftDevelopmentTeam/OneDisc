@@ -18,7 +18,7 @@ import network.v11.http_post
 import network.v11.ws
 import network.v11.ws_reverse
 
-from logger import get_logger
+from utils.logger import get_logger
 
 logger = get_logger()
 connections = []

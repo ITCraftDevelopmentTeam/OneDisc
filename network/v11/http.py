@@ -1,5 +1,5 @@
 from network.authentication import verify_access_token
-import uvicorn_server
+import utils.uvicorn_server as uvicorn_server
 import fastapi
 import call_action
 

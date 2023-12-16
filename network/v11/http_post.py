@@ -1,12 +1,12 @@
-from logger import get_logger
+from utils.logger import get_logger
 import asyncio
-import event
-import quick_reply
+import utils.event as event
+import actions.v11.quick_reply as quick_reply
 import json
-from client import client
+from utils.client import client
 import httpx
 import hmac
-import translator
+import utils.translator as translator
 
 logger = get_logger()
 BASE_CONFIG = {
