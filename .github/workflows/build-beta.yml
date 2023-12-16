@@ -82,12 +82,6 @@ jobs:
           company-name: "IT Craft Development Team"
           copyright: "Copyright (c) 2023 IT Craft Development Team"
           
-          
-        # run: |
-        #   echo Yes | nuitka --onefile --standalone --follow-imports --show-modules --mingw64 --output-dir=build 
-        # --lto=yes --windows-icon-from-ico=icon.ico --windows-file-version=$env:VERSION --windows-product-version=$env:VERSION --show-progress --windows-product-name=OneDisc --windows-file-description="OneBot Implementation for Discord" main.py
-        # env:
-        #   VERSION: ${{ needs.get-version-number.outputs.VERSION }}
 
       - name: "Upload build"
         uses: actions/upload-artifact@v3
@@ -116,15 +110,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -U -r requirements.txt
-          pip install -U nuitka
     
       - name: "Write version number"
         run: |
           echo "SUB_VER = $SUB_VER" >> version.py
         env:
           SUB_VER: ${{ needs.get-version-number.outputs.SUB_VERSION }}
-          
-      - name: "Build executeable"
       
       - name: "Build executeable"
         uses: Nuitka/Nuitka-Action@v1.0
@@ -136,10 +127,6 @@ jobs:
           output-dir: build
           lto: yes
           script-name: main.py
-        # run: |
-        #   python -m nuitka --onefile --standalone --follow-imports --show-modules --output-dir=build --lto=yes --show-progress main.py
-        # env:
-        #   VERSION: ${{ needs.get-version-number.outputs.VERSION }}
 
       - name: "Upload build"
         uses: actions/upload-artifact@v3
