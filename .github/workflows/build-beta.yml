@@ -24,12 +24,17 @@ jobs:
           export SUB_VER=$(git rev-list --no-merges --count $(git describe --tags --abbrev=0)..HEAD)
           echo "Currect Version Number: $VERSION.$SUB_VER"
           echo "SUB_VER = $SUB_VER" >> version.py
-          echo "::set-output name=VERSION::$VERSION.$SUB_VER.0"
-          echo "::set-output name=SUB_VER::$SUB_VER"
+      
+          # Create an environment file
+          echo "VERSION=${VERSION}.${SUB_VER}" >> $GITHUB_OUTPUT
+          echo "FULL_VERSION=${VERSION}.${SUB_VER}.0" >> $GITHUB_OUTPUT
+          echo "SUB_VERSION=${SUB_VER}" >> $GITHUB_OUTPUT
+        
     
     outputs:
-      version: ${{ steps.get_version.outputs.VERSION }}
-      sub_ver: ${{ steps.get_version.outputs.SUB_VER }}
+      VERSION: ${{ steps.get_version.outputs.VERSION }}
+      FULL_VERSION: ${{ steps.get_version.outputs.FULL_VERSION }}
+      SUB_VERSION: ${{ steps.get_version.outputs.SUB_VERSION }}
 
   build:
     needs: get-version-number
@@ -59,14 +64,14 @@ jobs:
         run: |
           Add-Content -Path "version.py" -Value "SUB_VER = `$env:SUB_VER"
         env:
-          SUB_VER: ${{ needs.get-version-number.outputs.sub_ver }}
+          SUB_VER: ${{ needs.get-version-number.outputs.SUB_VERSION }}
         
       - name: "Write version number"
         if: matrix.os != 'windows-latest'
         run: |
           echo "SUB_VER = $SUB_VER" >> version.py
         env:
-          SUB_VER: ${{ needs.get-version-number.outputs.sub_ver }}
+          SUB_VER: ${{ needs.get-version-number.outputs.SUB_VERSION }}
           
       - name: "Build executeable"
         run: |
@@ -78,12 +83,12 @@ jobs:
             --output-dir=build\
             --lto=yes\
             --windows-icon-from-ico=icon.ico\
-            --windows-file-version=$env:VERSION\
-            --windows-product-version=$env:VERSION\
-            --windows-version-string=$env:VERSION\
+            --windows-file-version=$VERSION\
+            --windows-product-version=$VERSION\
+            --windows-version-string=$VERSION\
             main.py
         env:
-          VERSION: ${{ needs.get-version-number.outputs.version }}
+          VERSION: ${{ needs.get-version-number.outputs.FULL_VERSION }}
 
       - name: "Upload build"
         uses: actions/upload-artifact@v3
