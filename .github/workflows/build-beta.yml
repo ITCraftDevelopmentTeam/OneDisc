@@ -85,11 +85,16 @@ jobs:
           copyright: "Copyright (c) 2023 IT Craft Development Team"
           
 
+      - name: "Rename application"
+        run: |
+          Move-Item -Path .\build\main.exe -Destination .\build\onedisc.exe
+  
+
       - name: "Upload build"
         uses: actions/upload-artifact@v3
         with:
           name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
-          path: build/*
+          path: build/onedisc.exe
 
   build:
     needs: get-version-number
@@ -132,9 +137,13 @@ jobs:
           output-dir: build
           lto: yes
           script-name: main.py
-
+          
+      - name: "Rename application"
+        run: |
+          mv build/main.bin build/onedisc
+  
       - name: "Upload build"
         uses: actions/upload-artifact@v3
         with:
           name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
-          path: build/*
+          path: build/onedisc
