@@ -61,6 +61,7 @@ jobs:
       - name: "Write version number"
         run: |
           Add-Content -Path "version.py" -Value "SUB_VER = `$env:SUB_VER"
+          Get-Content version.py
         env:
           SUB_VER: ${{ needs.get-version-number.outputs.SUB_VERSION }}
           
