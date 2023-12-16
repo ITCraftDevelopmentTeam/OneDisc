@@ -78,7 +78,8 @@ jobs:
           file-version: ${{ needs.get-version-number.outputs.VERSION }}
           product-version: ${{ needs.get-version-number.outputs.VERSION }}
           product-name: OneDisc
-          file-description: "Discord 的 OneBot 实现"
+          enable-console: true
+          file-description: "OneBot Implementation for Discord"
           company-name: "IT Craft Development Team"
           copyright: "Copyright (c) 2023 IT Craft Development Team"
           
@@ -124,6 +125,8 @@ jobs:
           onefile: true
           follow-imports: true
           show-modules: true
+          macos-app-icon: icon.ico
+          macos-app-version: ${{ needs.get-version-number.outputs.VERSION }}
           output-dir: build
           lto: yes
           script-name: main.py
