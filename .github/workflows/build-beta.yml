@@ -56,7 +56,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -U -r requirements.txt
-          pip install -U nuitka imageio
+          pip install -U imageio
       
       - name: "Write version number"
         run: |
@@ -111,6 +111,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -U -r requirements.txt
+          pip install -U imageio
     
       - name: "Write version number"
         run: |
