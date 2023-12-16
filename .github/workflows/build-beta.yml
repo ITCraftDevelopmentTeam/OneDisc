@@ -65,10 +65,29 @@ jobs:
           SUB_VER: ${{ needs.get-version-number.outputs.SUB_VERSION }}
           
       - name: "Build executeable"
-        run: |
-          echo Yes | nuitka --onefile --standalone --follow-imports --show-modules --mingw64 --output-dir=build --lto=yes --windows-icon-from-ico=icon.ico --windows-file-version=$env:VERSION --windows-product-version=$env:VERSION --show-progress --windows-product-name=OneDisc --windows-file-description="OneBot Implementation for Discord" main.py
-        env:
-          VERSION: ${{ needs.get-version-number.outputs.VERSION }}
+        uses: Nuitka/Nuitka-Action@v1.0
+        with:
+          standalone: true
+          onefile: true
+          follow-imports: true
+          show-modules: true
+          output-dir: build
+          lto: yes
+          script-name: main.py
+          windows-icon-from-ico: icon.ico
+          file-version: ${{ needs.get-version-number.outputs.VERSION }}
+          product-version: ${{ needs.get-version-number.outputs.VERSION }}
+          product-name: OneDisc
+          file-description: "Discord 的 OneBot 实现"
+          company-name: "IT Craft Development Team"
+          copyright: "Copyright (c) 2023 IT Craft Development Team"
+          
+          
+        # run: |
+        #   echo Yes | nuitka --onefile --standalone --follow-imports --show-modules --mingw64 --output-dir=build 
+        # --lto=yes --windows-icon-from-ico=icon.ico --windows-file-version=$env:VERSION --windows-product-version=$env:VERSION --show-progress --windows-product-name=OneDisc --windows-file-description="OneBot Implementation for Discord" main.py
+        # env:
+        #   VERSION: ${{ needs.get-version-number.outputs.VERSION }}
 
       - name: "Upload build"
         uses: actions/upload-artifact@v3
@@ -106,10 +125,21 @@ jobs:
           SUB_VER: ${{ needs.get-version-number.outputs.SUB_VERSION }}
           
       - name: "Build executeable"
-        run: |
-          python -m nuitka --onefile --standalone --follow-imports --show-modules --output-dir=build --lto=yes --show-progress main.py
-        env:
-          VERSION: ${{ needs.get-version-number.outputs.VERSION }}
+      
+      - name: "Build executeable"
+        uses: Nuitka/Nuitka-Action@v1.0
+        with:
+          standalone: true
+          onefile: true
+          follow-imports: true
+          show-modules: true
+          output-dir: build
+          lto: yes
+          script-name: main.py
+        # run: |
+        #   python -m nuitka --onefile --standalone --follow-imports --show-modules --output-dir=build --lto=yes --show-progress main.py
+        # env:
+        #   VERSION: ${{ needs.get-version-number.outputs.VERSION }}
 
       - name: "Upload build"
         uses: actions/upload-artifact@v3
