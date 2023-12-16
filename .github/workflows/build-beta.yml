@@ -27,13 +27,11 @@ jobs:
       
           # Create an environment file
           echo "VERSION=${VERSION}.${SUB_VER}" >> $GITHUB_OUTPUT
-          echo "FULL_VERSION=${VERSION}.${SUB_VER}.0" >> $GITHUB_OUTPUT
           echo "SUB_VERSION=${SUB_VER}" >> $GITHUB_OUTPUT
         
     
     outputs:
       VERSION: ${{ steps.get_version.outputs.VERSION }}
-      FULL_VERSION: ${{ steps.get_version.outputs.FULL_VERSION }}
       SUB_VERSION: ${{ steps.get_version.outputs.SUB_VERSION }}
 
   build:
@@ -85,13 +83,12 @@ jobs:
             --windows-icon-from-ico=icon.ico\
             --windows-file-version=$VERSION\
             --windows-product-version=$VERSION\
-            --windows-version-string=$VERSION\
             main.py
         env:
-          VERSION: ${{ needs.get-version-number.outputs.FULL_VERSION }}
+          VERSION: ${{ needs.get-version-number.outputs.VERSION }}
 
       - name: "Upload build"
         uses: actions/upload-artifact@v3
         with:
-          name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}
+          name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
           path: build/*
