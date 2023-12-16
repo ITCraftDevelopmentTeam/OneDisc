@@ -34,12 +34,54 @@ jobs:
       VERSION: ${{ steps.get_version.outputs.VERSION }}
       SUB_VERSION: ${{ steps.get_version.outputs.SUB_VERSION }}
 
+
+  build-windows:
+    needs: get-version-number
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        arch: [x86, x64, arm64]
+    steps:
+      
+      - name: "Checkout"
+        uses: actions/checkout@v3
+      
+      - name: "Setup Python"
+        uses: actions/setup-python@v3
+        with:
+          python-version: 3.11  # 保证兼容性
+
+      - name: "Install requirements"
+        run: |
+          python -m pip install --upgrade pip
+          pip install -U -r requirements.txt
+          pip install -U nuitka imageio
+      
+      - name: "Write version number"
+        run: |
+          Add-Content -Path "version.py" -Value "SUB_VER = `$env:SUB_VER"
+        env:
+          SUB_VER: ${{ needs.get-version-number.outputs.SUB_VERSION }}
+          
+      - name: "Build executeable"
+        run: |
+          python -m nuitka --onefile --standalone --follow-imports --show-modules --output-dir=build --lto=yes --windows-icon-from-ico=icon.ico --windows-file-version=$env:VERSION --windows-product-version=$env:VERSION --show-progress --windows-product-name=OneDisc --windows-file-description="OneBot Implementation for Discord" main.py
+        env:
+          VERSION: ${{ needs.get-version-number.outputs.VERSION }}
+
+      - name: "Upload build"
+        uses: actions/upload-artifact@v3
+        with:
+          name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
+          path: build/*
+
   build:
     needs: get-version-number
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest]
         arch: [x86, x64, arm64]
     steps:
 
@@ -55,17 +97,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -U -r requirements.txt
-          pip install -U nuitka imageio
-      
-      - name: "Write version number (Windows)"
-        if: matrix.os == 'windows-latest'
-        run: |
-          Add-Content -Path "version.py" -Value "SUB_VER = `$env:SUB_VER"
-        env:
-          SUB_VER: ${{ needs.get-version-number.outputs.SUB_VERSION }}
-        
+          pip install -U nuitka
+    
       - name: "Write version number"
-        if: matrix.os != 'windows-latest'
         run: |
           echo "SUB_VER = $SUB_VER" >> version.py
         env:
@@ -73,7 +107,7 @@ jobs:
           
       - name: "Build executeable"
         run: |
-          python -m nuitka --onefile --standalone --follow-imports --show-modules --output-dir=build --lto=yes --windows-icon-from-ico=icon.ico --windows-file-version=$VERSION --windows-product-version=$VERSION --show-progress --windows-product-name=OneDisc --windows-file-description="OneBot Implementation for Discord" main.py
+          python -m nuitka --onefile --standalone --follow-imports --show-modules --output-dir=build --lto=yes --show-progress main.py
         env:
           VERSION: ${{ needs.get-version-number.outputs.VERSION }}
 
