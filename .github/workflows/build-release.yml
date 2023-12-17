@@ -95,7 +95,7 @@ jobs:
           # upload_url: ${{ github.event.release.upload_url }}
           path: ./build/onedisc.exe
           name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}.exe
-          # asset_content_type: application/octet-stream
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
 
   build:
@@ -151,4 +151,5 @@ jobs:
         with:
           path: ./build/onedisc.zip
           name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}.zip
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
 
