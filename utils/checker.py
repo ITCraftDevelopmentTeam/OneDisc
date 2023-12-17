@@ -37,7 +37,15 @@ def check_request_params(func: Callable, params: dict) -> tuple[bool, dict]:
         if config["system"].get("skip_params_type_checking", False):
             continue
         try:
-            if key in arg_spec.annotations.keys() and not isinstance(params[key], arg_spec.annotations[key]):
+            if not key in arg_spec.annotations.keys():
+                continue
+            arg_type = arg_spec.annotations[key]
+            if not isinstance(arg_type, type):
+                if hasattr(arg_type, "__origin__"):
+                    arg_type = arg_type.__origin__
+                else:
+                    continue
+            if not isinstance(params[key], arg_type if isinstance(arg_type)):
                 logger.warning(f"参数 {key} ({type(params[key])}，应为 {arg_spec.annotations[key]}) 类型不正确，尝试强制转换")
                 try:
                     params[key] = arg_spec.annotations[key](params[key])
