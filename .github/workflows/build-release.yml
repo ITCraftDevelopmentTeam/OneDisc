@@ -90,11 +90,14 @@ jobs:
           Move-Item -Path .\build\main.exe -Destination .\build\onedisc.exe
   
 
-      - name: Upload Assets
-        uses: actions/upload-artifact@v2
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v2
         with:
-          name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}
-          path: build/onedisc.exe
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/onedisc.exe
+          asset_name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}.exe
+          release_url: ${{ github.event.release.url }}
+
 
   build:
     needs: get-version-number
@@ -117,6 +120,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -U -r requirements.txt
+          sudo apt install -y zip
           pip install -U imageio
     
       - name: "Write version number"
@@ -138,9 +142,17 @@ jobs:
           lto: yes
           script-name: main.py
 
-      - name: Upload Assets
-        uses: actions/upload-artifact@v2
+      - name: "Rename application"
+        run: |
+          mv build/main.bin ./build/onedisc
+          cd build
+          zip -r onedisc.zip onedisc
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v2
         with:
-          name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}
-          path: build/onedisc
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: build/onedisc.zip
+          asset_name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}.zip
+          release_url: ${{ github.event.release.url }}
 
