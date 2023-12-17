@@ -91,7 +91,7 @@ jobs:
   
 
       - name: Upload Release Asset
-        uses: actions/upload-release-asset@v2
+        uses: actions/upload-release-asset@latest
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: build/onedisc.exe
@@ -149,7 +149,7 @@ jobs:
           zip -r onedisc.zip onedisc
 
       - name: Upload Release Asset
-        uses: actions/upload-release-asset@v2
+        uses: actions/upload-release-asset@latest
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: build/onedisc.zip
