@@ -1,0 +1,176 @@
+{
+  "total_count": 9,
+  "artifacts": [
+    {
+      "id": 1119514790,
+      "node_id": "MDg6QXJ0aWZhY3QxMTE5NTE0Nzkw",
+      "name": "OneDisc 0.1.5.50 for macos-latest-arm64",
+      "size_in_bytes": 22506528,
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514790",
+      "archive_download_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514790/zip",
+      "expired": false,
+      "created_at": "2023-12-17T01:39:26Z",
+      "updated_at": "2023-12-17T01:39:28Z",
+      "expires_at": "2024-03-16T01:30:40Z",
+      "workflow_run": {
+        "id": 7235385320,
+        "repository_id": 697880638,
+        "head_repository_id": 697880638,
+        "head_branch": "master",
+        "head_sha": "8c24a6c6d1e878135124383ac45200b954d47082"
+      }
+    },
+    {
+      "id": 1119514791,
+      "node_id": "MDg6QXJ0aWZhY3QxMTE5NTE0Nzkx",
+      "name": "OneDisc 0.1.5.50 for macos-latest-x64",
+      "size_in_bytes": 22506528,
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514791",
+      "archive_download_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514791/zip",
+      "expired": false,
+      "created_at": "2023-12-17T01:39:26Z",
+      "updated_at": "2023-12-17T01:39:28Z",
+      "expires_at": "2024-03-16T01:29:30Z",
+      "workflow_run": {
+        "id": 7235385320,
+        "repository_id": 697880638,
+        "head_repository_id": 697880638,
+        "head_branch": "master",
+        "head_sha": "8c24a6c6d1e878135124383ac45200b954d47082"
+      }
+    },
+    {
+      "id": 1119514792,
+      "node_id": "MDg6QXJ0aWZhY3QxMTE5NTE0Nzky",
+      "name": "OneDisc 0.1.5.50 for macos-latest-x86",
+      "size_in_bytes": 22506528,
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514792",
+      "archive_download_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514792/zip",
+      "expired": false,
+      "created_at": "2023-12-17T01:39:26Z",
+      "updated_at": "2023-12-17T01:39:28Z",
+      "expires_at": "2024-03-16T01:38:59Z",
+      "workflow_run": {
+        "id": 7235385320,
+        "repository_id": 697880638,
+        "head_repository_id": 697880638,
+        "head_branch": "master",
+        "head_sha": "8c24a6c6d1e878135124383ac45200b954d47082"
+      }
+    },
+    {
+      "id": 1119514793,
+      "node_id": "MDg6QXJ0aWZhY3QxMTE5NTE0Nzkz",
+      "name": "OneDisc 0.1.5.50 for ubuntu-latest-arm64",
+      "size_in_bytes": 30372218,
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514793",
+      "archive_download_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514793/zip",
+      "expired": false,
+      "created_at": "2023-12-17T01:39:26Z",
+      "updated_at": "2023-12-17T01:39:28Z",
+      "expires_at": "2024-03-16T01:20:17Z",
+      "workflow_run": {
+        "id": 7235385320,
+        "repository_id": 697880638,
+        "head_repository_id": 697880638,
+        "head_branch": "master",
+        "head_sha": "8c24a6c6d1e878135124383ac45200b954d47082"
+      }
+    },
+    {
+      "id": 1119514794,
+      "node_id": "MDg6QXJ0aWZhY3QxMTE5NTE0Nzk0",
+      "name": "OneDisc 0.1.5.50 for ubuntu-latest-x64",
+      "size_in_bytes": 30372218,
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514794",
+      "archive_download_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514794/zip",
+      "expired": false,
+      "created_at": "2023-12-17T01:39:26Z",
+      "updated_at": "2023-12-17T01:39:28Z",
+      "expires_at": "2024-03-16T01:19:52Z",
+      "workflow_run": {
+        "id": 7235385320,
+        "repository_id": 697880638,
+        "head_repository_id": 697880638,
+        "head_branch": "master",
+        "head_sha": "8c24a6c6d1e878135124383ac45200b954d47082"
+      }
+    },
+    {
+      "id": 1119514795,
+      "node_id": "MDg6QXJ0aWZhY3QxMTE5NTE0Nzk1",
+      "name": "OneDisc 0.1.5.50 for ubuntu-latest-x86",
+      "size_in_bytes": 30372218,
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514795",
+      "archive_download_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514795/zip",
+      "expired": false,
+      "created_at": "2023-12-17T01:39:26Z",
+      "updated_at": "2023-12-17T01:39:28Z",
+      "expires_at": "2024-03-16T01:20:34Z",
+      "workflow_run": {
+        "id": 7235385320,
+        "repository_id": 697880638,
+        "head_repository_id": 697880638,
+        "head_branch": "master",
+        "head_sha": "8c24a6c6d1e878135124383ac45200b954d47082"
+      }
+    },
+    {
+      "id": 1119514796,
+      "node_id": "MDg6QXJ0aWZhY3QxMTE5NTE0Nzk2",
+      "name": "OneDisc 0.1.5.50 for windows-latest-arm64",
+      "size_in_bytes": 17902080,
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514796",
+      "archive_download_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514796/zip",
+      "expired": false,
+      "created_at": "2023-12-17T01:39:26Z",
+      "updated_at": "2023-12-17T01:39:28Z",
+      "expires_at": "2024-03-16T01:23:35Z",
+      "workflow_run": {
+        "id": 7235385320,
+        "repository_id": 697880638,
+        "head_repository_id": 697880638,
+        "head_branch": "master",
+        "head_sha": "8c24a6c6d1e878135124383ac45200b954d47082"
+      }
+    },
+    {
+      "id": 1119514797,
+      "node_id": "MDg6QXJ0aWZhY3QxMTE5NTE0Nzk3",
+      "name": "OneDisc 0.1.5.50 for windows-latest-x64",
+      "size_in_bytes": 17901568,
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514797",
+      "archive_download_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514797/zip",
+      "expired": false,
+      "created_at": "2023-12-17T01:39:26Z",
+      "updated_at": "2023-12-17T01:39:28Z",
+      "expires_at": "2024-03-16T01:23:15Z",
+      "workflow_run": {
+        "id": 7235385320,
+        "repository_id": 697880638,
+        "head_repository_id": 697880638,
+        "head_branch": "master",
+        "head_sha": "8c24a6c6d1e878135124383ac45200b954d47082"
+      }
+    },
+    {
+      "id": 1119514798,
+      "node_id": "MDg6QXJ0aWZhY3QxMTE5NTE0Nzk4",
+      "name": "OneDisc 0.1.5.50 for windows-latest-x86",
+      "size_in_bytes": 17901568,
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514798",
+      "archive_download_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/artifacts/1119514798/zip",
+      "expired": false,
+      "created_at": "2023-12-17T01:39:26Z",
+      "updated_at": "2023-12-17T01:39:28Z",
+      "expires_at": "2024-03-16T01:24:17Z",
+      "workflow_run": {
+        "id": 7235385320,
+        "repository_id": 697880638,
+        "head_repository_id": 697880638,
+        "head_branch": "master",
+        "head_sha": "8c24a6c6d1e878135124383ac45200b954d47082"
+      }
+    }
+  ]
+}
