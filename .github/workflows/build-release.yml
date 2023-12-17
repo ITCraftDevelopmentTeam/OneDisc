@@ -1,13 +1,9 @@
-name: 'Build (Dev)'
+name: 'Build (Release)'
 
 on:
-  push:
-    branches:
-      - master
-  workflow_run:
-    workflows: ["Build (Release)"]
+  release:
     types:
-      - completed
+      - created
   workflow_dispatch:
 
 jobs:
@@ -94,10 +90,10 @@ jobs:
           Move-Item -Path .\build\main.exe -Destination .\build\onedisc.exe
   
 
-      - name: "Upload build"
-        uses: actions/upload-artifact@v3
+      - name: Upload Assets
+        uses: actions/upload-artifact@v2
         with:
-          name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
+          name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}
           path: build/onedisc.exe
 
   build:
@@ -141,37 +137,10 @@ jobs:
           output-dir: build
           lto: yes
           script-name: main.py
-          
-      - name: "Rename application"
-        run: |
-          mv build/main.bin build/onedisc
-  
-      - name: "Upload build"
-        uses: actions/upload-artifact@v3
+
+      - name: Upload Assets
+        uses: actions/upload-artifact@v2
         with:
-          name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
+          name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}
           path: build/onedisc
 
-  deloy-pages:
-    needs: [get-version-number, build, build-windows]
-    runs-on: ubuntu-latest
-    steps:
-
-      - name: "Checkout"
-        uses: actions/checkout@v3
-
-      - name: "Get output files"
-        run: |
-          mkdir output
-          echo "{\"version\": \"$VERSION\"}" > output/beta.json
-          echo $RUN_ID > output/run_id.txt
-        env:
-          VERSION: ${{ needs.get-version-number.outputs.VERSION }}
-          RUN_ID: ${{ github.run_id }}
-
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: output
