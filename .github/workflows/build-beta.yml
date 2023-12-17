@@ -159,11 +159,12 @@ jobs:
       - name: "Get output files"
         run: |
           mkdir output
-          echo '{"version": "$VERSION"}' > output/beta.json
-          curl -o output/artifacts.json https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/runs/$RUN_ID/artifacts
+          echo "{\"version\": \"$VERSION\"}" > output/beta.json
+          echo $RUN_ID > output/run_id.txt
         env:
           VERSION: ${{ needs.get-version-number.outputs.VERSION }}
           RUN_ID: ${{ github.run_id }}
+
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
