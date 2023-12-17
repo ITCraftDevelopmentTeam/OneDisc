@@ -90,13 +90,12 @@ jobs:
           Move-Item -Path .\build\main.exe -Destination .\build\onedisc.exe
   
       - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@latest
+        uses: Shopify/upload-to-release@v2.0.0
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./build/onedisc.exe
-          asset_name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}.exe
-          asset_content_type: application/octet-stream
+          # upload_url: ${{ github.event.release.upload_url }}
+          path: ./build/onedisc.exe
+          name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}.exe
+          # asset_content_type: application/octet-stream
 
 
   build:
@@ -148,11 +147,8 @@ jobs:
           zip -r onedisc.zip onedisc
 
       - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@latest
+        uses: Shopify/upload-to-release@v2.0.0
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ./build/onedisc.zip
-          asset_name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}.zip
-          asset_content_type: application/zip
+          path: ./build/onedisc.zip
+          name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}.zip
 
