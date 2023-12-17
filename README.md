@@ -17,4 +17,32 @@ Discord 平台的 OneBot 实现
 </div>
 
 > [!WARNING]
-> 虽然我们已经在努力重构，但本项目仍然有部分较为混乱的代码，在阅读时请注意控制您的血压
+> 本项目含有部分较为混乱的代码，在阅读时请注意控制您的血压
+
+> [!IMPORTANT]
+> 在使用之前，我们建议您阅读: [差异：OneBot V12](https://onedisc.itcdt.top/differences.html) 与 [差异：OneBot V11](https://onedisc.itcdt.top/diff-v11.html)
+
+> [!NOTE]
+> OneDisc 的稳定版暂时没有 MacOS 版本，我们建议 MacOS 用户使用测试版
+
+## 兼容性
+
+OneDisc 在 Discord 上实现了 OneBot V11/V12 标准，并做了一些拓展
+
+理论支持连接 NoneBot2、koishi 等所有支持 OneBot V11/V12 标准的框架
+
+## 关于 Issues
+
+以下 ISSUE 会被直接关闭
+
+- 询问已知问题
+- 提问找不到重点
+- 重复提问
+
+> [!TIP]
+> 请注意，开发者并没有义务回复您的问题，您应该具备基本的提问技巧。
+> 有关如何提问，请阅读[《提问的智慧》](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)
+
+## 性能
+
+待测试
