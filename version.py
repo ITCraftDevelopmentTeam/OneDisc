@@ -1,3 +1,3 @@
-VERSION = "0.1.5"
-SUB_VER = "0"
+VERSION = "0.1.6"
+SUB_VER = 0
 
