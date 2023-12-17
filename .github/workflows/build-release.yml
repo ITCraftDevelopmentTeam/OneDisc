@@ -89,14 +89,15 @@ jobs:
         run: |
           Move-Item -Path .\build\main.exe -Destination .\build\onedisc.exe
   
-
       - name: Upload Release Asset
+        id: upload-release-asset
         uses: actions/upload-release-asset@latest
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/onedisc.exe
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./build/onedisc.exe
           asset_name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}.exe
-          release_url: ${{ github.event.release.url }}
+          asset_content_type: application/octet-stream
+          token: ${{ secrets.GITHUB_TOKEN }}
 
 
   build:
@@ -149,10 +150,12 @@ jobs:
           zip -r onedisc.zip onedisc
 
       - name: Upload Release Asset
+        id: upload-release-asset
         uses: actions/upload-release-asset@latest
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: build/onedisc.zip
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ./build/onedisc.zip
           asset_name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}.zip
-          release_url: ${{ github.event.release.url }}
+          asset_content_type: application/zip
+          token: ${{ secrets.GITHUB_TOKEN }}
 
