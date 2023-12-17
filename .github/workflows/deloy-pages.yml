@@ -1,0 +1,28 @@
+name: 'Deloy GitHub Pages'
+
+on:
+  workflow_run:
+    workflows: ["Build (Dev)"]
+    types:
+      - completed
+  workflow_dispatch: 
+
+jobs:
+
+  deloy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v3
+      - name: "Update Pages File"
+        run: |
+          git checkout gh-pages
+          export RUN_ID=$(cat run_id.txt)
+          curl -o artifacts.json https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/actions/runs/$RUN_ID/artifacts
+          cat *.json
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
