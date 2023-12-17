@@ -97,7 +97,6 @@ jobs:
           asset_path: ./build/onedisc.exe
           asset_name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}.exe
           asset_content_type: application/octet-stream
-          token: ${{ secrets.GITHUB_TOKEN }}
 
 
   build:
@@ -156,5 +155,4 @@ jobs:
           asset_path: ./build/onedisc.zip
           asset_name: OneDisc for ${{ matrix.os }}-${{ matrix.arch }}.zip
           asset_content_type: application/zip
-          token: ${{ secrets.GITHUB_TOKEN }}
 
