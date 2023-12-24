@@ -71,13 +71,13 @@ class WebSocketClient:
             except Exception:
                 logger.warning(f"连接到反向 WebSocket {self.role} 时出现错误: {traceback.format_exc()}")
                 await asyncio.sleep(self.config["reconnect_interval"] * 1000)
-        logger.info(f"成功连接到反向 WebSocket {self.role} 服务器")
+        logger.info(f"成功连接到反向 WebSocket {self.role} 服务器: {self.get_url()}")
         self.connect_task = None
     
     async def send(self, data: dict) -> None:
         try:
             await self.ws.send(json.dumps(data))
-        except websockets.exceptions.ConnectionClosed:
+        except websockets.exceptions.ConnectionClosedError:
             logger.warning(f"从反向 WebSocket {self.role} 断开连接: {traceback.format_exc()}")
             await self.reconnect()
             await self.send(data)
@@ -90,18 +90,28 @@ class APIClient(WebSocketClient):
     
     async def handle_api_requests(self) -> None:
         while True:
+            await self.receive_api_request()
+    async def receive_api_request(self) -> None:
+        try:
             await self.send(translator.translate_action_response(
                 await call_action.on_call_action(
                     **(await self.get_api_request()),
                     protocol_version=11
                 )
             ))
+        except websockets.exceptions.ConnectionClosedError:
+            logger.warning(f"从 {self.get_url()} 断开连接: {traceback.format_exc()}")
+            await self.reconnect()
+        
 
     async def get_api_request(self) -> dict:
         try:
             return json.loads(await self.ws.recv())
         except websockets.exceptions.ConnectionClosed:
             logger.warning(f"从反向 WebSocket {self.role} 断开连接: {traceback.format_exc()}")
+            await self.reconnect()
+            return await self.get_api_request()
+        except AttributeError:
             await self.reconnect()
             return await self.get_api_request()
 
