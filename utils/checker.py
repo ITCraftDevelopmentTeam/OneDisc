@@ -45,7 +45,7 @@ def check_request_params(func: Callable, params: dict) -> tuple[bool, dict]:
                     arg_type = arg_type.__origin__
                 else:
                     continue
-            if not isinstance(params[key], arg_type if isinstance(arg_type)):
+            if not isinstance(params[key], arg_type):
                 logger.warning(f"参数 {key} ({type(params[key])}，应为 {arg_spec.annotations[key]}) 类型不正确，尝试强制转换")
                 try:
                     params[key] = arg_spec.annotations[key](params[key])
