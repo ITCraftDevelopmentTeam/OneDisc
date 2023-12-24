@@ -32,6 +32,10 @@ OneDisc 在 Discord 上实现了 OneBot V11/V12 标准，并做了一些拓展
 
 理论支持连接 NoneBot2、koishi 等所有支持 OneBot V11/V12 标准的框架
 
+## 使用
+
+见 [快速开始](https://onedisc.itcdt.top/quickstart.html)
+
 ## 关于 Issues
 
 以下 ISSUE 会被直接关闭
@@ -45,5 +49,7 @@ OneDisc 在 Discord 上实现了 OneBot V11/V12 标准，并做了一些拓展
 > 有关如何提问，请阅读[《提问的智慧》](https://github.com/ryanhanwu/How-To-Ask-Questions-The-Smart-Way/blob/main/README-zh_CN.md)
 
 ## 性能
+
+> 如果您有测试结果，可以提交 Pull Requests
 
 待测试
