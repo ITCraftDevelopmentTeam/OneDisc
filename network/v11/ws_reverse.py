@@ -70,7 +70,7 @@ class WebSocketClient:
                 break
             except Exception:
                 logger.warning(f"连接到反向 WebSocket {self.role} 时出现错误: {traceback.format_exc()}")
-                await asyncio.sleep(self.config["reconnect_interval"] * 1000)
+                await asyncio.sleep(self.config["reconnect_interval"] / 1000)
         logger.info(f"成功连接到反向 WebSocket {self.role} 服务器: {self.get_url()}")
         self.connect_task = None
     
