@@ -4,6 +4,7 @@ import time
 import actions.v12.file as file
 from utils.client import client
 import actions.v11.basic as basic
+from utils.message.v11.parser import parse_string_to_array
 from utils.logger import get_logger
 
 logger = get_logger()
@@ -68,7 +69,6 @@ async def translate_event(_event: dict) -> dict:
                 event["sender"]["role"] = basic.get_role(sender)
 
         
-       
     elif event["post_type"] == "meta_event" and event["meta_event_type"] == "heartbeat":
         event["status"] = (await basic.get_status())["data"]
     logger.debug(event)
@@ -96,7 +96,11 @@ def translate_action_response(_response: dict) -> dict:
     return response
 
 async def translate_message_array(_message: list) -> list:      # v11 -> v12
-    message = _message.copy()
+    if isinstance(_message, str):
+        message = parse_string_to_array(_message)
+        # 这样似乎可以解决，Issue #1
+    else:
+        message = _message.copy()
     i = -1
     for item in message:
         i += 1
