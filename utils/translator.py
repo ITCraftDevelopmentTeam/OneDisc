@@ -151,7 +151,7 @@ async def translate_message_array(_message: list) -> list:      # v11 -> v12
                 elif item["data"]["file"].startswith("base64"):
                     message[i]["data"]["file_id"] = (await file.upload_file(
                         "data",
-                        f"{int(time.time())}",
+                        f"{int(time.time())}{config['system'].get('base64_default_image_type', '.png')}",
                         data=item["data"]["file"][9:]
                     ))["data"]["file_id"]
                 if item["type"] == "record":
