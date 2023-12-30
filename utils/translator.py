@@ -58,7 +58,8 @@ async def translate_event(_event: dict) -> dict:
             event["sender"]["nickname"] = sender.name
         
         if event["message_type"] == "private":
-            event["sub_type"] = config["system"].get("default_message_sub_type", "group")
+            event["sub_type"] = config["system"].get("default_message_sub_type", "friend")
+            event["font"] = 0
         
         elif event["message_type"] == "group":
             event["sub_type"] = "normal"
