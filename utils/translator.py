@@ -112,7 +112,7 @@ async def translate_message_array(_message: list) -> list:      # v11 -> v12
                     "file": f"https://raw.githubusercontent.com/richardchien/coolq-http-api/master/docs/qq-face/{item['data']['id']}.{'png' if config['system'].get('use_static_face') else 'gif'}"
                 }
             }
-        elif item["type"] in ["channel", "emoji", "role", "timestamp", "navigation"]:
+        elif item["type"] in ["channel", "emoji", "role", "timestamp", "navigation", "markdown"]:
             message[i]["type"] = item["type"] = f'discord.{item["type"]}'
         match item["type"]:
             case "location":
@@ -158,8 +158,10 @@ async def translate_message_array(_message: list) -> list:      # v11 -> v12
                 if item["type"] == "record":
                     item["type"] = "voice"
             case "discord.channel":
+                message[i]["type"] = "discord.channel"
                 message[i]["data"]["channel_id"] = str(message[i]["data"]["channel_id"])
             case "discord.role":
+                message[i]["type"] = "discord.role"
                 message[i]["data"]["id"] = str(message[i]["data"]["id"])
             case "share":
                 message[i]["type"] = "discord.embed"
@@ -184,7 +186,7 @@ async def translate_message_array(_message: list) -> list:      # v11 -> v12
             #         )["data"]["file_id"]
     logger.debug(message)
     return message
-           
+
 async def translate_v12_message_to_v11(v12_message: list) -> list:
     message = v12_message.copy()
     for i in range(len(message)):

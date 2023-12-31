@@ -1,8 +1,10 @@
+import base64
 import actions.v12.file as file
 from utils.logger import get_logger
 from utils.config import config
 from utils.client import client
 import discord
+from discord.utils import escape_markdown
 import utils.message.v12.tokenizer as tokenizer
 import re
 import discord.file
@@ -59,7 +61,10 @@ async def parse_message(message: list) -> dict:
                 }
             match segment["type"]:
                 case "text":
-                    message_data["content"] += escape_mentions(segment["data"]["text"])
+                    content = escape_mentions(segment["data"]["text"])
+                    if config["system"].get("escape_markdown", False):
+                        content = escape_markdown(content)
+                    message_data["content"] += content
                 case "mention":
                     message_data["content"] += f"<@{segment['data']['user_id']}>"
                 case "mention_all":
@@ -115,7 +120,12 @@ async def parse_message(message: list) -> dict:
                                 value=field.get("value"),
                                 inline=field.get("inline")
                             )
-        
+
+                case "discord.markdown":
+                    data = segment["data"]["data"]
+                    if data.startswith("base64://"):
+                        data = base64.b64decode(data).decode("utf-8")
+                    message_data["content"] += data
 
                 case _:
                     if config["system"].get("ignore_unsupported_segment"):
