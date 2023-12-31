@@ -24,7 +24,7 @@ Discord 平台的 OneBot 实现
 > 在使用之前，我们建议您阅读: [差异：OneBot V12](https://onedisc.itcdt.top/differences.html) 与 [差异：OneBot V11](https://onedisc.itcdt.top/diff-v11.html)
 
 > [!NOTE]
-> OneDisc 的稳定版暂时没有 MacOS 版本，我们建议 MacOS 用户使用测试版
+> OneDisc 的稳定版暂时没有 MacOS 版本[^2]，我们建议 MacOS 用户使用测试版[^3]
 
 ## 兼容性
 
@@ -53,3 +53,5 @@ OneDisc 在 Discord 上实现了 OneBot V11/V12 标准，并做了一些拓展
 内存占用约 70MB[^1]，稳定运行无报错
 
 [^1]: 启用了心跳事件、合并转发转图片等功能，所以内存占用偏大
+[^2]: 我们尝试提供 MacOS 版本，但是 [Actions](https://github.com/ITCraftDevelopmentTeam/OneDisc/actions/workflows/build-release.yml) 报错了
+[^3]: 同版本号的测试版和稳定版内容一致，请放心使用
