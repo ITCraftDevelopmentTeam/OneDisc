@@ -1,0 +1,20 @@
+{
+  "name": "OneDisc-Homepage",
+  "version": "1.0.0",
+  "description": "基于 Discord 的 OneBot 实现",
+  "main": "index.js",
+  "repository": "https://github.com/ITCraftDevelopmentTeam/OneDisc-Homepage",
+  "author": "IT Craft Development Team",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "vitepress": "^1.0.0-rc.20"
+  },
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:serve": "vitepress serve docs"
+  }
+
+
+}
