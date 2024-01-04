@@ -7,6 +7,7 @@ import utils.event as event
 import discord
 import asyncio
 
+from utils.update_checker import check_update
 from actions.v12.basic import get_status
 from actions.v11.basic import get_role
 
@@ -30,6 +31,8 @@ async def on_ready() -> None:
         "status_update",
         status=(await get_status())["data"]
     )
+    if config["system"].get("check_update", True):
+        asyncio.create_task(check_update())
 
 
 @client.event

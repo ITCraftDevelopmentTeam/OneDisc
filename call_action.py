@@ -1,8 +1,8 @@
 from actions import action_list
 from typing import Callable
-from utils.checker import check_request_params
+from utils.type_checker import check_request_params
 import utils.return_object as return_object 
-from utils.checker import BadParam
+from utils.type_checker import BadParam
 from utils.logger import get_logger
 import traceback
 from utils.message.v12.parser import UnsupportedSegment, BadSegmentData
