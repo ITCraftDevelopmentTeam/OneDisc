@@ -1,7 +1,7 @@
 from utils.logger import get_logger
 import asyncio
 import utils.event as event
-import actions.v11.quick_reply as quick_reply
+import actions.v11.quick_operation as quick_operation
 import json
 from utils.client import client
 import httpx
@@ -60,7 +60,7 @@ class HttpPost:
         elif response.status_code == 200:
             content = response.json()
             logger.debug(f"收到快速操作请求：{content}")
-            await quick_reply.handle_quick_reply(content, event)
+            await quick_operation.handle_quick_operation(content, event)
         else:
             logger.warning(f"上报事件时发生错误：{response.status_code}")
 
