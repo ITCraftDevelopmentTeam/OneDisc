@@ -1,9 +1,9 @@
 {
-  "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/135431180",
-  "assets_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/135431180/assets",
-  "upload_url": "https://uploads.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/135431180/assets{?name,label}",
-  "html_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/tag/v0.2.0",
-  "id": 135431180,
+  "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/136085333",
+  "assets_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/136085333/assets",
+  "upload_url": "https://uploads.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/136085333/assets{?name,label}",
+  "html_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/tag/v0.2.1",
+  "id": 136085333,
   "author": {
     "login": "This-is-XiaoDeng",
     "id": 104149371,
@@ -24,19 +24,19 @@
     "type": "User",
     "site_admin": false
   },
-  "node_id": "RE_kwDOKZjQPs4IEoQM",
-  "tag_name": "v0.2.0",
+  "node_id": "RE_kwDOKZjQPs4IHH9V",
+  "tag_name": "v0.2.1",
   "target_commitish": "master",
-  "name": "v0.2.0",
+  "name": "v0.2.1",
   "draft": false,
   "prerelease": false,
-  "created_at": "2023-12-31T09:20:22Z",
-  "published_at": "2023-12-31T09:22:27Z",
+  "created_at": "2024-01-07T04:46:24Z",
+  "published_at": "2024-01-07T04:57:43Z",
   "assets": [
     {
-      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/assets/143135246",
-      "id": 143135246,
-      "node_id": "RA_kwDOKZjQPs4IiBIO",
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/assets/144190287",
+      "id": 144190287,
+      "node_id": "RA_kwDOKZjQPs4ImCtP",
       "name": "OneDisc.for.ubuntu-latest-arm64.zip",
       "label": "",
       "uploader": {
@@ -61,16 +61,16 @@
       },
       "content_type": "application/octet-stream",
       "state": "uploaded",
-      "size": 30347101,
+      "size": 30364404,
       "download_count": 0,
-      "created_at": "2023-12-31T09:34:29Z",
-      "updated_at": "2023-12-31T09:34:30Z",
-      "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.0/OneDisc.for.ubuntu-latest-arm64.zip"
+      "created_at": "2024-01-07T05:12:58Z",
+      "updated_at": "2024-01-07T05:12:59Z",
+      "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.1/OneDisc.for.ubuntu-latest-arm64.zip"
     },
     {
-      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/assets/143135330",
-      "id": 143135330,
-      "node_id": "RA_kwDOKZjQPs4IiBJi",
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/assets/144190268",
+      "id": 144190268,
+      "node_id": "RA_kwDOKZjQPs4ImCs8",
       "name": "OneDisc.for.ubuntu-latest-x64.zip",
       "label": "",
       "uploader": {
@@ -95,16 +95,16 @@
       },
       "content_type": "application/octet-stream",
       "state": "uploaded",
-      "size": 30347107,
+      "size": 30364456,
       "download_count": 0,
-      "created_at": "2023-12-31T09:34:52Z",
-      "updated_at": "2023-12-31T09:34:54Z",
-      "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.0/OneDisc.for.ubuntu-latest-x64.zip"
+      "created_at": "2024-01-07T05:12:35Z",
+      "updated_at": "2024-01-07T05:12:36Z",
+      "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.1/OneDisc.for.ubuntu-latest-x64.zip"
     },
     {
-      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/assets/143135329",
-      "id": 143135329,
-      "node_id": "RA_kwDOKZjQPs4IiBJh",
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/assets/144190220",
+      "id": 144190220,
+      "node_id": "RA_kwDOKZjQPs4ImCsM",
       "name": "OneDisc.for.ubuntu-latest-x86.zip",
       "label": "",
       "uploader": {
@@ -129,16 +129,16 @@
       },
       "content_type": "application/octet-stream",
       "state": "uploaded",
-      "size": 30347194,
+      "size": 30364553,
       "download_count": 0,
-      "created_at": "2023-12-31T09:34:48Z",
-      "updated_at": "2023-12-31T09:34:49Z",
-      "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.0/OneDisc.for.ubuntu-latest-x86.zip"
+      "created_at": "2024-01-07T05:12:21Z",
+      "updated_at": "2024-01-07T05:12:22Z",
+      "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.1/OneDisc.for.ubuntu-latest-x86.zip"
     },
     {
-      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/assets/143135668",
-      "id": 143135668,
-      "node_id": "RA_kwDOKZjQPs4IiBO0",
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/assets/144190592",
+      "id": 144190592,
+      "node_id": "RA_kwDOKZjQPs4ImCyA",
       "name": "OneDisc.for.windows-latest-arm64.exe",
       "label": "",
       "uploader": {
@@ -163,16 +163,16 @@
       },
       "content_type": "application/octet-stream",
       "state": "uploaded",
-      "size": 17957376,
+      "size": 17974784,
       "download_count": 0,
-      "created_at": "2023-12-31T09:37:23Z",
-      "updated_at": "2023-12-31T09:37:23Z",
-      "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.0/OneDisc.for.windows-latest-arm64.exe"
+      "created_at": "2024-01-07T05:16:07Z",
+      "updated_at": "2024-01-07T05:16:08Z",
+      "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.1/OneDisc.for.windows-latest-arm64.exe"
     },
     {
-      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/assets/143135461",
-      "id": 143135461,
-      "node_id": "RA_kwDOKZjQPs4IiBLl",
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/assets/144190793",
+      "id": 144190793,
+      "node_id": "RA_kwDOKZjQPs4ImC1J",
       "name": "OneDisc.for.windows-latest-x64.exe",
       "label": "",
       "uploader": {
@@ -197,16 +197,16 @@
       },
       "content_type": "application/octet-stream",
       "state": "uploaded",
-      "size": 17957376,
+      "size": 17975296,
       "download_count": 0,
-      "created_at": "2023-12-31T09:36:23Z",
-      "updated_at": "2023-12-31T09:36:24Z",
-      "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.0/OneDisc.for.windows-latest-x64.exe"
+      "created_at": "2024-01-07T05:17:20Z",
+      "updated_at": "2024-01-07T05:17:20Z",
+      "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.1/OneDisc.for.windows-latest-x64.exe"
     },
     {
-      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/assets/143135660",
-      "id": 143135660,
-      "node_id": "RA_kwDOKZjQPs4IiBOs",
+      "url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/releases/assets/144190626",
+      "id": 144190626,
+      "node_id": "RA_kwDOKZjQPs4ImCyi",
       "name": "OneDisc.for.windows-latest-x86.exe",
       "label": "",
       "uploader": {
@@ -231,15 +231,15 @@
       },
       "content_type": "application/octet-stream",
       "state": "uploaded",
-      "size": 17957376,
+      "size": 17974784,
       "download_count": 0,
-      "created_at": "2023-12-31T09:36:48Z",
-      "updated_at": "2023-12-31T09:36:49Z",
-      "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.0/OneDisc.for.windows-latest-x86.exe"
+      "created_at": "2024-01-07T05:16:17Z",
+      "updated_at": "2024-01-07T05:16:18Z",
+      "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.1/OneDisc.for.windows-latest-x86.exe"
     }
   ],
-  "tarball_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/tarball/v0.2.0",
-  "zipball_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/zipball/v0.2.0",
-  "body": "## What's Changed\r\n* 将文档移动到本仓库 by @This-is-XiaoDeng in https://github.com/ITCraftDevelopmentTeam/OneDisc/pull/8\r\n* 转义 `text` 段中的 Markdown by @This-is-XiaoDeng in https://github.com/ITCraftDevelopmentTeam/OneDisc/pull/10\r\n* Update README.md by @This-is-XiaoDeng in https://github.com/ITCraftDevelopmentTeam/OneDisc/pull/9\r\n* Create auto-merge.yml by @This-is-XiaoDeng in https://github.com/ITCraftDevelopmentTeam/OneDisc/pull/11\r\n* Update version.py by @This-is-XiaoDeng in https://github.com/ITCraftDevelopmentTeam/OneDisc/pull/12\r\n\r\n## 更新内容\r\n\r\n1. 支持 `CQ:markdown` 消息段\r\n2. 支持在发送消息时转义 MarkDown\r\n3. 将文档迁移到本仓库\r\n4. 更新 CI\r\n5. 完善 README.md\r\n\r\n**Full Changelog**: https://github.com/ITCraftDevelopmentTeam/OneDisc/compare/v0.1.9...v0.2.0",
+  "tarball_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/tarball/v0.2.1",
+  "zipball_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/zipball/v0.2.1",
+  "body": "## What's Changed\r\n* 在启动时检查更新 by @This-is-XiaoDeng in https://github.com/ITCraftDevelopmentTeam/OneDisc/pull/13\r\n* 自动识别 System 字段拉平 by @This-is-XiaoDeng in https://github.com/ITCraftDevelopmentTeam/OneDisc/pull/15\r\n* 实现 OneBot V11 快速操作 by @This-is-XiaoDeng in https://github.com/ITCraftDevelopmentTeam/OneDisc/pull/14\r\n* 更新版本号 by @This-is-XiaoDeng in https://github.com/ITCraftDevelopmentTeam/OneDisc/pull/16\r\n\r\n## 更新内容\r\n\r\n### OneBot V11\r\n\r\n1. 实现事件快速操作\r\n2. 实现 `.handle_quick_operation`  动作\r\n\r\n### 其他\r\n\r\n1. 支持在启动时检查更新\r\n2. 自动识别配置中 `system` 字段是否被拉平\r\n3. 修正部分拼写错误\r\n\r\n**Full Changelog**: https://github.com/ITCraftDevelopmentTeam/OneDisc/compare/v0.2.0...v0.2.1",
   "mentions_count": 1
 }
