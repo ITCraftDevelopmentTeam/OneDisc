@@ -9,7 +9,7 @@ logger = get_logger()
 
 class BadParam(Exception): pass
 
-def check_aruments(*args) -> None:
+def check_arguments(*args) -> None:
     if None in args:
         raise BadParam("None is not allowed")
     

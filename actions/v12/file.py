@@ -128,7 +128,7 @@ async def get_file_fragmented(
 
     match stage:
         case "prepare":
-            type_checker.check_aruments(file_id)
+            type_checker.check_arguments(file_id)
             return return_object.get(
                 0,
                 name=file_name,
@@ -136,7 +136,7 @@ async def get_file_fragmented(
                 sha256=hashlib.sha256(content).hexdigest()
             )
         case "transfer":
-            type_checker.check_aruments(file_id, offset, size)
+            type_checker.check_arguments(file_id, offset, size)
             return return_object.get(
                 0,
                 data=base64.b64encode(content[offset:offset + size]).decode("utf-8")    # type: ignore
@@ -159,7 +159,7 @@ async def upload_file_fragmented(
     match stage:
 
         case "prepare":
-            type_checker.check_aruments(name, total_size)
+            type_checker.check_arguments(name, total_size)
             uploading_files[file_id := str(uuid.uuid1())] = {
                 "name": name,
                 "content": [0] * total_size
@@ -169,7 +169,7 @@ async def upload_file_fragmented(
             )
         
         case "transfer":
-            type_checker.check_aruments(file_id, offset, data)
+            type_checker.check_arguments(file_id, offset, data)
             byte_offset = 0
             for byte in list(base64.b64decode(data)):
                 uploading_files[file_id]["content"][offset + byte_offset] = byte
@@ -177,7 +177,7 @@ async def upload_file_fragmented(
             return return_object.get()
         
         case "finish":
-            type_checker.check_aruments(file_id, offset, sha256)
+            type_checker.check_arguments(file_id, offset, sha256)
             file_name = uploading_files[file_id]['name']
             with open(f".cache/files/{file_name}", "wb") as f:
                 f.write(bytes(uploading_files.pop(file_id)["content"]))
@@ -202,7 +202,7 @@ async def upload_file(
     match type:
 
         case "url":
-            type_checker.check_aruments(name, url)
+            type_checker.check_arguments(name, url)
             is_successful = await upload_file_from_url(
                 url,
                 headers, 
@@ -218,14 +218,14 @@ async def upload_file(
             )
 
         case "name":
-            type_checker.check_aruments(name, path)
+            type_checker.check_arguments(name, path)
             is_successful = upload_file_from_path(name, path)
             if not is_successful[0]:
                 return return_object.get(32001, is_successful[1])
             return return_object.get(0, file_id=register_saved_file(name))
 
         case "data":
-            type_checker.check_aruments(name, data)
+            type_checker.check_arguments(name, data)
             is_successful = upload_file_from_data(name, data)
             if not is_successful[0]:
                 return return_object.get(32001, is_successful[1])
@@ -262,7 +262,7 @@ async def clean_files() -> None:
             file_list.pop(file_id)
             continue
         if file_id in cached_url_list:
-            if config["system"].get("cahce_first"):
+            if config["system"].get("cache_first"):
                 logger.warning(f"文件 {file_list[file_id]} ({file_id}) 已被缓存，正在删除储存文件")
                 file_list.pop(file_id)
                 continue

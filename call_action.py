@@ -22,6 +22,8 @@ def get_action_function(action: str, protocol_version: int) -> Callable | None:
     Returns:
         Callable: 动作执行函数
     """
+    if config["system"].get("action_isolation"):
+        return action_list[f"v{protocol_version}"].get(action)
     if action in action_list.get(f"v{protocol_version}", {}).keys():
         return action_list[f"v{protocol_version}"][action]
     for actions in action_list.values():
