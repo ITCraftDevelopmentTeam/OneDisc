@@ -14,6 +14,7 @@ logger.info(f"当前版本：{VERSION}.{SUB_VER}")
 import utils.event.discord_event
 import actions.v12.file
 import actions.v12.basic
+import utils.commands
 import actions.v11.basic
 import actions.v11.operations
 

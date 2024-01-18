@@ -4,7 +4,7 @@ from typing import Any, Literal
 from utils.logger import get_logger
 from utils.client import client
 import utils.message.v11.parser as parser
-import utils.message.v12.parser as parser
+# import utils.message.v12.parser as parser
 import utils.translator as translator
 import imgkit
 

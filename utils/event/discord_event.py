@@ -1,10 +1,11 @@
-from utils.client import client
+from utils.client import client, tree
 from utils.config import config
 from network import init_connections
 import utils.event.heartbeat_event as heartbeat_event
 import utils.message.v12.parser as parser
 import utils.event as event
 import discord
+from discord import Object
 import asyncio
 
 from utils.update_checker import check_update
@@ -23,6 +24,7 @@ logger = get_logger()
 @client.event
 async def on_ready() -> None:
     logger.info(f"成功登陆到 {client.user}")
+    await tree.sync(guild = Object(id=1006772208460365845))
     await init_connections(config["servers"])
     asyncio.create_task(heartbeat_event.setup_heartbeat_event(config["system"].get("heartbeat", {})))
     logger.info(config["system"].get("started_text", "OneDisc 已成功启动"))
