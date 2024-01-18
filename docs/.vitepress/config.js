@@ -9,6 +9,7 @@ module.exports = {
       { text: "开始", link: "/quickstart.md"},
       { text: "配置", link: "/config.md"},
       { text: "差异", link: "/differences.md"},
+      { text: "命令", link: "/slash-command.md"},
       { text: "讨论", link: "/join-discord.md"},
       { text: "下载", link: "/download.md"}
     ]

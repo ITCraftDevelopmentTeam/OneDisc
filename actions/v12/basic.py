@@ -9,6 +9,7 @@ import utils.message.v12.parser as parser
 from utils.config import config
 from utils.logger import get_logger, discord_api_failed
 from actions import register_action, action_list
+from utils import commands
 
 logger = get_logger()
 
@@ -55,13 +56,19 @@ async def send_message(
         logger.warning(f"频道 {group_id} 不存在")
         return return_object.get(35001, "频道（群号）不存在")
     parsed_message = await parser.parse_message(message)
-    try:
-        msg = await channel.send(**parsed_message)  # type: ignore
-    except discord.HTTPException as e:
-        logger.debug(traceback.format_exc())
-        return return_object.get(34000, str(e))
-    message_id = msg.id
-
+    if _channel_id not in commands.deferred_sessions:
+        try:
+            msg = await channel.send(**parsed_message)  # type: ignore
+        except discord.HTTPException as e:
+            logger.debug(traceback.format_exc())
+            return return_object.get(34000, str(e))
+        message_id = msg.id
+    else:
+        try:
+            message_id = await commands.deferred_sessions[_channel_id][0](**parsed_message)
+        except discord.HTTPException as e:
+            logger.debug(traceback.format_exc())
+            return return_object.get(34000, str(e))
     return return_object.get(0, message_id=message_id, time=time.time())
 
 

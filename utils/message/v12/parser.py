@@ -190,6 +190,9 @@ def parse_string(string: str, msg: discord.Message | None = None) -> list:
                         "style": token[1][-2] if token[1][-2] in ["s", "m", "h", "d"] else "d"
                     }
                 })
+    if not msg:
+        logger.debug(message)
+        return message
     for attachment in msg.attachments:
         for file_type in ["image", "video", "audio"]:
             if attachment.content_type.startswith(file_type):
