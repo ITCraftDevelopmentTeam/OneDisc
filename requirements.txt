@@ -1,6 +1,6 @@
 fastapi
 uvicorn
 httpx
-aiohttp>=3.7.4,<4
+discord-py
 imgkit
 websockets
