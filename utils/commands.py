@@ -1,12 +1,20 @@
+import traceback
 from typing import Awaitable, Callable, Optional, cast
 from .logger import get_logger
 from .event.command_event import on_command
 from .client import tree, client
+from .config import config
 import json
 from discord import Interaction, Object
 
 logger = get_logger()
-commands = cast(list[dict], json.load(open("commands.json")))
+try:
+    commands = cast(list[dict], json.load(open("commands.json")))
+except FileNotFoundError:
+    commands = []
+except json.JSONDecodeError:
+    logger.error(f"无法读取指令列表: {traceback.format_exc()}")
+    commands = []
 deferred_sessions: dict[str, tuple[Callable[..., Awaitable[int]], Callable[[], Awaitable[None]]]] = {}
 
 async def handle_command(interaction: Interaction, args: Optional[str]) -> None:
@@ -15,21 +23,28 @@ async def handle_command(interaction: Interaction, args: Optional[str]) -> None:
         return
     if not (user := client.get_user(interaction.user.id)):
         return    
-    content = f"/{interaction.command.name} {args}"
+    
+    content = f"{config['system'].get('prefix', '/')}{interaction.command.name} {args}"
     await interaction.response.defer()
     session_id = str(interaction.channel_id or interaction.user.id)
     if session_id in deferred_sessions:
         await deferred_sessions[session_id][1]()
+
     def remove() -> None:
         deferred_sessions.pop(session_id, None)
+
     async def followup(**kwargs) -> int:
         await interaction.followup.send(**kwargs)
         remove()
         return interaction.followup.id
+    
     async def abandon() -> None:
-        await interaction.followup.send("failed")
+        # 我不知道有没有用，但是它能跑
+        await interaction.followup.send(config['system'].get('command_timeout_message', 'timeout'))
         remove()
+
     deferred_sessions[session_id] = (followup, abandon)
+
     await on_command(
         interaction.guild,
         interaction.created_at,
@@ -41,8 +56,9 @@ async def handle_command(interaction: Interaction, args: Optional[str]) -> None:
 
 def register_commands() -> None:
     for command in commands:
-        command["guild"] = Object(id=1006772208460365845)
+        if "guild" in command:
+            command["guild"] = Object(id=int(command["guild"]))
         tree.command(**command)(handle_command)
-        logger.debug(f"已注册指令: {command['name']}")
+        logger.debug(f"已注册指令: {command['name']} (guild={command.get('guild')})")
 
 register_commands()

@@ -24,7 +24,10 @@ logger = get_logger()
 @client.event
 async def on_ready() -> None:
     logger.info(f"成功登陆到 {client.user}")
-    await tree.sync(guild = Object(id=1006772208460365845))
+    for guild in config["system"].get("sync_guilds", []):
+        await tree.sync(guild = Object(id=int(guild)))
+    if config["system"].get("sync_globally", False):
+        await tree.sync()
     await init_connections(config["servers"])
     asyncio.create_task(heartbeat_event.setup_heartbeat_event(config["system"].get("heartbeat", {})))
     logger.info(config["system"].get("started_text", "OneDisc 已成功启动"))
