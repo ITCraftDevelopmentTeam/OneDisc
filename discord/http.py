@@ -24,6 +24,8 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
+verify_ssl = True
+
 import asyncio
 import logging
 import sys
@@ -793,12 +795,12 @@ class HTTPClient:
         # Necessary to get aiohttp to stop complaining about session creation
         if self.connector is MISSING:
             # discord does not support ipv6
-            self.connector = aiohttp.TCPConnector(limit=0, family=socket.AF_INET)
+            self.connector = aiohttp.TCPConnector(limit=0, family=socket.AF_INET, ssl=verify_ssl)
 
         self.__session = aiohttp.ClientSession(
             connector=self.connector,
             ws_response_class=DiscordClientWebSocketResponse,
-            trace_configs=None if self.http_trace is None else [self.http_trace],
+            trace_configs=None if self.http_trace is None else [self.http_trace]
         )
         self._global_over = asyncio.Event()
         self._global_over.set()
