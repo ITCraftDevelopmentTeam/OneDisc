@@ -58,6 +58,9 @@ def register_commands() -> None:
     for command in commands:
         if "guild" in command:
             command["guild"] = Object(id=int(command["guild"]))
+        if "guilds" in command:
+            for i in range(len(command["guilds"])):
+                command['guilds'][i] = Object(id=int(command['guilds'][i]))
         tree.command(**command)(handle_command)
         logger.debug(f"已注册指令: {command['name']} (guild={command.get('guild')})")
 
