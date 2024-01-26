@@ -31,15 +31,6 @@ async def translate_event(_event: dict) -> dict:
     for key in event.keys():
         if key.endswith("_id"):
             event[key] = int(event[key])
-    # if "user_id" in event.keys():
-    #     event["user_id"] = int(event["user_id"])
-    # if "group_id" in event.keys():
-    #     event["group_id"] = int(event["group_id"])
-    # if "operator_id" in event.keys():
-    #     event["operator_id"] = int(event["operator_id"])
-    # if "message_id" in event.keys():
-    #     event["message_id"] = int(event["message_id"])
-
     if event["post_type"] == "notice":
         match event["notice_type"]:
             case "group_message_delete":
@@ -203,7 +194,10 @@ async def translate_v12_message_to_v11(v12_message: list) -> list:
                 with open(".cache/cached_url.json", "r", encoding="utf-8") as f:
                     cached_url = json.load(f)
                 if message[i]["data"]["file_id"] in cached_url:
-                    message[i]["data"]["file"] = cached_url[message[i]["data"]["file_id"]]["name"]
+                    message[i]["data"]["file"] = "_".join([
+                        message[i]["data"]["file_id"],
+                        cached_url[message[i]["data"]["file_id"]]["name"]
+                    ])
                     message[i]["data"]["url"] = cached_url[message[i]["data"]["file_id"]]["url"]
                 else:
                     message[i]["data"]["file"] = await file.get_file_name_by_id(message[i]["data"]["file_id"])

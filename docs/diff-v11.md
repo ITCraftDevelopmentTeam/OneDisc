@@ -53,7 +53,6 @@
 | 获取 CSRF Token  | `get_csrf_token`          | ~~这是什么.jpg~~         |
 | 获取 QQ 接口凭证 | `get_credentials`         | ~~这是什么.jpg~~         |
 | 获取语音         | `get_record`              | ~~这玩意不写CQ码上了吗~~ |
-| 获取图片         | `get_image`               | ~~这玩意不写CQ码上了吗~~ |
 | 获取群成员信息   | `get_group_member_info`   | 平台限制，只能获取 `user_id`、`nickname`、`card`、`sex`、`join_time`、`role` 字段 |
 
 > 「说明」为空的接口表示「暂未实现」将在后续版本完成
