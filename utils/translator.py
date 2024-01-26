@@ -88,7 +88,7 @@ def translate_action_response(_response: dict) -> dict:
     return response
 
 async def translate_message_array(_message: list) -> list:      # v11 -> v12
-    if isinstance(_message, str):
+    if not isinstance(_message, list):
         message = parse_string_to_array(_message)
         # 这样似乎可以解决，Issue #1
     else:
