@@ -99,7 +99,8 @@ def translate_action_response(_response: dict) -> dict:
 async def translate_message_array(_message: list) -> list:      # v11 -> v12
     if isinstance(_message, str):
         message = parse_string_to_array(_message)
-        # 这样似乎可以解决，Issue #1
+    elif isinstance(_message, dict):
+        message = [_message]
     else:
         message = _message.copy()
     i = -1
