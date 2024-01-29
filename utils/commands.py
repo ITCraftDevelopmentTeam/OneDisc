@@ -24,7 +24,7 @@ async def handle_command(interaction: Interaction, args: Optional[str]) -> None:
     if not (user := client.get_user(interaction.user.id)):
         return    
     
-    content = f"{config['system'].get('prefix', '/')}{interaction.command.name} {args}"
+    content = f"{config['system'].get('prefix', '/')}{interaction.command.name} {args or ''}"
     await interaction.response.defer()
     session_id = str(interaction.channel_id or interaction.user.id)
     if session_id in deferred_sessions:
