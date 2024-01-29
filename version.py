@@ -1,3 +1,3 @@
-VERSION = "0.2.4"
+VERSION = "0.2.5"
 SUB_VER = 0
 
