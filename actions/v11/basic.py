@@ -383,3 +383,4 @@ async def set_group_admin(group_id: int, user_id: int, enable: bool = True) -> d
     overwrites[member] = discord.PermissionOverwrite(manage_channels=enable, manage_permissions=enable)
     await channel.edit(overwrites=overwrites)
     return return_object.get(0)
+
