@@ -30,10 +30,15 @@ class HttpServer:
         self.event_list = []
 
         if self.config["event_enabled"] and self.config["event_buffer_size"] <= 0:
-            logger.warning("警告: 事件缓冲区大小配置不正确，可能导致内存泄露！")
+            logger.warning(f"[{self.config['host']}:{self.config['port']}] 事件缓冲区大小配置不正确，可能导致内存泄露！")
 
         self.app = fastapi.FastAPI()
         self.app.add_route("/", self.handle_http_connection, ["post"])        
+        self.check_access_token()
+
+    def check_access_token(self) -> None:
+        if self.config["host"] == "0.0.0.0" or self.config["access_token"]:
+            logger.warning(f'[HTTP {self.config["host"]}:{self.config["port"]}] 未配置 Access Token !')
 
     async def start_server(self):
         await uvicorn_server.run(self.app, self.config["port"], self.config["host"])
