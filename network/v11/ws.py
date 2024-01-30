@@ -22,6 +22,11 @@ class WebSocket:
         self.app.add_websocket_route("/", self.handle_root_route)
         self.app.add_websocket_route("/event", self.handle_event_route)
         self.app.add_websocket_route("/api", self.handle_api_route)
+        self.check_access_token()
+
+    def check_access_token(self) -> None:
+        if self.config["host"] == "0.0.0.0" or self.config["access_token"]:
+            logger.warning(f'[{self.config["host"]}:{self.config["port"]}] 未配置 Access Token !')
 
     async def start(self) -> None:
         await uvicorn_server.run(

@@ -28,6 +28,11 @@ class WebSocketServer:
         self.clients: list[fastapi.WebSocket] = []
         self.app = fastapi.FastAPI()
         self.app.add_websocket_route("/", self.handle_ws_connect)
+        self.check_access_token()
+
+    def check_access_token(self) -> None:
+        if self.config["host"] == "0.0.0.0" or self.config["access_token"]:
+            logger.warning(f'[{self.config["host"]}:{self.config["port"]}] 未配置 Access Token !')
         
     async def start_server(self) -> None:
         await uvicorn_server.run(self.app, self.config["port"], self.config["host"])

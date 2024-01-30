@@ -1,6 +1,7 @@
 from network.authentication import verify_access_token
 import utils.uvicorn_server as uvicorn_server
 import fastapi
+from utils.logger import get_logger
 import call_action
 
 BASE_CONFIG = {
@@ -8,6 +9,7 @@ BASE_CONFIG = {
     "port": 5700,
     "access_token": None
 }
+logger = get_logger()
 
 class HttpServer:
 
@@ -15,6 +17,11 @@ class HttpServer:
         self.config = BASE_CONFIG | config
         self.app = fastapi.FastAPI()
         self.app.add_route("/{action}", self.handle_request, ["GET", "POST"])
+        self.check_access_token()
+
+    def check_access_token(self) -> None:
+        if self.config["host"] == "0.0.0.0" or self.config["access_token"]:
+            logger.warning(f'[{self.config["host"]}:{self.config["port"]}] 未配置 Access Token !')
 
     async def start_server(self) -> None:
         await uvicorn_server.run(self.app, host=self.config["host"], port=self.config["port"])
