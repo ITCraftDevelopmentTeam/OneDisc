@@ -133,6 +133,7 @@ class UniversalClient(APIClient, EventClient):
         self.role = "Universal"
 
 async def init_websocket_reverse_connection(config: dict) -> Callable:
+    config = BASE_CONFIG | config
     if config["use_universal_client"]:
         client = UniversalClient(config)
         client.connect_task = asyncio.create_task(client.connect())
