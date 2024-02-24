@@ -7,7 +7,7 @@ import utils.event as event
 import discord
 from discord import Object
 import asyncio
-
+from ..db import commit_message, init_database
 from utils.update_checker import check_update
 from actions.v12.basic import get_status
 from actions.v11.basic import get_role
@@ -38,6 +38,7 @@ async def on_ready() -> None:
     )
     if config["system"].get("check_update", True):
         asyncio.create_task(check_update())
+    await init_database()
 
 
 @client.event
@@ -45,6 +46,7 @@ async def on_message(message: discord.Message) -> None:
     if message.author == client.user and config["system"].get("ignore_self_events", True):
         return
     print_message_log(message)
+    await commit_message(message.id, message.channel.id, int(message.created_at.timestamp()))
     if message.guild and config["system"].get("enable_channel_event"):
         event.new_event(
             _type="message",

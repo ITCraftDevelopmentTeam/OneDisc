@@ -202,3 +202,14 @@ def parse_string(string: str, msg: discord.Message | None = None) -> list:
             message.append({"type": "file", "data": {"file_id": file.create_url_cache(attachment.filename, attachment.url)}})
     logger.debug(message)
     return message
+
+def parse_dict_message(msg: dict) -> list:
+    message = parse_string(msg["content"])
+    for attachment in msg["attachments"]:
+        for file_type in ["image", "video", "audio"]:
+            if attachment["content_type"].startswith(file_type):
+                message.append({"type": file_type, "data": {"file_id": file.create_url_cache(attachment["filename"], attachment["url"])}})
+                break
+        else:
+            message.append({"type": "file", "data": {"file_id": file.create_url_cache(attachment["filename"], attachment["url"])}})
+    return message

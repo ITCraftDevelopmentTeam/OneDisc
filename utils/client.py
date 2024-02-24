@@ -13,3 +13,4 @@ client = Client(
     proxy=config["system"]["proxy"]
 )
 tree = app_commands.CommandTree(client)
+

@@ -5,6 +5,7 @@ import utils.return_object as return_object
 from utils.type_checker import BadParam
 from utils.logger import get_logger
 import traceback
+from utils.discord_api import DiscordApiException
 from utils.message.v12.parser import UnsupportedSegment, BadSegmentData
 import random
 from utils.config import config
@@ -48,6 +49,11 @@ async def on_call_action(action: str, params: dict, echo: str | None = None, pro
         return return_object.get(10006, str(e))
     except BadParam as e:
         return return_object.get(10003, str(e))
+    except DiscordApiException as e:
+        return return_object.get(
+            34002,
+            e.message
+        )
     except Exception as e:
         logger.error(traceback.format_exc())
         return_data = return_object.get(20002, str(e))

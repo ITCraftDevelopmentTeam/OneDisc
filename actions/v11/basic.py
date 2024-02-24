@@ -1,12 +1,13 @@
 import asyncio
+from utils import discord_api
 import sys
-import httpx
+from utils.db import get_session, Message
 import actions.v12.basic as basic
 from actions import register_action
 from discord.abc import PrivateChannel
 import utils.node2image as node2image
 from discord.channel import CategoryChannel, ForumChannel
-from utils.logger import discord_api_failed, get_logger
+from utils.logger import get_logger
 import os
 import utils.translator as translator
 import utils.message.v11.parser as parser
@@ -14,6 +15,7 @@ import utils.return_object as return_object
 from utils.config import config
 from utils.client import client
 import utils.message.v11.parser as parser
+from utils.message.v12 import parser as v12_parser
 import version
 import discord
 import actions.v12.file as file
@@ -151,25 +153,25 @@ async def get_login_info() -> dict:
 
 @register_action("v11")
 async def get_msg(message_id: int) -> dict:
-    for msg in client.cached_messages:
-        if msg.id == message_id:
-            return return_object.get(
-                0,
-                time=-1,
-                message_type="normal",
-                message_id=msg.id,
-                real_id=msg.id,
-                sender={
-                    "user_id": msg.author.id,
-                    "nickname": msg.author.name,
-                    "card": msg.author.display_name,
-                    "sex": "unknown"
-                },
-                message=parser.parse_string_to_array(msg.content)
-            )
+    async with get_session() as session:
+        message = await session.get_one(
+            Message,
+            message_id
+        )
+    message_data = await discord_api.call("GET", f"/channels/{message.channel}/messages/{message.id}")
     return return_object.get(
-        1404,
-        "消息不存在！"
+        0,
+        time=message.time,
+        message_type="private" if message.channel == message_data["author"]["id"] else "group",
+        message_id=message.id,
+        real_id=message.id,
+        sender={
+            "user_id": message_data["author"]["id"],
+            "nickname": message_data["author"]["name"],
+            "card": message_data["author"]["display_name"],
+            "sex": "unknown"
+        },
+        message=translator.translate_message_array(v12_parser.parse_dict_message(message_data))
     )
 
 @register_action("v11")
@@ -203,13 +205,7 @@ async def set_group_ban(group_id: int, user_id: int, duration: int = 1800, reaso
 @register_action("v11")
 async def set_group_leave(group_id: int, is_dismiss: bool = False) -> dict:
     if is_dismiss:
-        async with httpx.AsyncClient(proxies=config["system"].get("proxy")) as client:
-            response = await client.delete(
-                f"https://discord.com/api/v10/channels/{group_id}",
-                headers={"Authorization": f"Bot {config['account_token']}"}
-            )
-        if response.status_code == 400:
-            return discord_api_failed(response)
+        await discord_api.call("DELETE", f"/channels/{group_id}")
         return return_object.get(0)
     return translator.translate_action_response(await basic.leave_group(str(group_id)))
 
