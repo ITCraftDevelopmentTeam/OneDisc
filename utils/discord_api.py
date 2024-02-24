@@ -24,4 +24,8 @@ async def call(method: str, path: str, data: dict | None = None, **params) -> di
         )
     if response.status_code == 400:
         raise DiscordApiException(response.json())
+    elif response.status_code == 204:
+        return {
+            "code": 204
+        }
     return response.json()
