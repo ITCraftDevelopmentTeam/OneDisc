@@ -14,10 +14,10 @@ class DiscordApiException(Exception):
         logger.warning(f"调用 Discord API 时出现错误（{self.code}）：\n{json.dumps(self.data, indent=4)}")
 
 async def call(method: str, path: str, data: dict | None = None, **params) -> dict:
-    async with httpx.AsyncClient(proxies=config["system"].get("proxy")) as client:
+    async with httpx.AsyncClient(proxies=config["system"].get("proxy"), base_url="https://discord.com/api/v10") as client:
         response = await client.request(
             method,
-            f"https://discord.com/api/v10{path}",
+            path,
             data=data,
             headers={"Authorization": f"Bot {config['account_token']}"},
             **params
