@@ -1,10 +1,10 @@
-from typing import Callable, Coroutine, Literal
+from typing import Callable, Literal
+from utils.config import config as system_config
 from utils.client import client
 import utils.translator as translator
 import websockets
 import json
 import json
-import utils.event as event
 import call_action
 import asyncio
 import traceback
@@ -53,6 +53,7 @@ class WebSocketClient:
     async def create_connection(self) -> None:
         self.ws = await websockets.client.connect(
             self.get_url(),
+            max_size=system_config["system"].get("max_message_size", 2**20),
             extra_headers=self.get_headers()
         )
     

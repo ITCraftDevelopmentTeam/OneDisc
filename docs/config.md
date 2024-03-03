@@ -145,6 +145,20 @@ wkhtmltopdf 可执行程序路径
 
 `can_send_record` (OneBot V11) 接口中 `yes` 字段内容
 
+### 反向 WebSocket 最大消息大小（`max_message_size`）
+
+| 类型       | 必须 | 默认值                 |
+|:----------:|:----:|:----------------------:|
+| 数字       | 否   | `1048576`               |
+
+OneBot V11 和 OneBot V12 的反向 WebSocket 连接中最大消息大小，单位为字节，默认 1MB（即 `2^20`）
+
+如果在使用过程中出现以下错误请考虑增大这一配置项的数值: 
+
+```python
+websockets.exceptions.ConnectionClosedError: sent 1009 (message too big); no close frame received
+```
+
 ### 跳过参数类型检查（`skip_params_type_checking`）
 
 
@@ -410,7 +424,13 @@ OneDisc 完成启动后打印的日志的内容
 
 ### OneBot V11
 
-> 在所有采用 OneBot V11 标准的连接中，请确保指定 `"protocol_version": 11`（默认值为 `12` ）。若不正确设定，将会收到「无效的连接类型或协议版本」的提示。
+::: tip
+
+在所有采用 OneBot V11 标准的连接中，请确保指定 `"protocol_version": 11`（默认值为 `12` ）。
+
+若不正确设定，将会收到「无效的连接类型或协议版本」的提示。
+
+:::
 
 <details>
 <summary>HTTP</summary>
