@@ -3,7 +3,7 @@ import utils.event as event
 import call_action
 import asyncio
 import traceback
-
+from utils.config import config as system_config
 from utils.logger import get_logger
 from version import VERSION
 
@@ -29,7 +29,8 @@ class WebSocketClient:
         self.websocket = await websockets.client.connect(
             self.config["url"],
             user_agent_header=f"OneBot/12 (discord) OneDisc/{VERSION}",
-            extra_headers=self.get_headers()
+            extra_headers=self.get_headers(),
+            max_size=system_config["system"].get("max_message_size", 2**20),
         )
         logger.info(f"已连接到 WebSocket 服务器：{self.config['url']}")
         await self.send(event.get_event_object(
