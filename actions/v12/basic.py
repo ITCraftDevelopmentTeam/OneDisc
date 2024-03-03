@@ -1,15 +1,14 @@
-import httpx
 from utils.client import client
 import discord
 from version import VERSION
 import utils.return_object as return_object
 import time
 import traceback
+from utils.db import commit_message, get_session, Message
 import utils.message.v12.parser as parser
-from utils.config import config
-from utils.logger import get_logger, discord_api_failed
+from utils.logger import get_logger
 from actions import register_action, action_list
-from utils import commands
+from utils import commands, discord_api
 
 logger = get_logger()
 
@@ -69,6 +68,7 @@ async def send_message(
         except discord.HTTPException as e:
             logger.debug(traceback.format_exc())
             return return_object.get(34000, str(e))
+    await commit_message(message_id, channel.id, int(time.time()))
     return return_object.get(0, message_id=message_id, time=time.time())
 
 
@@ -103,31 +103,13 @@ async def get_status() -> dict:
 
 @register_action()
 async def set_group_name(group_id: str, group_name: str) -> dict:
-    async with httpx.AsyncClient(proxies=config["system"].get("proxy")) as client:
-        response = await client.patch(
-            f"https://discord.com/api/v10/channels/{group_id}",
-            data={"name": group_name},
-            headers={
-                "Authorization": f"Bot {config['account_token']}"
-            }
-        )
-    if response.status_code == 400:
-        return discord_api_failed(response)
+    await discord_api.call("PATCH", f"/channels/{group_id}", {"name": group_name})
     return return_object.get(0)
         
 
 @register_action()
 async def set_guild_name(guild_id: str, guild_name: str) -> dict:
-    async with httpx.AsyncClient(proxies=config["system"].get("proxy")) as client:
-        response = await client.patch(
-            f"https://discord.com/api/v10/guilds/{guild_id}",
-            data={"name": guild_name},
-            headers={
-                "Authorization": f"Bot {config['account_token']}"
-            }
-        )
-    if response.status_code == 400:
-        return discord_api_failed(response)
+    await discord_api.call("PATCH", f"/guilds/{guild_id}", {"name": guild_name})
     return return_object.get(0)
 
 @register_action()
@@ -141,17 +123,12 @@ async def get_version() -> dict:
 
 @register_action()
 async def delete_message(message_id: str) -> dict:
-    for message in client.cached_messages[::-1]:
-        if str(message.id) == message_id:
-            try:
-                await message.delete()
-            except discord.Forbidden:
-                return return_object.get(34001, "权限错误")
-            except discord.NotFound:
-                return return_object.get(35002, "消息已被撤回")
-            break
-    else:
-        return return_object.get(35002, "消息不存在")
+    async with get_session() as session:
+        message = await session.get_one(
+            Message,
+            int(message_id)
+        )
+    await discord_api.call("DELETE", f"/channels/{message.channel}/messages/{message.id}")
     return return_object.get(0)
 
 

@@ -82,6 +82,21 @@ OneDisc 高级设置（无特殊需要不建议更改）
 
 将合并转发消息渲染为图片缓存并发送时使用的图片类型
 
+
+### 数据库地址（`database`）
+
+| 类型       | 必须 | 默认值                 |
+|:----------:|:----:|:----------------------:|
+| 字符串      | 否   | `sqlite+aiosqlite:///:memory:` |
+
+OneDisc 缓存消息使用的数据库地址
+
+参考 [Engine Configuration — SQLAlchemy 2.0 Documentation](https://docs.sqlalchemy.org/en/20/core/engines.html#database-urls)
+
+不支持自动创建数据库
+
+> 目前可执行版只支持 SQLite3，源码版使用其他数据库需要手动安装依赖
+
 ### 使用静态表情（`use_static_face`）
 
 | 类型       | 必须 | 默认值                 |

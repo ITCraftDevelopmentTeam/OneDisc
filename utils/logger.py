@@ -48,12 +48,12 @@ def print_message_delete_log(message: discord.Message) -> None:
     except AttributeError:
         logger.info(f"{message.author.name}({message.author.id}) 撤回了消息：{message.content}")
 
-def discord_api_failed(response: httpx.Response) -> dict:
-    body = json.loads(response.read())
-    logger.warning(f"调用 Discord API 时出现错误（{body['cdoe']}）：\n{json.dumps(body, indent=4)}")
-    return {
-        "status": "failed",
-        "retcode": 34002,
-        "data": None,
-        "message": body["message"]
-    }
+# def discord_api_failed(response: httpx.Response) -> dict:
+#     body = json.loads(response.read())
+#     logger.warning(f"调用 Discord API 时出现错误（{body['code']}）：\n{json.dumps(body, indent=4)}")
+#     return {
+#         "status": "failed",
+#         "retcode": 34002,
+#         "data": None,
+#         "message": body["message"]
+#     }
