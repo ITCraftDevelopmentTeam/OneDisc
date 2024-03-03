@@ -117,6 +117,8 @@
 | `time`       | int         | Unix 时间戳               |
 | `style`      | str         | 时间格式，[参见][3]       |
 
+[3]: https://discord.com/developers/docs/reference#message-formatting-timestamp-styles
+
 #### `navigation` Navigation
 
 | 字段名       | 数据类型    | 说明                      |
