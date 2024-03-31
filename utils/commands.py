@@ -15,7 +15,7 @@ except FileNotFoundError:
 except json.JSONDecodeError:
     logger.error(f"无法读取指令列表: {traceback.format_exc()}")
     commands = []
-deferred_sessions: dict[str, tuple[Callable[..., Awaitable[int]], Callable[[], Awaitable[None]]]] = {}
+deferred_sessions: dict[str, tuple[Callable[..., Awaitable[None]], Callable[[], Awaitable[None]]]] = {}
 
 async def handle_command(interaction: Interaction, args: Optional[str]) -> None:
     logger.debug(f"收到命令: {interaction.command} ({args=})")
@@ -33,10 +33,9 @@ async def handle_command(interaction: Interaction, args: Optional[str]) -> None:
     def remove() -> None:
         deferred_sessions.pop(session_id, None)
 
-    async def followup(**kwargs) -> int:
+    async def followup(**kwargs) -> None:
         await interaction.followup.send(**kwargs)
         remove()
-        return interaction.followup.id
     
     async def abandon() -> None:
         # 我不知道有没有用，但是它能跑
