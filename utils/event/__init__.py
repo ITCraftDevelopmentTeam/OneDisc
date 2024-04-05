@@ -20,7 +20,7 @@ def get_event_object(
         "id": str(uuid.uuid1()),
         "self": {
             "platform": "discord",
-            "user_id": client.user.id,
+            "user_id": str(client.user.id),
         },
         "time": _time or time.time(),
         "type": _type,

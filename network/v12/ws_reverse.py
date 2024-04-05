@@ -41,6 +41,7 @@ class WebSocketClient:
                 "version": dict(impl="onedisc", version=VERSION, onebot_version="12")
             }
         ))
+        asyncio.create_task(self.setup_receive_loop())
 
     async def setup_receive_loop(self) -> None:
         while not hasattr(self, "reconnect_task"):
