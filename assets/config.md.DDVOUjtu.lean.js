@@ -1,0 +1,1 @@
+import{_ as t,c as e,o as s,a2 as a}from"./chunks/framework.CQ12TVIp.js";const g=JSON.parse('{"title":"配置","description":"","frontmatter":{},"headers":[],"relativePath":"config.md","filePath":"config.md"}'),i={name:"config.md"},d=a("",132),n=[d];function l(h,o,r,c,p,k){return s(),e("div",null,n)}const u=t(i,[["render",l]]);export{g as __pageData,u as default};
