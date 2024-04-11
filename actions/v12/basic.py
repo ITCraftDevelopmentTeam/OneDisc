@@ -62,13 +62,14 @@ async def send_message(
             logger.debug(traceback.format_exc())
             return return_object.get(34000, str(e))
         message_id = msg.id
+        await commit_message(message_id, channel.id, int(time.time()))
     else:
         try:
-            message_id = await commands.deferred_sessions[_channel_id][0](**parsed_message)
+            await commands.deferred_sessions[_channel_id][0](**parsed_message)
         except discord.HTTPException as e:
             logger.debug(traceback.format_exc())
             return return_object.get(34000, str(e))
-    await commit_message(message_id, channel.id, int(time.time()))
+        message_id = "-1"
     return return_object.get(0, message_id=message_id, time=time.time())
 
 
