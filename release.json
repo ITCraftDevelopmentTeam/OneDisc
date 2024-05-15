@@ -96,7 +96,7 @@
       "content_type": "application/octet-stream",
       "state": "uploaded",
       "size": 30555634,
-      "download_count": 1,
+      "download_count": 2,
       "created_at": "2024-02-16T10:03:45Z",
       "updated_at": "2024-02-16T10:03:46Z",
       "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.6/OneDisc.for.ubuntu-latest-x64.zip"
@@ -198,7 +198,7 @@
       "content_type": "application/octet-stream",
       "state": "uploaded",
       "size": 18035200,
-      "download_count": 3,
+      "download_count": 5,
       "created_at": "2024-02-16T10:17:40Z",
       "updated_at": "2024-02-16T10:17:41Z",
       "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.6/OneDisc.for.windows-latest-x64.exe"
