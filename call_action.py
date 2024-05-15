@@ -36,7 +36,7 @@ def get_action_function(action: str, protocol_version: int) -> Callable | None:
 async def on_call_action(action: str, params: dict, echo: str | None = None, protocol_version: int = 12, **_) -> dict:
     logger.debug(f"请求执行动作：{action} ({params=}, {echo=}, {protocol_version=})")
     if config['system'].get("allow_strike") and random.random() <= 0.1:
-        return return_object.get(36000, "I am tried.")
+        return return_object.get(36000, "I am tired.")
     if not (action_function := get_action_function(action, protocol_version)):
         return return_object.get(10002, f"未定义的动作：{action}")
     if not (params_checking_result := check_request_params(action_function, params))[0]:
