@@ -43,7 +43,7 @@ async def on_ready() -> None:
 
 @client.event
 async def on_message(message: discord.Message) -> None:
-    if message.author == client.user and config["system"].get("ignore_self_events", True):
+    if (message.author == client.user and config["system"].get("ignore_self_events", True)) or message.author.bot and config["system"].get("ignore_bot_event"):
         return
     print_message_log(message)
     await commit_message(message.id, message.channel.id, int(message.created_at.timestamp()))
@@ -83,7 +83,7 @@ async def on_message(message: discord.Message) -> None:
 
 @client.event
 async def on_message_delete(message: discord.Message) -> None:
-    if message.author == client.user and config["system"].get("ignore_self_events", True):
+    if (message.author == client.user and config["system"].get("ignore_self_events", True)) or (message.author.bot and config["system"].get("ignore_bot_event")):
         return
     print_message_delete_log(message)
     if message.guild and config["system"].get("enable_channel_event"):
@@ -130,6 +130,8 @@ async def on_member_join(member: discord.Member) -> None:
 
 @client.event
 async def on_member_remove(member: discord.Member) -> None:
+    if member.bot and config["system"].get("ignore_bot_event"):
+        return
     logger.info(f"用户 {member.name} ({member.id}) 离开了服务器 {member.guild.name} ({member.guild.id})")
     if config["system"].get("enable_channel_event"):
         event.new_event(
