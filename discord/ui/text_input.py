@@ -36,7 +36,9 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 
     from ..types.components import TextInput as TextInputPayload
-    from ..types.interactions import ModalSubmitTextInputInteractionData as ModalSubmitTextInputInteractionDataPayload
+    from ..types.interactions import (
+        ModalSubmitTextInputInteractionData as ModalSubmitTextInputInteractionDataPayload,
+    )
     from .view import View
     from ..interactions import Interaction
 
@@ -47,7 +49,7 @@ __all__ = (
 )
 # fmt: on
 
-V = TypeVar('V', bound='View', covariant=True)
+V = TypeVar("V", bound="View", covariant=True)
 
 
 class TextInput(Item[V]):
@@ -89,9 +91,9 @@ class TextInput(Item[V]):
     """
 
     __item_repr_attributes__: Tuple[str, ...] = (
-        'label',
-        'placeholder',
-        'required',
+        "label",
+        "placeholder",
+        "required",
     )
 
     def __init__(
@@ -112,7 +114,9 @@ class TextInput(Item[V]):
         self._provided_custom_id = custom_id is not MISSING
         custom_id = os.urandom(16).hex() if custom_id is MISSING else custom_id
         if not isinstance(custom_id, str):
-            raise TypeError(f'expected custom_id to be str not {custom_id.__class__.__name__}')
+            raise TypeError(
+                f"expected custom_id to be str not {custom_id.__class__.__name__}"
+            )
 
         self._underlying = TextInputComponent._raw_construct(
             label=label,
@@ -137,7 +141,7 @@ class TextInput(Item[V]):
     @custom_id.setter
     def custom_id(self, value: str) -> None:
         if not isinstance(value, str):
-            raise TypeError('custom_id must be a str')
+            raise TypeError("custom_id must be a str")
 
         self._underlying.custom_id = value
         self._provided_custom_id = True
@@ -149,7 +153,7 @@ class TextInput(Item[V]):
     @property
     def value(self) -> str:
         """:class:`str`: The value of the text input."""
-        return self._value or ''
+        return self._value or ""
 
     @property
     def label(self) -> str:
@@ -220,8 +224,10 @@ class TextInput(Item[V]):
     def _refresh_component(self, component: TextInputComponent) -> None:
         self._underlying = component
 
-    def _refresh_state(self, interaction: Interaction, data: ModalSubmitTextInputInteractionDataPayload) -> None:
-        self._value = data.get('value', None)
+    def _refresh_state(
+        self, interaction: Interaction, data: ModalSubmitTextInputInteractionDataPayload
+    ) -> None:
+        self._value = data.get("value", None)
 
     @classmethod
     def from_component(cls, component: TextInputComponent) -> Self:

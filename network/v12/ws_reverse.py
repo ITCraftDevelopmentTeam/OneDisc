@@ -10,11 +10,7 @@ from version import VERSION
 import websockets.client
 import websockets.exceptions
 
-BASE_CONFIG = {
-    "url": "",
-    "access_token": None,
-    "reconnect_interval": 5000
-}
+BASE_CONFIG = {"url": "", "access_token": None, "reconnect_interval": 5000}
 logger = get_logger()
 
 
@@ -33,14 +29,18 @@ class WebSocketClient:
             max_size=system_config["system"].get("max_message_size", 2**20),
         )
         logger.info(f"已连接到 WebSocket 服务器：{self.config['url']}")
-        await self.send(event.get_event_object(
-            "meta",
-            "connect",
-            "",
-            params={
-                "version": dict(impl="onedisc", version=VERSION, onebot_version="12")
-            }
-        ))
+        await self.send(
+            event.get_event_object(
+                "meta",
+                "connect",
+                "",
+                params={
+                    "version": dict(
+                        impl="onedisc", version=VERSION, onebot_version="12"
+                    )
+                },
+            )
+        )
         asyncio.create_task(self.setup_receive_loop())
 
     async def setup_receive_loop(self) -> None:
@@ -81,21 +81,18 @@ class WebSocketClient:
             del self.reconnect_task
             asyncio.create_task(self.setup_receive_loop())
 
-
     async def _reconnect(self) -> None:
         while True:
             try:
                 await self.connect()
             except Exception as e:
                 logger.error(f"连接 WebSocket 时发生错误：{e}")
-                await asyncio.sleep(self.config['reconnect_interval'] * 0.001)
+                await asyncio.sleep(self.config["reconnect_interval"] * 0.001)
                 continue
             break
-    
+
     def get_headers(self) -> dict:
-        headers = {
-            "Sec-WebSocket-Protocol": "12.onedisc"
-        }
+        headers = {"Sec-WebSocket-Protocol": "12.onedisc"}
         if self.config.get("access_token"):
             headers["Authorization"] = f"Bearer {self.config['access_token']}"
         return headers

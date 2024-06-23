@@ -56,35 +56,35 @@ VerificationLevel = Literal[0, 1, 2, 3, 4]
 NSFWLevel = Literal[0, 1, 2, 3]
 PremiumTier = Literal[0, 1, 2, 3]
 GuildFeature = Literal[
-    'ANIMATED_BANNER',
-    'ANIMATED_ICON',
-    'APPLICATION_COMMAND_PERMISSIONS_V2',
-    'AUTO_MODERATION',
-    'BANNER',
-    'COMMUNITY',
-    'CREATOR_MONETIZABLE_PROVISIONAL',
-    'CREATOR_STORE_PAGE',
-    'DEVELOPER_SUPPORT_SERVER',
-    'DISCOVERABLE',
-    'FEATURABLE',
-    'INVITE_SPLASH',
-    'INVITES_DISABLED',
-    'MEMBER_VERIFICATION_GATE_ENABLED',
-    'MONETIZATION_ENABLED',
-    'MORE_EMOJI',
-    'MORE_STICKERS',
-    'NEWS',
-    'PARTNERED',
-    'PREVIEW_ENABLED',
-    'ROLE_ICONS',
-    'ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE',
-    'ROLE_SUBSCRIPTIONS_ENABLED',
-    'TICKETED_EVENTS_ENABLED',
-    'VANITY_URL',
-    'VERIFIED',
-    'VIP_REGIONS',
-    'WELCOME_SCREEN_ENABLED',
-    'RAID_ALERTS_DISABLED',
+    "ANIMATED_BANNER",
+    "ANIMATED_ICON",
+    "APPLICATION_COMMAND_PERMISSIONS_V2",
+    "AUTO_MODERATION",
+    "BANNER",
+    "COMMUNITY",
+    "CREATOR_MONETIZABLE_PROVISIONAL",
+    "CREATOR_STORE_PAGE",
+    "DEVELOPER_SUPPORT_SERVER",
+    "DISCOVERABLE",
+    "FEATURABLE",
+    "INVITE_SPLASH",
+    "INVITES_DISABLED",
+    "MEMBER_VERIFICATION_GATE_ENABLED",
+    "MONETIZATION_ENABLED",
+    "MORE_EMOJI",
+    "MORE_STICKERS",
+    "NEWS",
+    "PARTNERED",
+    "PREVIEW_ENABLED",
+    "ROLE_ICONS",
+    "ROLE_SUBSCRIPTIONS_AVAILABLE_FOR_PURCHASE",
+    "ROLE_SUBSCRIPTIONS_ENABLED",
+    "TICKETED_EVENTS_ENABLED",
+    "VANITY_URL",
+    "VERIFIED",
+    "VIP_REGIONS",
+    "WELCOME_SCREEN_ENABLED",
+    "RAID_ALERTS_DISABLED",
 ]
 
 
@@ -104,8 +104,7 @@ class _GuildPreviewUnique(TypedDict):
     approximate_presence_count: int
 
 
-class GuildPreview(_BaseGuildPreview, _GuildPreviewUnique):
-    ...
+class GuildPreview(_BaseGuildPreview, _GuildPreviewUnique): ...
 
 
 class Guild(_BaseGuildPreview):
@@ -154,8 +153,7 @@ class InviteGuild(Guild, total=False):
     welcome_screen: WelcomeScreen
 
 
-class GuildWithCounts(Guild, _GuildPreviewUnique):
-    ...
+class GuildWithCounts(Guild, _GuildPreviewUnique): ...
 
 
 class GuildPrune(TypedDict):

@@ -30,53 +30,49 @@ CONNECTION_TYPE = Union[
     network.v12.ws_reverse.WebSocketClient,
     network.v11.http.HttpServer,
     network.v11.http_post.HttpPost,
-    network.v11.ws.WebSocket
+    network.v11.ws.WebSocket,
 ]
+
+
 async def start_connection(
-        obj: CONNECTION_TYPE,
-        setup_method: str | None = "start_server",
-        event_handler_method: str = "push_event"
+    obj: CONNECTION_TYPE,
+    setup_method: str | None = "start_server",
+    event_handler_method: str = "push_event",
 ) -> Callable:
     if setup_method is not None:
         await getattr(obj, setup_method)()
     return getattr(obj, event_handler_method)
 
+
 SUPPORTED_CONNECT_TYPES: dict[int, dict[str, Callable[[dict], Coroutine]]] = {
     12: {
         "http": lambda config: start_connection(
-            network.v12.http.HttpServer(config),
-            "start_server"
+            network.v12.http.HttpServer(config), "start_server"
         ),
         "http-webhook": lambda config: start_connection(
-            network.v12.http_webhook.HttpWebhook(config),
-            None,
-            "on_event"
+            network.v12.http_webhook.HttpWebhook(config), None, "on_event"
         ),
         "ws": lambda config: start_connection(
-            network.v12.ws.WebSocketServer(config),
-            "start_server"
+            network.v12.ws.WebSocketServer(config), "start_server"
         ),
         "ws-reverse": lambda config: start_connection(
-            network.v12.ws_reverse.WebSocketClient(config),
-            "connect"
-        )
+            network.v12.ws_reverse.WebSocketClient(config), "connect"
+        ),
     },
     11: {
         "http": lambda config: start_connection(
-            network.v11.http.HttpServer(config),
-            "start_server"
+            network.v11.http.HttpServer(config), "start_server"
         ),
         "http-post": lambda config: start_connection(
-            network.v11.http_post.HttpPost(config),
-            None
+            network.v11.http_post.HttpPost(config), None
         ),
         "ws": lambda config: start_connection(
-            network.v11.ws.WebSocket(config),
-            "start"
+            network.v11.ws.WebSocket(config), "start"
         ),
-        "ws-reverse": network.v11.ws_reverse.init_websocket_reverse_connection
-    }
+        "ws-reverse": network.v11.ws_reverse.init_websocket_reverse_connection,
+    },
 }
+
 
 async def get_connection_data(connection_config: dict) -> dict:
     setup_function = SUPPORTED_CONNECT_TYPES[
@@ -85,8 +81,9 @@ async def get_connection_data(connection_config: dict) -> dict:
     return {
         "type": connection_config["type"],
         "config": connection_config,
-        "add_event_func": await setup_function
+        "add_event_func": await setup_function,
     }
+
 
 async def init_connections(connection_list: list[dict]) -> None:
     logger.debug(connection_list)
@@ -100,6 +97,8 @@ async def init_connections(connection_list: list[dict]) -> None:
         try:
             connection_data = await get_connection_data(connection_config)
         except KeyError as e:
-            logger.warning(f"使用配置 {connection_config} 创建连接时出现错误: 无效的连接类型或协议版本: {e}")
+            logger.warning(
+                f"使用配置 {connection_config} 创建连接时出现错误: 无效的连接类型或协议版本: {e}"
+            )
         else:
             connections.append(connection_data)

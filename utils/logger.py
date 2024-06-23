@@ -7,7 +7,7 @@ import inspect
 BASIC_CONFIG = {
     "level": 20,
     "datefmt": "%Y-%m-%d %H:%M:%S",
-    "format": "[%(asctime)s][%(name)s / %(levelname)s]: %(message)s"
+    "format": "[%(asctime)s][%(name)s / %(levelname)s]: %(message)s",
 }
 
 
@@ -22,6 +22,7 @@ def init_logger(logger_config: dict) -> None:
     config.update(logger_config)
     logging.basicConfig(**config)
 
+
 def get_logger(name: str | None = None) -> logging.Logger:
     """
     获取日志记录器
@@ -34,19 +35,31 @@ def get_logger(name: str | None = None) -> logging.Logger:
     """
     return logging.getLogger(name or inspect.getmodule(inspect.stack()[1][0]).__name__)
 
+
 logger = get_logger()
+
 
 def print_message_log(message: discord.Message) -> None:
     try:
-        logger.info(f"[服务器：{message.guild.name} ({message.guild.id})] 来自 #{message.channel.name} ({message.channel.id}) 中 {message.author.name} ({message.author.id}) 的消息：{message.content} ({message.id})")
+        logger.info(
+            f"[服务器：{message.guild.name} ({message.guild.id})] 来自 #{message.channel.name} ({message.channel.id}) 中 {message.author.name} ({message.author.id}) 的消息：{message.content} ({message.id})"
+        )
     except AttributeError:
-        logger.info(f"来自 {message.author.name}({message.author.id}) 的消息：{message.content}")
+        logger.info(
+            f"来自 {message.author.name}({message.author.id}) 的消息：{message.content}"
+        )
+
 
 def print_message_delete_log(message: discord.Message) -> None:
     try:
-        logger.info(f"[服务器：{message.guild.name} ({message.guild.id})] #{message.channel.name} ({message.channel.id}) 中 {message.author.name} ({message.author.id}) 的消息 {message.id} 被撤回")
+        logger.info(
+            f"[服务器：{message.guild.name} ({message.guild.id})] #{message.channel.name} ({message.channel.id}) 中 {message.author.name} ({message.author.id}) 的消息 {message.id} 被撤回"
+        )
     except AttributeError:
-        logger.info(f"{message.author.name}({message.author.id}) 撤回了消息：{message.content}")
+        logger.info(
+            f"{message.author.name}({message.author.id}) 撤回了消息：{message.content}"
+        )
+
 
 # def discord_api_failed(response: httpx.Response) -> dict:
 #     body = json.loads(response.read())

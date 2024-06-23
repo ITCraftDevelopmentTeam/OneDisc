@@ -66,8 +66,8 @@ except ImportError:
     has_nacl = False
 
 __all__ = (
-    'VoiceProtocol',
-    'VoiceClient',
+    "VoiceProtocol",
+    "VoiceClient",
 )
 
 
@@ -129,7 +129,14 @@ class VoiceProtocol:
         """
         raise NotImplementedError
 
-    async def connect(self, *, timeout: float, reconnect: bool, self_deaf: bool = False, self_mute: bool = False) -> None:
+    async def connect(
+        self,
+        *,
+        timeout: float,
+        reconnect: bool,
+        self_deaf: bool = False,
+        self_mute: bool = False,
+    ) -> None:
         """|coro|
 
         An abstract method called when the client initiates the connection request.
@@ -236,9 +243,9 @@ class VoiceClient(VoiceProtocol):
 
     warn_nacl: bool = not has_nacl
     supported_modes: Tuple[SupportedModes, ...] = (
-        'xsalsa20_poly1305_lite',
-        'xsalsa20_poly1305_suffix',
-        'xsalsa20_poly1305',
+        "xsalsa20_poly1305_lite",
+        "xsalsa20_poly1305_suffix",
+        "xsalsa20_poly1305",
     )
 
     @property
@@ -301,9 +308,20 @@ class VoiceClient(VoiceProtocol):
     async def on_voice_server_update(self, data: VoiceServerUpdatePayload) -> None:
         await self._connection.voice_server_update(data)
 
-    async def connect(self, *, reconnect: bool, timeout: float, self_deaf: bool = False, self_mute: bool = False) -> None:
+    async def connect(
+        self,
+        *,
+        reconnect: bool,
+        timeout: float,
+        self_deaf: bool = False,
+        self_mute: bool = False,
+    ) -> None:
         await self._connection.connect(
-            reconnect=reconnect, timeout=timeout, self_deaf=self_deaf, self_mute=self_mute, resume=False
+            reconnect=reconnect,
+            timeout=timeout,
+            self_deaf=self_deaf,
+            self_mute=self_mute,
+            resume=False,
         )
 
     def wait_until_connected(self, timeout: Optional[float] = 30.0) -> bool:
@@ -340,7 +358,9 @@ class VoiceClient(VoiceProtocol):
         await self._connection.disconnect(force=force)
         self.cleanup()
 
-    async def move_to(self, channel: Optional[abc.Snowflake], *, timeout: Optional[float] = 30.0) -> None:
+    async def move_to(
+        self, channel: Optional[abc.Snowflake], *, timeout: Optional[float] = 30.0
+    ) -> None:
         """|coro|
 
         Moves you to a different voice channel.
@@ -373,11 +393,11 @@ class VoiceClient(VoiceProtocol):
         # Formulate rtp header
         header[0] = 0x80
         header[1] = 0x78
-        struct.pack_into('>H', header, 2, self.sequence)
-        struct.pack_into('>I', header, 4, self.timestamp)
-        struct.pack_into('>I', header, 8, self.ssrc)
+        struct.pack_into(">H", header, 2, self.sequence)
+        struct.pack_into(">I", header, 4, self.timestamp)
+        struct.pack_into(">I", header, 8, self.ssrc)
 
-        encrypt_packet = getattr(self, '_encrypt_' + self.mode)
+        encrypt_packet = getattr(self, "_encrypt_" + self.mode)
         return encrypt_packet(header, data)
 
     def _encrypt_xsalsa20_poly1305(self, header: bytes, data) -> bytes:
@@ -397,8 +417,8 @@ class VoiceClient(VoiceProtocol):
         box = nacl.secret.SecretBox(bytes(self.secret_key))
         nonce = bytearray(24)
 
-        nonce[:4] = struct.pack('>I', self._lite_nonce)
-        self.checked_add('_lite_nonce', 1, 4294967295)
+        nonce[:4] = struct.pack(">I", self._lite_nonce)
+        self.checked_add("_lite_nonce", 1, 4294967295)
 
         return header + box.encrypt(bytes(data), bytes(nonce)).ciphertext + nonce[:4]
 
@@ -407,12 +427,12 @@ class VoiceClient(VoiceProtocol):
         source: AudioSource,
         *,
         after: Optional[Callable[[Optional[Exception]], Any]] = None,
-        application: APPLICATION_CTL = 'audio',
+        application: APPLICATION_CTL = "audio",
         bitrate: int = 128,
         fec: bool = True,
         expected_packet_loss: float = 0.15,
-        bandwidth: BAND_CTL = 'full',
-        signal_type: SIGNAL_CTL = 'auto',
+        bandwidth: BAND_CTL = "full",
+        signal_type: SIGNAL_CTL = "auto",
     ) -> None:
         """Plays an :class:`AudioSource`.
 
@@ -475,13 +495,15 @@ class VoiceClient(VoiceProtocol):
         """
 
         if not self.is_connected():
-            raise ClientException('Not connected to voice.')
+            raise ClientException("Not connected to voice.")
 
         if self.is_playing():
-            raise ClientException('Already playing audio.')
+            raise ClientException("Already playing audio.")
 
         if not isinstance(source, AudioSource):
-            raise TypeError(f'source must be an AudioSource not {source.__class__.__name__}')
+            raise TypeError(
+                f"source must be an AudioSource not {source.__class__.__name__}"
+            )
 
         if not source.is_opus():
             self.encoder = opus.Encoder(
@@ -531,10 +553,10 @@ class VoiceClient(VoiceProtocol):
     @source.setter
     def source(self, value: AudioSource) -> None:
         if not isinstance(value, AudioSource):
-            raise TypeError(f'expected AudioSource not {value.__class__.__name__}.')
+            raise TypeError(f"expected AudioSource not {value.__class__.__name__}.")
 
         if self._player is None:
-            raise ValueError('Not playing anything.')
+            raise ValueError("Not playing anything.")
 
         self._player.set_source(value)
 
@@ -558,7 +580,7 @@ class VoiceClient(VoiceProtocol):
             Encoding the data failed.
         """
 
-        self.checked_add('sequence', 1, 65535)
+        self.checked_add("sequence", 1, 65535)
         if encode:
             encoded_data = self.encoder.encode(data, self.encoder.SAMPLES_PER_FRAME)
         else:
@@ -567,6 +589,10 @@ class VoiceClient(VoiceProtocol):
         try:
             self._connection.send_packet(packet)
         except OSError:
-            _log.info('A packet has been dropped (seq: %s, timestamp: %s)', self.sequence, self.timestamp)
+            _log.info(
+                "A packet has been dropped (seq: %s, timestamp: %s)",
+                self.sequence,
+                self.timestamp,
+            )
 
-        self.checked_add('timestamp', opus.Encoder.SAMPLES_PER_FRAME, 4294967295)
+        self.checked_add("timestamp", opus.Encoder.SAMPLES_PER_FRAME, 4294967295)

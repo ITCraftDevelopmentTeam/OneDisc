@@ -1,7 +1,9 @@
 import fastapi
 
 
-def verify_access_token(request: fastapi.Request | fastapi.WebSocket, access_token: str | None) -> bool:
+def verify_access_token(
+    request: fastapi.Request | fastapi.WebSocket, access_token: str | None
+) -> bool:
     """
     鉴权
 

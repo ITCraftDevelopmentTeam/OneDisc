@@ -106,16 +106,18 @@ async def get_status() -> dict:
 async def set_group_name(group_id: str, group_name: str) -> dict:
     await discord_api.call("PATCH", f"/channels/{group_id}", {"name": group_name})
     return return_object.get(0)
-        
+
 
 @register_action()
 async def set_guild_name(guild_id: str, guild_name: str) -> dict:
     await discord_api.call("PATCH", f"/guilds/{guild_id}", {"name": guild_name})
     return return_object.get(0)
 
+
 @register_action()
 async def set_channel_name(guild_id: str, channel_id: str, channel_name: str) -> dict:
     return await set_group_name(channel_id, channel_name)
+
 
 @register_action()
 async def get_version() -> dict:
@@ -125,11 +127,10 @@ async def get_version() -> dict:
 @register_action()
 async def delete_message(message_id: str) -> dict:
     async with get_session() as session:
-        message = await session.get_one(
-            Message,
-            int(message_id)
-        )
-    await discord_api.call("DELETE", f"/channels/{message.channel}/messages/{message.id}")
+        message = await session.get_one(Message, int(message_id))
+    await discord_api.call(
+        "DELETE", f"/channels/{message.channel}/messages/{message.id}"
+    )
     return return_object.get(0)
 
 

@@ -35,8 +35,8 @@ from ..partial_emoji import PartialEmoji, _EmojiTag
 from ..components import Button as ButtonComponent
 
 __all__ = (
-    'Button',
-    'button',
+    "Button",
+    "button",
 )
 
 if TYPE_CHECKING:
@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from ..emoji import Emoji
     from ..types.components import ButtonComponent as ButtonComponentPayload
 
-V = TypeVar('V', bound='View', covariant=True)
+V = TypeVar("V", bound="View", covariant=True)
 
 
 class Button(Item[V]):
@@ -78,12 +78,12 @@ class Button(Item[V]):
     """
 
     __item_repr_attributes__: Tuple[str, ...] = (
-        'style',
-        'url',
-        'disabled',
-        'label',
-        'emoji',
-        'row',
+        "style",
+        "url",
+        "disabled",
+        "label",
+        "emoji",
+        "row",
     )
 
     def __init__(
@@ -99,14 +99,16 @@ class Button(Item[V]):
     ):
         super().__init__()
         if custom_id is not None and url is not None:
-            raise TypeError('cannot mix both url and custom_id with Button')
+            raise TypeError("cannot mix both url and custom_id with Button")
 
         self._provided_custom_id = custom_id is not None
         if url is None and custom_id is None:
             custom_id = os.urandom(16).hex()
 
         if custom_id is not None and not isinstance(custom_id, str):
-            raise TypeError(f'expected custom_id to be str not {custom_id.__class__.__name__}')
+            raise TypeError(
+                f"expected custom_id to be str not {custom_id.__class__.__name__}"
+            )
 
         if url is not None:
             style = ButtonStyle.link
@@ -117,7 +119,9 @@ class Button(Item[V]):
             elif isinstance(emoji, _EmojiTag):
                 emoji = emoji._to_partial()
             else:
-                raise TypeError(f'expected emoji to be str, Emoji, or PartialEmoji not {emoji.__class__.__name__}')
+                raise TypeError(
+                    f"expected emoji to be str, Emoji, or PartialEmoji not {emoji.__class__.__name__}"
+                )
 
         self._underlying = ButtonComponent._raw_construct(
             custom_id=custom_id,
@@ -149,7 +153,7 @@ class Button(Item[V]):
     @custom_id.setter
     def custom_id(self, value: Optional[str]) -> None:
         if value is not None and not isinstance(value, str):
-            raise TypeError('custom_id must be None or str')
+            raise TypeError("custom_id must be None or str")
 
         self._underlying.custom_id = value
         self._provided_custom_id = value is not None
@@ -162,7 +166,7 @@ class Button(Item[V]):
     @url.setter
     def url(self, value: Optional[str]) -> None:
         if value is not None and not isinstance(value, str):
-            raise TypeError('url must be None or str')
+            raise TypeError("url must be None or str")
         self._underlying.url = value
 
     @property
@@ -196,7 +200,9 @@ class Button(Item[V]):
             elif isinstance(value, _EmojiTag):
                 self._underlying.emoji = value._to_partial()
             else:
-                raise TypeError(f'expected str, Emoji, or PartialEmoji, received {value.__class__.__name__} instead')
+                raise TypeError(
+                    f"expected str, Emoji, or PartialEmoji, received {value.__class__.__name__} instead"
+                )
         else:
             self._underlying.emoji = None
 
@@ -276,19 +282,21 @@ def button(
         ordering. The row number must be between 0 and 4 (i.e. zero indexed).
     """
 
-    def decorator(func: ItemCallbackType[V, Button[V]]) -> ItemCallbackType[V, Button[V]]:
+    def decorator(
+        func: ItemCallbackType[V, Button[V]]
+    ) -> ItemCallbackType[V, Button[V]]:
         if not inspect.iscoroutinefunction(func):
-            raise TypeError('button function must be a coroutine function')
+            raise TypeError("button function must be a coroutine function")
 
         func.__discord_ui_model_type__ = Button
         func.__discord_ui_model_kwargs__ = {
-            'style': style,
-            'custom_id': custom_id,
-            'url': None,
-            'disabled': disabled,
-            'label': label,
-            'emoji': emoji,
-            'row': row,
+            "style": style,
+            "custom_id": custom_id,
+            "url": None,
+            "disabled": disabled,
+            "label": label,
+            "emoji": emoji,
+            "row": row,
         }
         return func
 

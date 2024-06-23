@@ -29,6 +29,6 @@ if TYPE_CHECKING:
     from typing_extensions import TypeVar
     from .client import Client
 
-    ClientT = TypeVar('ClientT', bound=Client, covariant=True, default=Client)
+    ClientT = TypeVar("ClientT", bound=Client, covariant=True, default=Client)
 else:
-    ClientT = TypeVar('ClientT', bound='Client', covariant=True)
+    ClientT = TypeVar("ClientT", bound="Client", covariant=True)

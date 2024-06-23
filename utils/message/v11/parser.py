@@ -7,32 +7,35 @@ logger = get_logger()
 def tokenizer(code):
     tokens = []
     matches = list(re.finditer(re.compile(r"\[CQ:[^\]]+\]", re.DOTALL), code))
-    
+
     start = 0
     for match in matches:
         if match.start() > start:
-            tokens.append(('text', code[start:match.start()]))
-        tokens.append(('cqcode', match.group()))
+            tokens.append(("text", code[start : match.start()]))
+        tokens.append(("cqcode", match.group()))
         start = match.end()
-    
+
     if start < len(code):
-        tokens.append(('text', code[start:]))
+        tokens.append(("text", code[start:]))
 
     return tokens
+
 
 # def parse_raw_message(raw_message: str) -> list:
 #     return translator.translate_v12_message_to_v11(message_parser.parse_string(raw_message))
 
+
 def parse_primary_string(string: str) -> str:
-    return string.replace("&#91;", "[")\
-        .replace("&#93;", "]")\
-        .replace("&#44;", ",")
+    return string.replace("&#91;", "[").replace("&#93;", "]").replace("&#44;", ",")
+
 
 def parse_string_inside_cqcode(string: str) -> str | int | float | bool:
-    parsed_string = string.replace("&amp;", "&")\
-        .replace("&#91;", "[")\
-        .replace("&#93;", "]")\
+    parsed_string = (
+        string.replace("&amp;", "&")
+        .replace("&#91;", "[")
+        .replace("&#93;", "]")
         .replace("&#44;", ",")
+    )
     try:
         if str(int(parsed_string)) == parsed_string:
             parsed_string = int(parsed_string)
@@ -47,6 +50,7 @@ def parse_string_inside_cqcode(string: str) -> str | int | float | bool:
             parsed_string = False
     return parsed_string
 
+
 def parse_string_to_array(string: str) -> list:
     tokens = tokenizer(string)
     message = []
@@ -57,21 +61,18 @@ def parse_string_to_array(string: str) -> list:
             data = {}
             for raw_argv in cqcode:
                 argv = raw_argv.split("=")
-                data[parse_string_inside_cqcode(argv[0])] = parse_string_inside_cqcode("=".join(argv[1:]))
-            message.append({
-                "type": _type,
-                "data": data
-            })
+                data[parse_string_inside_cqcode(argv[0])] = parse_string_inside_cqcode(
+                    "=".join(argv[1:])
+                )
+            message.append({"type": _type, "data": data})
             del _type, data
         else:
-            message.append({
-                "type": "text",
-                "data": {
-                    "text": parse_primary_string(token[1])
-                }
-            })
+            message.append(
+                {"type": "text", "data": {"text": parse_primary_string(token[1])}}
+            )
     logger.debug(message)
     return message
+
 
 if __name__ == "__main__":
 

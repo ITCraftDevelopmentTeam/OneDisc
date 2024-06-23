@@ -49,21 +49,21 @@ if TYPE_CHECKING:
 
 
 __all__ = (
-    'SystemChannelFlags',
-    'MessageFlags',
-    'PublicUserFlags',
-    'Intents',
-    'MemberCacheFlags',
-    'ApplicationFlags',
-    'ChannelFlags',
-    'AutoModPresets',
-    'MemberFlags',
-    'AttachmentFlags',
-    'RoleFlags',
-    'SKUFlags',
+    "SystemChannelFlags",
+    "MessageFlags",
+    "PublicUserFlags",
+    "Intents",
+    "MemberCacheFlags",
+    "ApplicationFlags",
+    "ChannelFlags",
+    "AutoModPresets",
+    "MemberFlags",
+    "AttachmentFlags",
+    "RoleFlags",
+    "SKUFlags",
 )
 
-BF = TypeVar('BF', bound='BaseFlags')
+BF = TypeVar("BF", bound="BaseFlags")
 
 
 class flag_value:
@@ -72,12 +72,10 @@ class flag_value:
         self.__doc__: Optional[str] = func.__doc__
 
     @overload
-    def __get__(self, instance: None, owner: Type[BF]) -> Self:
-        ...
+    def __get__(self, instance: None, owner: Type[BF]) -> Self: ...
 
     @overload
-    def __get__(self, instance: BF, owner: Type[BF]) -> bool:
-        ...
+    def __get__(self, instance: BF, owner: Type[BF]) -> bool: ...
 
     def __get__(self, instance: Optional[BF], owner: Type[BF]) -> Any:
         if instance is None:
@@ -88,7 +86,7 @@ class flag_value:
         instance._set_flag(self.flag, value)
 
     def __repr__(self) -> str:
-        return f'<flag_value flag={self.flag!r}>'
+        return f"<flag_value flag={self.flag!r}>"
 
 
 class alias_flag_value(flag_value):
@@ -123,13 +121,13 @@ class BaseFlags:
 
     value: int
 
-    __slots__ = ('value',)
+    __slots__ = ("value",)
 
     def __init__(self, **kwargs: bool):
         self.value = self.DEFAULT_VALUE
         for key, value in kwargs.items():
             if key not in self.VALID_FLAGS:
-                raise TypeError(f'{key!r} is not a valid flag name.')
+                raise TypeError(f"{key!r} is not a valid flag name.")
             setattr(self, key, value)
 
     @classmethod
@@ -177,7 +175,7 @@ class BaseFlags:
         return hash(self.value)
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} value={self.value}>'
+        return f"<{self.__class__.__name__} value={self.value}>"
 
     def __iter__(self) -> Iterator[Tuple[str, bool]]:
         for name, value in self.__class__.__dict__.items():
@@ -196,7 +194,9 @@ class BaseFlags:
         elif toggle is False:
             self.value &= ~o
         else:
-            raise TypeError(f'Value to set for {self.__class__.__name__} must be a bool.')
+            raise TypeError(
+                f"Value to set for {self.__class__.__name__} must be a bool."
+            )
 
 
 @fill_with_flags(inverted=True)
@@ -286,7 +286,7 @@ class SystemChannelFlags(BaseFlags):
         elif toggle is False:
             self.value |= o
         else:
-            raise TypeError('Value to set for SystemChannelFlags must be a bool.')
+            raise TypeError("Value to set for SystemChannelFlags must be a bool.")
 
     @flag_value
     def join_notifications(self):
@@ -664,7 +664,11 @@ class PublicUserFlags(BaseFlags):
 
     def all(self) -> List[UserFlags]:
         """List[:class:`UserFlags`]: Returns all public flags the user has."""
-        return [public_flag for public_flag in UserFlags if self._has_flag(public_flag.value)]
+        return [
+            public_flag
+            for public_flag in UserFlags
+            if self._has_flag(public_flag.value)
+        ]
 
 
 @fill_with_flags()
@@ -747,7 +751,7 @@ class Intents(BaseFlags):
         self.value: int = value
         for key, value in kwargs.items():
             if key not in self.VALID_FLAGS:
-                raise TypeError(f'{key!r} is not a valid flag name.')
+                raise TypeError(f"{key!r} is not a valid flag name.")
             setattr(self, key, value)
 
     @classmethod
@@ -1340,7 +1344,7 @@ class MemberCacheFlags(BaseFlags):
         self.value: int = (1 << bits) - 1
         for key, value in kwargs.items():
             if key not in self.VALID_FLAGS:
-                raise TypeError(f'{key!r} is not a valid flag name.')
+                raise TypeError(f"{key!r} is not a valid flag name.")
             setattr(self, key, value)
 
     @classmethod
@@ -1410,10 +1414,10 @@ class MemberCacheFlags(BaseFlags):
 
     def _verify_intents(self, intents: Intents):
         if self.voice and not intents.voice_states:
-            raise ValueError('MemberCacheFlags.voice requires Intents.voice_states')
+            raise ValueError("MemberCacheFlags.voice requires Intents.voice_states")
 
         if self.joined and not intents.members:
-            raise ValueError('MemberCacheFlags.joined requires Intents.members')
+            raise ValueError("MemberCacheFlags.joined requires Intents.members")
 
     @property
     def _voice_only(self):

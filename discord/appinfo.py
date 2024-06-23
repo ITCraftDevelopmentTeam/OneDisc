@@ -46,9 +46,9 @@ if TYPE_CHECKING:
     from .state import ConnectionState
 
 __all__ = (
-    'AppInfo',
-    'PartialAppInfo',
-    'AppInstallParams',
+    "AppInfo",
+    "PartialAppInfo",
+    "AppInstallParams",
 )
 
 
@@ -146,72 +146,80 @@ class AppInfo:
     """
 
     __slots__ = (
-        '_state',
-        'description',
-        'id',
-        'name',
-        'rpc_origins',
-        'bot_public',
-        'bot_require_code_grant',
-        'owner',
-        '_icon',
-        'verify_key',
-        'team',
-        'guild_id',
-        'primary_sku_id',
-        'slug',
-        '_cover_image',
-        '_flags',
-        'terms_of_service_url',
-        'privacy_policy_url',
-        'tags',
-        'custom_install_url',
-        'install_params',
-        'role_connections_verification_url',
-        'interactions_endpoint_url',
-        'redirect_uris',
+        "_state",
+        "description",
+        "id",
+        "name",
+        "rpc_origins",
+        "bot_public",
+        "bot_require_code_grant",
+        "owner",
+        "_icon",
+        "verify_key",
+        "team",
+        "guild_id",
+        "primary_sku_id",
+        "slug",
+        "_cover_image",
+        "_flags",
+        "terms_of_service_url",
+        "privacy_policy_url",
+        "tags",
+        "custom_install_url",
+        "install_params",
+        "role_connections_verification_url",
+        "interactions_endpoint_url",
+        "redirect_uris",
     )
 
     def __init__(self, state: ConnectionState, data: AppInfoPayload):
         from .team import Team
 
         self._state: ConnectionState = state
-        self.id: int = int(data['id'])
-        self.name: str = data['name']
-        self.description: str = data['description']
-        self._icon: Optional[str] = data['icon']
-        self.rpc_origins: Optional[List[str]] = data.get('rpc_origins')
-        self.bot_public: bool = data['bot_public']
-        self.bot_require_code_grant: bool = data['bot_require_code_grant']
-        self.owner: User = state.create_user(data['owner'])
+        self.id: int = int(data["id"])
+        self.name: str = data["name"]
+        self.description: str = data["description"]
+        self._icon: Optional[str] = data["icon"]
+        self.rpc_origins: Optional[List[str]] = data.get("rpc_origins")
+        self.bot_public: bool = data["bot_public"]
+        self.bot_require_code_grant: bool = data["bot_require_code_grant"]
+        self.owner: User = state.create_user(data["owner"])
 
-        team: Optional[TeamPayload] = data.get('team')
+        team: Optional[TeamPayload] = data.get("team")
         self.team: Optional[Team] = Team(state, team) if team else None
 
-        self.verify_key: str = data['verify_key']
+        self.verify_key: str = data["verify_key"]
 
-        self.guild_id: Optional[int] = utils._get_as_snowflake(data, 'guild_id')
+        self.guild_id: Optional[int] = utils._get_as_snowflake(data, "guild_id")
 
-        self.primary_sku_id: Optional[int] = utils._get_as_snowflake(data, 'primary_sku_id')
-        self.slug: Optional[str] = data.get('slug')
-        self._flags: int = data.get('flags', 0)
-        self._cover_image: Optional[str] = data.get('cover_image')
-        self.terms_of_service_url: Optional[str] = data.get('terms_of_service_url')
-        self.privacy_policy_url: Optional[str] = data.get('privacy_policy_url')
-        self.tags: List[str] = data.get('tags', [])
-        self.custom_install_url: Optional[str] = data.get('custom_install_url')
-        self.role_connections_verification_url: Optional[str] = data.get('role_connections_verification_url')
+        self.primary_sku_id: Optional[int] = utils._get_as_snowflake(
+            data, "primary_sku_id"
+        )
+        self.slug: Optional[str] = data.get("slug")
+        self._flags: int = data.get("flags", 0)
+        self._cover_image: Optional[str] = data.get("cover_image")
+        self.terms_of_service_url: Optional[str] = data.get("terms_of_service_url")
+        self.privacy_policy_url: Optional[str] = data.get("privacy_policy_url")
+        self.tags: List[str] = data.get("tags", [])
+        self.custom_install_url: Optional[str] = data.get("custom_install_url")
+        self.role_connections_verification_url: Optional[str] = data.get(
+            "role_connections_verification_url"
+        )
 
-        params = data.get('install_params')
-        self.install_params: Optional[AppInstallParams] = AppInstallParams(params) if params else None
-        self.interactions_endpoint_url: Optional[str] = data.get('interactions_endpoint_url')
-        self.redirect_uris: List[str] = data.get('redirect_uris', [])
+        params = data.get("install_params")
+        self.install_params: Optional[AppInstallParams] = (
+            AppInstallParams(params) if params else None
+        )
+        self.interactions_endpoint_url: Optional[str] = data.get(
+            "interactions_endpoint_url"
+        )
+        self.redirect_uris: List[str] = data.get("redirect_uris", [])
 
     def __repr__(self) -> str:
         return (
-            f'<{self.__class__.__name__} id={self.id} name={self.name!r} '
-            f'description={self.description!r} public={self.bot_public} '
-            f'owner={self.owner!r}>'
+            f"<{self.__class__.__name__} id={self.id} name={self.name!r} "
+            f"description={self.description!r} public={self.bot_public} "
+            f"owner={self.owner!r}>"
         )
 
     @property
@@ -219,7 +227,7 @@ class AppInfo:
         """Optional[:class:`.Asset`]: Retrieves the application's icon asset, if any."""
         if self._icon is None:
             return None
-        return Asset._from_icon(self._state, self.id, self._icon, path='app')
+        return Asset._from_icon(self._state, self.id, self._icon, path="app")
 
     @property
     def cover_image(self) -> Optional[Asset]:
@@ -322,62 +330,73 @@ class AppInfo:
         payload: Dict[str, Any] = {}
 
         if custom_install_url is not MISSING:
-            payload['custom_install_url'] = custom_install_url
+            payload["custom_install_url"] = custom_install_url
 
         if description is not MISSING:
-            payload['description'] = description
+            payload["description"] = description
 
         if role_connections_verification_url is not MISSING:
-            payload['role_connections_verification_url'] = role_connections_verification_url
+            payload["role_connections_verification_url"] = (
+                role_connections_verification_url
+            )
 
         if install_params_scopes is not MISSING:
             install_params: Optional[Dict[str, Any]] = {}
             if install_params_scopes is None:
                 install_params = None
             else:
-                if "bot" not in install_params_scopes and install_params_permissions is not MISSING:
-                    raise ValueError("'bot' must be in install_params_scopes if install_params_permissions is set")
+                if (
+                    "bot" not in install_params_scopes
+                    and install_params_permissions is not MISSING
+                ):
+                    raise ValueError(
+                        "'bot' must be in install_params_scopes if install_params_permissions is set"
+                    )
 
-                install_params['scopes'] = install_params_scopes
+                install_params["scopes"] = install_params_scopes
 
                 if install_params_permissions is MISSING:
-                    install_params['permissions'] = 0
+                    install_params["permissions"] = 0
                 else:
                     if install_params_permissions is None:
-                        install_params['permissions'] = 0
+                        install_params["permissions"] = 0
                     else:
-                        install_params['permissions'] = install_params_permissions.value
+                        install_params["permissions"] = install_params_permissions.value
 
-            payload['install_params'] = install_params
+            payload["install_params"] = install_params
 
         else:
             if install_params_permissions is not MISSING:
-                raise ValueError("install_params_scopes must be set if install_params_permissions is set")
+                raise ValueError(
+                    "install_params_scopes must be set if install_params_permissions is set"
+                )
 
         if flags is not MISSING:
             if flags is None:
-                payload['flags'] = flags
+                payload["flags"] = flags
             else:
-                payload['flags'] = flags.value
+                payload["flags"] = flags.value
 
         if icon is not MISSING:
             if icon is None:
-                payload['icon'] = icon
+                payload["icon"] = icon
             else:
-                payload['icon'] = utils._bytes_to_base64_data(icon)
+                payload["icon"] = utils._bytes_to_base64_data(icon)
 
         if cover_image is not MISSING:
             if cover_image is None:
-                payload['cover_image'] = cover_image
+                payload["cover_image"] = cover_image
             else:
-                payload['cover_image'] = utils._bytes_to_base64_data(cover_image)
+                payload["cover_image"] = utils._bytes_to_base64_data(cover_image)
 
         if interactions_endpoint_url is not MISSING:
-            payload['interactions_endpoint_url'] = interactions_endpoint_url
+            payload["interactions_endpoint_url"] = interactions_endpoint_url
 
         if tags is not MISSING:
-            payload['tags'] = tags
-        data = await self._state.http.edit_application_info(reason=reason, payload=payload)
+            payload["tags"] = tags
+        data = await self._state.http.edit_application_info(
+            reason=reason, payload=payload
+        )
         return AppInfo(data=data, state=self._state)
 
 
@@ -424,49 +443,53 @@ class PartialAppInfo:
     """
 
     __slots__ = (
-        '_state',
-        'id',
-        'name',
-        'description',
-        'rpc_origins',
-        'verify_key',
-        'terms_of_service_url',
-        'privacy_policy_url',
-        '_icon',
-        '_flags',
-        '_cover_image',
-        'approximate_guild_count',
-        'redirect_uris',
-        'interactions_endpoint_url',
-        'role_connections_verification_url',
+        "_state",
+        "id",
+        "name",
+        "description",
+        "rpc_origins",
+        "verify_key",
+        "terms_of_service_url",
+        "privacy_policy_url",
+        "_icon",
+        "_flags",
+        "_cover_image",
+        "approximate_guild_count",
+        "redirect_uris",
+        "interactions_endpoint_url",
+        "role_connections_verification_url",
     )
 
     def __init__(self, *, state: ConnectionState, data: PartialAppInfoPayload):
         self._state: ConnectionState = state
-        self.id: int = int(data['id'])
-        self.name: str = data['name']
-        self._icon: Optional[str] = data.get('icon')
-        self._flags: int = data.get('flags', 0)
-        self._cover_image: Optional[str] = data.get('cover_image')
-        self.description: str = data['description']
-        self.rpc_origins: Optional[List[str]] = data.get('rpc_origins')
-        self.verify_key: str = data['verify_key']
-        self.terms_of_service_url: Optional[str] = data.get('terms_of_service_url')
-        self.privacy_policy_url: Optional[str] = data.get('privacy_policy_url')
-        self.approximate_guild_count: int = data.get('approximate_guild_count', 0)
-        self.redirect_uris: List[str] = data.get('redirect_uris', [])
-        self.interactions_endpoint_url: Optional[str] = data.get('interactions_endpoint_url')
-        self.role_connections_verification_url: Optional[str] = data.get('role_connections_verification_url')
+        self.id: int = int(data["id"])
+        self.name: str = data["name"]
+        self._icon: Optional[str] = data.get("icon")
+        self._flags: int = data.get("flags", 0)
+        self._cover_image: Optional[str] = data.get("cover_image")
+        self.description: str = data["description"]
+        self.rpc_origins: Optional[List[str]] = data.get("rpc_origins")
+        self.verify_key: str = data["verify_key"]
+        self.terms_of_service_url: Optional[str] = data.get("terms_of_service_url")
+        self.privacy_policy_url: Optional[str] = data.get("privacy_policy_url")
+        self.approximate_guild_count: int = data.get("approximate_guild_count", 0)
+        self.redirect_uris: List[str] = data.get("redirect_uris", [])
+        self.interactions_endpoint_url: Optional[str] = data.get(
+            "interactions_endpoint_url"
+        )
+        self.role_connections_verification_url: Optional[str] = data.get(
+            "role_connections_verification_url"
+        )
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} id={self.id} name={self.name!r} description={self.description!r}>'
+        return f"<{self.__class__.__name__} id={self.id} name={self.name!r} description={self.description!r}>"
 
     @property
     def icon(self) -> Optional[Asset]:
         """Optional[:class:`.Asset`]: Retrieves the application's icon asset, if any."""
         if self._icon is None:
             return None
-        return Asset._from_icon(self._state, self.id, self._icon, path='app')
+        return Asset._from_icon(self._state, self.id, self._icon, path="app")
 
     @property
     def cover_image(self) -> Optional[Asset]:
@@ -503,8 +526,8 @@ class AppInstallParams:
         The permissions to give to application in the guild.
     """
 
-    __slots__ = ('scopes', 'permissions')
+    __slots__ = ("scopes", "permissions")
 
     def __init__(self, data: InstallParamsPayload) -> None:
-        self.scopes: List[str] = data.get('scopes', [])
-        self.permissions: Permissions = Permissions(int(data['permissions']))
+        self.scopes: List[str] = data.get("scopes", [])
+        self.permissions: Permissions = Permissions(int(data["permissions"]))

@@ -52,8 +52,8 @@ if TYPE_CHECKING:
     from .flags import Intents
 
 __all__ = (
-    'AutoShardedClient',
-    'ShardInfo',
+    "AutoShardedClient",
+    "ShardInfo",
 )
 
 _log = logging.getLogger(__name__)
@@ -69,11 +69,13 @@ class EventType:
 
 
 class EventItem:
-    __slots__ = ('type', 'shard', 'error')
+    __slots__ = ("type", "shard", "error")
 
-    def __init__(self, etype: int, shard: Optional['Shard'], error: Optional[Exception]) -> None:
+    def __init__(
+        self, etype: int, shard: Optional["Shard"], error: Optional[Exception]
+    ) -> None:
         self.type: int = etype
-        self.shard: Optional['Shard'] = shard
+        self.shard: Optional["Shard"] = shard
         self.error: Optional[Exception] = error
 
     def __lt__(self, other: object) -> bool:
@@ -91,7 +93,12 @@ class EventItem:
 
 
 class Shard:
-    def __init__(self, ws: DiscordWebSocket, client: AutoShardedClient, queue_put: Callable[[EventItem], None]) -> None:
+    def __init__(
+        self,
+        ws: DiscordWebSocket,
+        client: AutoShardedClient,
+        queue_put: Callable[[EventItem], None],
+    ) -> None:
         self.ws: DiscordWebSocket = ws
         self._client: Client = client
         self._dispatch: Callable[..., None] = client.dispatch
@@ -127,11 +134,11 @@ class Shard:
 
     async def disconnect(self) -> None:
         await self.close()
-        self._dispatch('shard_disconnect', self.id)
+        self._dispatch("shard_disconnect", self.id)
 
     async def _handle_disconnect(self, e: Exception) -> None:
-        self._dispatch('disconnect')
-        self._dispatch('shard_disconnect', self.id)
+        self._dispatch("disconnect")
+        self._dispatch("shard_disconnect", self.id)
         if not self._reconnect:
             self._queue_put(EventItem(EventType.close, self, e))
             return
@@ -147,14 +154,23 @@ class Shard:
 
         if isinstance(e, ConnectionClosed):
             if e.code == 4014:
-                self._queue_put(EventItem(EventType.terminate, self, PrivilegedIntentsRequired(self.id)))
+                self._queue_put(
+                    EventItem(
+                        EventType.terminate, self, PrivilegedIntentsRequired(self.id)
+                    )
+                )
                 return
             if e.code != 1000:
                 self._queue_put(EventItem(EventType.close, self, e))
                 return
 
         retry = self._backoff.delay()
-        _log.error('Attempting a reconnect for shard ID %s in %.2fs', self.id, retry, exc_info=e)
+        _log.error(
+            "Attempting a reconnect for shard ID %s in %.2fs",
+            self.id,
+            retry,
+            exc_info=e,
+        )
         await asyncio.sleep(retry)
         self._queue_put(EventItem(EventType.reconnect, self, e))
 
@@ -177,9 +193,9 @@ class Shard:
 
     async def reidentify(self, exc: ReconnectWebSocket) -> None:
         self._cancel_task()
-        self._dispatch('disconnect')
-        self._dispatch('shard_disconnect', self.id)
-        _log.debug('Got a request to %s the websocket at Shard ID %s.', exc.op, self.id)
+        self._dispatch("disconnect")
+        self._dispatch("shard_disconnect", self.id)
+        _log.debug("Got a request to %s the websocket at Shard ID %s.", exc.op, self.id)
         try:
             coro = DiscordWebSocket.from_client(
                 self._client,
@@ -193,7 +209,12 @@ class Shard:
         except self._handled_exceptions as e:
             await self._handle_disconnect(e)
         except ReconnectWebSocket as e:
-            _log.debug('Somehow got a signal to %s while trying to %s shard ID %s.', e.op, exc.op, self.id)
+            _log.debug(
+                "Somehow got a signal to %s while trying to %s shard ID %s.",
+                e.op,
+                exc.op,
+                self.id,
+            )
             op = EventType.resume if e.resume else EventType.identify
             self._queue_put(EventItem(op, self, e))
         except asyncio.CancelledError:
@@ -234,7 +255,7 @@ class ShardInfo:
         The shard count for this cluster. If this is ``None`` then the bot has not started yet.
     """
 
-    __slots__ = ('_parent', 'id', 'shard_count')
+    __slots__ = ("_parent", "id", "shard_count")
 
     def __init__(self, parent: Shard, shard_count: Optional[int]) -> None:
         self._parent: Shard = parent
@@ -337,17 +358,21 @@ class AutoShardedClient(Client):
         _connection: AutoShardedConnectionState
 
     def __init__(self, *args: Any, intents: Intents, **kwargs: Any) -> None:
-        kwargs.pop('shard_id', None)
-        self.shard_ids: Optional[List[int]] = kwargs.pop('shard_ids', None)
-        self.shard_connect_timeout: Optional[float] = kwargs.pop('shard_connect_timeout', 180.0)
+        kwargs.pop("shard_id", None)
+        self.shard_ids: Optional[List[int]] = kwargs.pop("shard_ids", None)
+        self.shard_connect_timeout: Optional[float] = kwargs.pop(
+            "shard_connect_timeout", 180.0
+        )
 
         super().__init__(*args, intents=intents, **kwargs)
 
         if self.shard_ids is not None:
             if self.shard_count is None:
-                raise ClientException('When passing manual shard_ids, you must provide a shard_count.')
+                raise ClientException(
+                    "When passing manual shard_ids, you must provide a shard_count."
+                )
             elif not isinstance(self.shard_ids, (list, tuple)):
-                raise ClientException('shard_ids parameter must be a list or a tuple.')
+                raise ClientException("shard_ids parameter must be a list or a tuple.")
 
         # instead of a single websocket, we have multiple
         # the key is the shard_id
@@ -355,7 +380,9 @@ class AutoShardedClient(Client):
         self._connection._get_websocket = self._get_websocket
         self._connection._get_client = lambda: self
 
-    def _get_websocket(self, guild_id: Optional[int] = None, *, shard_id: Optional[int] = None) -> DiscordWebSocket:
+    def _get_websocket(
+        self, guild_id: Optional[int] = None, *, shard_id: Optional[int] = None
+    ) -> DiscordWebSocket:
         if shard_id is None:
             # guild_id won't be None if shard_id is None and shard_count won't be None here
             shard_id = (guild_id >> 22) % self.shard_count  # type: ignore
@@ -379,7 +406,7 @@ class AutoShardedClient(Client):
         :attr:`latencies` property. Returns ``nan`` if there are no shards ready.
         """
         if not self.__shards:
-            return float('nan')
+            return float("nan")
         return sum(latency for _, latency in self.latencies) / len(self.__shards)
 
     @property
@@ -388,7 +415,9 @@ class AutoShardedClient(Client):
 
         This returns a list of tuples with elements ``(shard_id, latency)``.
         """
-        return [(shard_id, shard.ws.latency) for shard_id, shard in self.__shards.items()]
+        return [
+            (shard_id, shard.ws.latency) for shard_id, shard in self.__shards.items()
+        ]
 
     def get_shard(self, shard_id: int, /) -> Optional[ShardInfo]:
         """
@@ -413,14 +442,21 @@ class AutoShardedClient(Client):
     @property
     def shards(self) -> Dict[int, ShardInfo]:
         """Mapping[int, :class:`ShardInfo`]: Returns a mapping of shard IDs to their respective info object."""
-        return {shard_id: ShardInfo(parent, self.shard_count) for shard_id, parent in self.__shards.items()}
+        return {
+            shard_id: ShardInfo(parent, self.shard_count)
+            for shard_id, parent in self.__shards.items()
+        }
 
-    async def launch_shard(self, gateway: yarl.URL, shard_id: int, *, initial: bool = False) -> None:
+    async def launch_shard(
+        self, gateway: yarl.URL, shard_id: int, *, initial: bool = False
+    ) -> None:
         try:
-            coro = DiscordWebSocket.from_client(self, initial=initial, gateway=gateway, shard_id=shard_id)
+            coro = DiscordWebSocket.from_client(
+                self, initial=initial, gateway=gateway, shard_id=shard_id
+            )
             ws = await asyncio.wait_for(coro, timeout=self.shard_connect_timeout)
         except Exception:
-            _log.exception('Failed to connect for shard_id: %s. Retrying...', shard_id)
+            _log.exception("Failed to connect for shard_id: %s. Retrying...", shard_id)
             await asyncio.sleep(5.0)
             return await self.launch_shard(gateway, shard_id)
 
@@ -487,7 +523,10 @@ class AutoShardedClient(Client):
         self._closed = True
         await self._connection.close()
 
-        to_close = [asyncio.ensure_future(shard.close(), loop=self.loop) for shard in self.__shards.values()]
+        to_close = [
+            asyncio.ensure_future(shard.close(), loop=self.loop)
+            for shard in self.__shards.values()
+        ]
         if to_close:
             await asyncio.wait(to_close)
 
@@ -536,10 +575,10 @@ class AutoShardedClient(Client):
         """
 
         if status is None:
-            status_value = 'online'
+            status_value = "online"
             status_enum = Status.online
         elif status is Status.offline:
-            status_value = 'invisible'
+            status_value = "invisible"
             status_enum = Status.offline
         else:
             status_enum = status

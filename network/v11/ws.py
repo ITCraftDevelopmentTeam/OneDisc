@@ -7,11 +7,8 @@ import fastapi
 import call_action
 
 logger = get_logger()
-BASE_CONFIG = {
-    "host": "0.0.0.0",
-    "port": 6700,
-    "access_token": None
-}
+BASE_CONFIG = {"host": "0.0.0.0", "port": 6700, "access_token": None}
+
 
 class WebSocket:
 
@@ -26,34 +23,39 @@ class WebSocket:
 
     def check_access_token(self) -> None:
         if self.config["host"] == "0.0.0.0" or self.config["access_token"]:
-            logger.warning(f'[{self.config["host"]}:{self.config["port"]}] 未配置 Access Token !')
+            logger.warning(
+                f'[{self.config["host"]}:{self.config["port"]}] 未配置 Access Token !'
+            )
 
     async def start(self) -> None:
         await uvicorn_server.run(
-            self.app, 
-            host=self.config["host"], 
-            port=self.config["port"]
+            self.app, host=self.config["host"], port=self.config["port"]
         )
-        
-    
+
     async def handle_event_route(self, websocket: fastapi.WebSocket) -> None:
         if not verify_access_token(websocket, self.config["access_token"]):
-            if "Authorization" in websocket.headers.keys() or websocket.query_params.get("access_token"):
+            if (
+                "Authorization" in websocket.headers.keys()
+                or websocket.query_params.get("access_token")
+            ):
                 await websocket.close(403, "Invalid access token")
             else:
                 await websocket.close(401, "Missing access token")
             return
         await websocket.accept()
         self.clients_on_event_route.append(websocket)
-        await websocket.send_json(await translator.translate_event(event.get_event_object(
-            "meta",
-            "lifecycle",
-            "connect"
-        )))
+        await websocket.send_json(
+            await translator.translate_event(
+                event.get_event_object("meta", "lifecycle", "connect")
+            )
+        )
 
     async def handle_api_route(self, websocket: fastapi.WebSocket) -> None:
         if not verify_access_token(websocket, self.config["access_token"]):
-            if "Authorization" in websocket.headers.keys() or websocket.query_params.get("access_token"):
+            if (
+                "Authorization" in websocket.headers.keys()
+                or websocket.query_params.get("access_token")
+            ):
                 await websocket.close(403, "Invalid access token")
             else:
                 await websocket.close(401, "Missing access token")
@@ -61,18 +63,19 @@ class WebSocket:
         await websocket.accept()
         while True:
             resp_data = await call_action.on_call_action(
-                **(await websocket.receive_json()),
-                protocol_version=11
+                **(await websocket.receive_json()), protocol_version=11
             )
-            resp_data["retcode"] = {
-                10001: 1400,
-                10002: 1404
-            }.get(resp_data["retcode"], resp_data["retcode"])
+            resp_data["retcode"] = {10001: 1400, 10002: 1404}.get(
+                resp_data["retcode"], resp_data["retcode"]
+            )
             await websocket.send_json(resp_data)
 
     async def handle_root_route(self, websocket: fastapi.WebSocket) -> None:
         if not verify_access_token(websocket, self.config["access_token"]):
-            if "Authorization" in websocket.headers.keys() or websocket.query_params.get("access_token"):
+            if (
+                "Authorization" in websocket.headers.keys()
+                or websocket.query_params.get("access_token")
+            ):
                 await websocket.close(403, "Invalid access token")
             else:
                 await websocket.close(401, "Missing access token")
@@ -81,13 +84,11 @@ class WebSocket:
         self.clients_on_event_route.append(websocket)
         while True:
             resp_data = await call_action.on_call_action(
-                **(await websocket.receive_json()),
-                protocol_version=12
+                **(await websocket.receive_json()), protocol_version=12
             )
-            resp_data["retcode"] = {
-                10001: 1400,
-                10002: 1404
-            }.get(resp_data["retcode"], resp_data["retcode"])
+            resp_data["retcode"] = {10001: 1400, 10002: 1404}.get(
+                resp_data["retcode"], resp_data["retcode"]
+            )
             await websocket.send_json(resp_data)
 
     async def push_event(self, _event: dict) -> None:

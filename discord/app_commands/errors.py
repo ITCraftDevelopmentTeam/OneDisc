@@ -31,23 +31,23 @@ from ..errors import DiscordException, HTTPException, _flatten_error_dict
 from ..utils import _human_join
 
 __all__ = (
-    'AppCommandError',
-    'CommandInvokeError',
-    'TransformerError',
-    'TranslationError',
-    'CheckFailure',
-    'CommandAlreadyRegistered',
-    'CommandSignatureMismatch',
-    'CommandNotFound',
-    'CommandLimitReached',
-    'NoPrivateMessage',
-    'MissingRole',
-    'MissingAnyRole',
-    'MissingPermissions',
-    'BotMissingPermissions',
-    'CommandOnCooldown',
-    'MissingApplicationID',
-    'CommandSyncFailure',
+    "AppCommandError",
+    "CommandInvokeError",
+    "TransformerError",
+    "TranslationError",
+    "CheckFailure",
+    "CommandAlreadyRegistered",
+    "CommandSignatureMismatch",
+    "CommandNotFound",
+    "CommandLimitReached",
+    "NoPrivateMessage",
+    "MissingRole",
+    "MissingAnyRole",
+    "MissingPermissions",
+    "BotMissingPermissions",
+    "CommandOnCooldown",
+    "MissingApplicationID",
+    "CommandSyncFailure",
 )
 
 if TYPE_CHECKING:
@@ -60,8 +60,8 @@ if TYPE_CHECKING:
     CommandTypes = Union[Command[Any, ..., Any], Group, ContextMenu]
 
 APP_ID_NOT_FOUND = (
-    'Client does not have an application_id set. Either the function was called before on_ready '
-    'was called or application_id was not passed to the Client constructor.'
+    "Client does not have an application_id set. Either the function was called before on_ready "
+    "was called or application_id was not passed to the Client constructor."
 )
 
 
@@ -100,10 +100,14 @@ class CommandInvokeError(AppCommandError):
         The command that failed.
     """
 
-    def __init__(self, command: Union[Command[Any, ..., Any], ContextMenu], e: Exception) -> None:
+    def __init__(
+        self, command: Union[Command[Any, ..., Any], ContextMenu], e: Exception
+    ) -> None:
         self.original: Exception = e
         self.command: Union[Command[Any, ..., Any], ContextMenu] = command
-        super().__init__(f'Command {command.name!r} raised an exception: {e.__class__.__name__}: {e}')
+        super().__init__(
+            f"Command {command.name!r} raised an exception: {e.__class__.__name__}: {e}"
+        )
 
 
 class TransformerError(AppCommandError):
@@ -130,12 +134,16 @@ class TransformerError(AppCommandError):
         The transformer that failed the conversion.
     """
 
-    def __init__(self, value: Any, opt_type: AppCommandOptionType, transformer: Transformer):
+    def __init__(
+        self, value: Any, opt_type: AppCommandOptionType, transformer: Transformer
+    ):
         self.value: Any = value
         self.type: AppCommandOptionType = opt_type
         self.transformer: Transformer = transformer
 
-        super().__init__(f'Failed to convert {value} to {transformer._error_display_name!s}')
+        super().__init__(
+            f"Failed to convert {value} to {transformer._error_display_name!s}"
+        )
 
 
 class TranslationError(AppCommandError):
@@ -174,10 +182,10 @@ class TranslationError(AppCommandError):
         if msg:
             super().__init__(*msg)
         else:
-            ctx = context.location.name.replace('_', ' ')
-            fmt = f'Failed to translate {self.string!r} in a {ctx}'
+            ctx = context.location.name.replace("_", " ")
+            fmt = f"Failed to translate {self.string!r} in a {ctx}"
             if self.locale is not None:
-                fmt = f'{fmt} in the {self.locale.value} locale'
+                fmt = f"{fmt} in the {self.locale.value} locale"
 
             super().__init__(fmt)
 
@@ -202,7 +210,7 @@ class NoPrivateMessage(CheckFailure):
     """
 
     def __init__(self, message: Optional[str] = None) -> None:
-        super().__init__(message or 'This command cannot be used in direct messages.')
+        super().__init__(message or "This command cannot be used in direct messages.")
 
 
 class MissingRole(CheckFailure):
@@ -221,7 +229,7 @@ class MissingRole(CheckFailure):
 
     def __init__(self, missing_role: Snowflake) -> None:
         self.missing_role: Snowflake = missing_role
-        message = f'Role {missing_role!r} is required to run this command.'
+        message = f"Role {missing_role!r} is required to run this command."
         super().__init__(message)
 
 
@@ -244,7 +252,7 @@ class MissingAnyRole(CheckFailure):
         self.missing_roles: SnowflakeList = missing_roles
 
         fmt = _human_join([f"'{role}'" for role in missing_roles])
-        message = f'You are missing at least one of the required roles: {fmt}'
+        message = f"You are missing at least one of the required roles: {fmt}"
         super().__init__(message)
 
 
@@ -265,9 +273,12 @@ class MissingPermissions(CheckFailure):
     def __init__(self, missing_permissions: List[str], *args: Any) -> None:
         self.missing_permissions: List[str] = missing_permissions
 
-        missing = [perm.replace('_', ' ').replace('guild', 'server').title() for perm in missing_permissions]
-        fmt = _human_join(missing, final='and')
-        message = f'You are missing {fmt} permission(s) to run this command.'
+        missing = [
+            perm.replace("_", " ").replace("guild", "server").title()
+            for perm in missing_permissions
+        ]
+        fmt = _human_join(missing, final="and")
+        message = f"You are missing {fmt} permission(s) to run this command."
         super().__init__(message, *args)
 
 
@@ -288,9 +299,12 @@ class BotMissingPermissions(CheckFailure):
     def __init__(self, missing_permissions: List[str], *args: Any) -> None:
         self.missing_permissions: List[str] = missing_permissions
 
-        missing = [perm.replace('_', ' ').replace('guild', 'server').title() for perm in missing_permissions]
-        fmt = _human_join(missing, final='and')
-        message = f'Bot requires {fmt} permission(s) to run this command.'
+        missing = [
+            perm.replace("_", " ").replace("guild", "server").title()
+            for perm in missing_permissions
+        ]
+        fmt = _human_join(missing, final="and")
+        message = f"Bot requires {fmt} permission(s) to run this command."
         super().__init__(message, *args)
 
 
@@ -312,7 +326,7 @@ class CommandOnCooldown(CheckFailure):
     def __init__(self, cooldown: Cooldown, retry_after: float) -> None:
         self.cooldown: Cooldown = cooldown
         self.retry_after: float = retry_after
-        super().__init__(f'You are on cooldown. Try again in {retry_after:.2f}s')
+        super().__init__(f"You are on cooldown. Try again in {retry_after:.2f}s")
 
 
 class CommandAlreadyRegistered(AppCommandError):
@@ -334,7 +348,7 @@ class CommandAlreadyRegistered(AppCommandError):
     def __init__(self, name: str, guild_id: Optional[int]):
         self.name: str = name
         self.guild_id: Optional[int] = guild_id
-        super().__init__(f'Command {name!r} already registered.')
+        super().__init__(f"Command {name!r} already registered.")
 
 
 class CommandNotFound(AppCommandError):
@@ -355,11 +369,16 @@ class CommandNotFound(AppCommandError):
         The type of command that was not found.
     """
 
-    def __init__(self, name: str, parents: List[str], type: AppCommandType = AppCommandType.chat_input):
+    def __init__(
+        self,
+        name: str,
+        parents: List[str],
+        type: AppCommandType = AppCommandType.chat_input,
+    ):
         self.name: str = name
         self.parents: List[str] = parents
         self.type: AppCommandType = type
-        super().__init__(f'Application command {name!r} not found')
+        super().__init__(f"Application command {name!r} not found")
 
 
 class CommandLimitReached(AppCommandError):
@@ -380,19 +399,24 @@ class CommandLimitReached(AppCommandError):
         The limit that was hit.
     """
 
-    def __init__(self, guild_id: Optional[int], limit: int, type: AppCommandType = AppCommandType.chat_input):
+    def __init__(
+        self,
+        guild_id: Optional[int],
+        limit: int,
+        type: AppCommandType = AppCommandType.chat_input,
+    ):
         self.guild_id: Optional[int] = guild_id
         self.limit: int = limit
         self.type: AppCommandType = type
 
         lookup = {
-            AppCommandType.chat_input: 'slash commands',
-            AppCommandType.message: 'message context menu commands',
-            AppCommandType.user: 'user context menu commands',
+            AppCommandType.chat_input: "slash commands",
+            AppCommandType.message: "message context menu commands",
+            AppCommandType.user: "user context menu commands",
         }
-        desc = lookup.get(type, 'application commands')
-        ns = 'globally' if self.guild_id is None else f'for guild ID {self.guild_id}'
-        super().__init__(f'maximum number of {desc} exceeded {limit} {ns}')
+        desc = lookup.get(type, "application commands")
+        ns = "globally" if self.guild_id is None else f"for guild ID {self.guild_id}"
+        super().__init__(f"maximum number of {desc} exceeded {limit} {ns}")
 
 
 class CommandSignatureMismatch(AppCommandError):
@@ -414,10 +438,10 @@ class CommandSignatureMismatch(AppCommandError):
     def __init__(self, command: Union[Command[Any, ..., Any], ContextMenu, Group]):
         self.command: Union[Command[Any, ..., Any], ContextMenu, Group] = command
         msg = (
-            f'The signature for command {command.name!r} is different from the one provided by Discord. '
-            'This can happen because either your code is out of date or you have not synced the '
-            'commands with Discord, causing the mismatch in data. It is recommended to sync the '
-            'command tree to fix this issue.'
+            f"The signature for command {command.name!r} is different from the one provided by Discord. "
+            "This can happen because either your code is out of date or you have not synced the "
+            "commands with Discord, causing the mismatch in data. It is recommended to sync the "
+            "command tree to fix this issue."
         )
         super().__init__(msg)
 
@@ -445,7 +469,7 @@ def _get_command_error(
     # Import these here to avoid circular imports
     from .commands import Command, Group, ContextMenu
 
-    indentation = ' ' * indent
+    indentation = " " * indent
 
     # Top level errors are:
     # <number>: { <key>: <error> }
@@ -454,49 +478,53 @@ def _get_command_error(
     # Luckily, this is already handled by the flatten_error_dict utility
     if not index.isdigit():
         errors = _flatten_error_dict(inner, index)
-        messages.extend(f'In {k}: {v}' for k, v in errors.items())
+        messages.extend(f"In {k}: {v}" for k, v in errors.items())
         return
 
     idx = int(index)
     try:
         obj = objects[idx]
     except IndexError:
-        dedent_one_level = ' ' * (indent - 2)
+        dedent_one_level = " " * (indent - 2)
         errors = _flatten_error_dict(inner, index)
-        messages.extend(f'{dedent_one_level}In {k}: {v}' for k, v in errors.items())
+        messages.extend(f"{dedent_one_level}In {k}: {v}" for k, v in errors.items())
         return
 
     children: Sequence[Union[Parameter, CommandTypes]] = []
     if isinstance(obj, Command):
-        messages.append(f'{indentation}In command {obj.qualified_name!r} defined in function {obj.callback.__qualname__!r}')
+        messages.append(
+            f"{indentation}In command {obj.qualified_name!r} defined in function {obj.callback.__qualname__!r}"
+        )
         children = obj.parameters
     elif isinstance(obj, Group):
-        messages.append(f'{indentation}In group {obj.qualified_name!r} defined in module {obj.module!r}')
+        messages.append(
+            f"{indentation}In group {obj.qualified_name!r} defined in module {obj.module!r}"
+        )
         children = obj.commands
     elif isinstance(obj, ContextMenu):
         messages.append(
-            f'{indentation}In context menu {obj.qualified_name!r} defined in function {obj.callback.__qualname__!r}'
+            f"{indentation}In context menu {obj.qualified_name!r} defined in function {obj.callback.__qualname__!r}"
         )
     else:
-        messages.append(f'{indentation}In parameter {obj.name!r}')
+        messages.append(f"{indentation}In parameter {obj.name!r}")
 
     for key, remaining in inner.items():
         # Special case the 'options' key since they have well defined meanings
-        if key == 'options':
+        if key == "options":
             for index, d in remaining.items():
                 _get_command_error(index, d, children, messages, indent=indent + 2)
         else:
             if isinstance(remaining, dict):
                 try:
-                    inner_errors = remaining['_errors']
+                    inner_errors = remaining["_errors"]
                 except KeyError:
                     errors = _flatten_error_dict(remaining, key=key)
                 else:
-                    errors = {key: ' '.join(x.get('message', '') for x in inner_errors)}
+                    errors = {key: " ".join(x.get("message", "") for x in inner_errors)}
             else:
                 errors = _flatten_error_dict(remaining, key=key)
 
-            messages.extend(f'{indentation}  {k}: {v}' for k, v in errors.items())
+            messages.extend(f"{indentation}  {k}: {v}" for k, v in errors.items())
 
 
 class CommandSyncFailure(AppCommandError, HTTPException):
@@ -514,21 +542,26 @@ class CommandSyncFailure(AppCommandError, HTTPException):
         # Consume the child exception and make it seem as if we are that exception
         self.__dict__.update(child.__dict__)
 
-        messages = [f'Failed to upload commands to Discord (HTTP status {self.status}, error code {self.code})']
+        messages = [
+            f"Failed to upload commands to Discord (HTTP status {self.status}, error code {self.code})"
+        ]
 
         if self._errors:
             # Handle case where the errors dict has no actual chain such as APPLICATION_COMMAND_TOO_LARGE
-            if len(self._errors) == 1 and '_errors' in self._errors:
-                errors = self._errors['_errors']
+            if len(self._errors) == 1 and "_errors" in self._errors:
+                errors = self._errors["_errors"]
                 if len(errors) == 1:
-                    extra = errors[0].get('message')
+                    extra = errors[0].get("message")
                     if extra:
-                        messages[0] += f': {extra}'
+                        messages[0] += f": {extra}"
                 else:
-                    messages.extend(f'Error {e.get("code", "")}: {e.get("message", "")}' for e in errors)
+                    messages.extend(
+                        f'Error {e.get("code", "")}: {e.get("message", "")}'
+                        for e in errors
+                    )
             else:
                 for index, inner in self._errors.items():
                     _get_command_error(index, inner, commands, messages)
 
         # Equivalent to super().__init__(...) but skips other constructors
-        self.args = ('\n'.join(messages),)
+        self.args = ("\n".join(messages),)

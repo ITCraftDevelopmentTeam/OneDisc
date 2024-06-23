@@ -17,6 +17,7 @@ class Server(uvicorn.Server):
         await super().serve(sockets)
         sys.exit()
 
+
 async def run(app: fastapi.FastAPI, port: int, host: str = "0.0.0.0", **params):
     """
     在现有事件循环启动 Uvicorn 服务器
@@ -26,13 +27,7 @@ async def run(app: fastapi.FastAPI, port: int, host: str = "0.0.0.0", **params):
         port (int): 端口
         host (str, optional): Host. Defaults to "0.0.0.0".
     """
-    config = uvicorn.Config(
-        app=app,
-        host=host,
-        port=port,
-        log_config=None,
-        **params
-    )
+    config = uvicorn.Config(app=app, host=host, port=port, log_config=None, **params)
     server = Server(config)
     await server.run()
     logger.info(f"成功在 {host}:{port} 上开启 Uvicorn 服务器")

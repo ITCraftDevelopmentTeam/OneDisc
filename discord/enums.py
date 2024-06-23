@@ -21,58 +21,71 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import types
 from collections import namedtuple
-from typing import Any, ClassVar, Dict, List, Optional, TYPE_CHECKING, Tuple, Type, TypeVar, Iterator, Mapping
+from typing import (
+    Any,
+    ClassVar,
+    Dict,
+    List,
+    Optional,
+    TYPE_CHECKING,
+    Tuple,
+    Type,
+    TypeVar,
+    Iterator,
+    Mapping,
+)
 
 __all__ = (
-    'Enum',
-    'ChannelType',
-    'MessageType',
-    'SpeakingState',
-    'VerificationLevel',
-    'ContentFilter',
-    'Status',
-    'DefaultAvatar',
-    'AuditLogAction',
-    'AuditLogActionCategory',
-    'UserFlags',
-    'ActivityType',
-    'NotificationLevel',
-    'TeamMembershipState',
-    'TeamMemberRole',
-    'WebhookType',
-    'ExpireBehaviour',
-    'ExpireBehavior',
-    'StickerType',
-    'StickerFormatType',
-    'InviteTarget',
-    'VideoQualityMode',
-    'ComponentType',
-    'ButtonStyle',
-    'TextStyle',
-    'PrivacyLevel',
-    'InteractionType',
-    'InteractionResponseType',
-    'NSFWLevel',
-    'MFALevel',
-    'Locale',
-    'EntityType',
-    'EventStatus',
-    'AppCommandType',
-    'AppCommandOptionType',
-    'AppCommandPermissionType',
-    'AutoModRuleTriggerType',
-    'AutoModRuleEventType',
-    'AutoModRuleActionType',
-    'ForumLayoutType',
-    'ForumOrderType',
-    'SelectDefaultValueType',
-    'SKUType',
-    'EntitlementType',
-    'EntitlementOwnerType',
+    "Enum",
+    "ChannelType",
+    "MessageType",
+    "SpeakingState",
+    "VerificationLevel",
+    "ContentFilter",
+    "Status",
+    "DefaultAvatar",
+    "AuditLogAction",
+    "AuditLogActionCategory",
+    "UserFlags",
+    "ActivityType",
+    "NotificationLevel",
+    "TeamMembershipState",
+    "TeamMemberRole",
+    "WebhookType",
+    "ExpireBehaviour",
+    "ExpireBehavior",
+    "StickerType",
+    "StickerFormatType",
+    "InviteTarget",
+    "VideoQualityMode",
+    "ComponentType",
+    "ButtonStyle",
+    "TextStyle",
+    "PrivacyLevel",
+    "InteractionType",
+    "InteractionResponseType",
+    "NSFWLevel",
+    "MFALevel",
+    "Locale",
+    "EntityType",
+    "EventStatus",
+    "AppCommandType",
+    "AppCommandOptionType",
+    "AppCommandPermissionType",
+    "AutoModRuleTriggerType",
+    "AutoModRuleEventType",
+    "AutoModRuleActionType",
+    "ForumLayoutType",
+    "ForumOrderType",
+    "SelectDefaultValueType",
+    "SKUType",
+    "EntitlementType",
+    "EntitlementOwnerType",
 )
 
 if TYPE_CHECKING:
@@ -82,9 +95,9 @@ if TYPE_CHECKING:
 def _create_value_cls(name: str, comparable: bool):
     # All the type ignores here are due to the type checker being unable to recognise
     # Runtime type creation without exploding.
-    cls = namedtuple('_EnumValue_' + name, 'name value')
-    cls.__repr__ = lambda self: f'<{name}.{self.name}: {self.value!r}>'  # type: ignore
-    cls.__str__ = lambda self: f'{name}.{self.name}'  # type: ignore
+    cls = namedtuple("_EnumValue_" + name, "name value")
+    cls.__repr__ = lambda self: f"<{name}.{self.name}: {self.value!r}>"  # type: ignore
+    cls.__str__ = lambda self: f"{name}.{self.name}"  # type: ignore
     if comparable:
         cls.__le__ = lambda self, other: isinstance(other, self.__class__) and self.value <= other.value  # type: ignore
         cls.__ge__ = lambda self, other: isinstance(other, self.__class__) and self.value >= other.value  # type: ignore
@@ -94,7 +107,9 @@ def _create_value_cls(name: str, comparable: bool):
 
 
 def _is_descriptor(obj):
-    return hasattr(obj, '__get__') or hasattr(obj, '__set__') or hasattr(obj, '__delete__')
+    return (
+        hasattr(obj, "__get__") or hasattr(obj, "__set__") or hasattr(obj, "__delete__")
+    )
 
 
 class EnumMeta(type):
@@ -104,7 +119,14 @@ class EnumMeta(type):
         _enum_member_map_: ClassVar[Dict[str, Any]]
         _enum_value_map_: ClassVar[Dict[Any, Any]]
 
-    def __new__(cls, name: str, bases: Tuple[type, ...], attrs: Dict[str, Any], *, comparable: bool = False) -> Self:
+    def __new__(
+        cls,
+        name: str,
+        bases: Tuple[type, ...],
+        attrs: Dict[str, Any],
+        *,
+        comparable: bool = False,
+    ) -> Self:
         value_mapping = {}
         member_mapping = {}
         member_names = []
@@ -112,7 +134,7 @@ class EnumMeta(type):
         value_cls = _create_value_cls(name, comparable)
         for key, value in list(attrs.items()):
             is_descriptor = _is_descriptor(value)
-            if key[0] == '_' and not is_descriptor:
+            if key[0] == "_" and not is_descriptor:
                 continue
 
             # Special case classmethod to just pass through
@@ -134,10 +156,10 @@ class EnumMeta(type):
             member_mapping[key] = new_value
             attrs[key] = new_value
 
-        attrs['_enum_value_map_'] = value_mapping
-        attrs['_enum_member_map_'] = member_mapping
-        attrs['_enum_member_names_'] = member_names
-        attrs['_enum_value_cls_'] = value_cls
+        attrs["_enum_value_map_"] = value_mapping
+        attrs["_enum_member_map_"] = member_mapping
+        attrs["_enum_member_names_"] = member_names
+        attrs["_enum_value_cls_"] = value_cls
         actual_cls = super().__new__(cls, name, bases, attrs)
         value_cls._actual_enum_cls_ = actual_cls  # type: ignore # Runtime attribute isn't understood
         return actual_cls
@@ -146,13 +168,15 @@ class EnumMeta(type):
         return (cls._enum_member_map_[name] for name in cls._enum_member_names_)
 
     def __reversed__(cls) -> Iterator[Any]:
-        return (cls._enum_member_map_[name] for name in reversed(cls._enum_member_names_))
+        return (
+            cls._enum_member_map_[name] for name in reversed(cls._enum_member_names_)
+        )
 
     def __len__(cls) -> int:
         return len(cls._enum_member_names_)
 
     def __repr__(cls) -> str:
-        return f'<enum {cls.__name__}>'
+        return f"<enum {cls.__name__}>"
 
     @property
     def __members__(cls) -> Mapping[str, Any]:
@@ -168,10 +192,10 @@ class EnumMeta(type):
         return cls._enum_member_map_[key]
 
     def __setattr__(cls, name: str, value: Any) -> None:
-        raise TypeError('Enums are immutable.')
+        raise TypeError("Enums are immutable.")
 
     def __delattr__(cls, attr: str) -> None:
-        raise TypeError('Enums are immutable')
+        raise TypeError("Enums are immutable")
 
     def __instancecheck__(self, instance: Any) -> bool:
         # isinstance(x, Y)
@@ -287,12 +311,12 @@ class ContentFilter(Enum, comparable=True):
 
 
 class Status(Enum):
-    online = 'online'
-    offline = 'offline'
-    idle = 'idle'
-    dnd = 'dnd'
-    do_not_disturb = 'dnd'
-    invisible = 'invisible'
+    online = "online"
+    offline = "offline"
+    idle = "idle"
+    dnd = "dnd"
+    do_not_disturb = "dnd"
+    invisible = "invisible"
 
     def __str__(self) -> str:
         return self.value
@@ -450,43 +474,43 @@ class AuditLogAction(Enum):
     def target_type(self) -> Optional[str]:
         v = self.value
         if v == -1:
-            return 'all'
+            return "all"
         elif v < 10:
-            return 'guild'
+            return "guild"
         elif v < 20:
-            return 'channel'
+            return "channel"
         elif v < 30:
-            return 'user'
+            return "user"
         elif v < 40:
-            return 'role'
+            return "role"
         elif v < 50:
-            return 'invite'
+            return "invite"
         elif v < 60:
-            return 'webhook'
+            return "webhook"
         elif v < 70:
-            return 'emoji'
+            return "emoji"
         elif v == 73:
-            return 'channel'
+            return "channel"
         elif v < 80:
-            return 'message'
+            return "message"
         elif v < 83:
-            return 'integration'
+            return "integration"
         elif v < 90:
-            return 'stage_instance'
+            return "stage_instance"
         elif v < 93:
-            return 'sticker'
+            return "sticker"
         elif v < 103:
-            return 'guild_scheduled_event'
+            return "guild_scheduled_event"
         elif v < 113:
-            return 'thread'
+            return "thread"
         elif v < 122:
-            return 'integration_or_app_command'
+            return "integration_or_app_command"
         elif 139 < v < 143:
-            return 'auto_moderation'
+            return "auto_moderation"
         elif v < 146:
-            return 'user'
+            return "user"
         elif v < 152:
-            return 'creator_monetization'
+            return "creator_monetization"
 
 
 class UserFlags(Enum):
@@ -531,9 +555,9 @@ class TeamMembershipState(Enum):
 
 
 class TeamMemberRole(Enum):
-    admin = 'admin'
-    developer = 'developer'
-    read_only = 'read_only'
+    admin = "admin"
+    developer = "developer"
+    read_only = "read_only"
 
 
 class WebhookType(Enum):
@@ -571,7 +595,7 @@ class StickerFormatType(Enum):
             StickerFormatType.gif: 'gif',
         }
         # fmt: on
-        return lookup.get(self, 'png')
+        return lookup.get(self, "png")
 
 
 class InviteTarget(Enum):
@@ -671,44 +695,44 @@ class MFALevel(Enum, comparable=True):
 
 
 class Locale(Enum):
-    american_english = 'en-US'
-    british_english = 'en-GB'
-    bulgarian = 'bg'
-    chinese = 'zh-CN'
-    taiwan_chinese = 'zh-TW'
-    croatian = 'hr'
-    czech = 'cs'
-    indonesian = 'id'
-    danish = 'da'
-    dutch = 'nl'
-    finnish = 'fi'
-    french = 'fr'
-    german = 'de'
-    greek = 'el'
-    hindi = 'hi'
-    hungarian = 'hu'
-    italian = 'it'
-    japanese = 'ja'
-    korean = 'ko'
-    latin_american_spanish = 'es-419'
-    lithuanian = 'lt'
-    norwegian = 'no'
-    polish = 'pl'
-    brazil_portuguese = 'pt-BR'
-    romanian = 'ro'
-    russian = 'ru'
-    spain_spanish = 'es-ES'
-    swedish = 'sv-SE'
-    thai = 'th'
-    turkish = 'tr'
-    ukrainian = 'uk'
-    vietnamese = 'vi'
+    american_english = "en-US"
+    british_english = "en-GB"
+    bulgarian = "bg"
+    chinese = "zh-CN"
+    taiwan_chinese = "zh-TW"
+    croatian = "hr"
+    czech = "cs"
+    indonesian = "id"
+    danish = "da"
+    dutch = "nl"
+    finnish = "fi"
+    french = "fr"
+    german = "de"
+    greek = "el"
+    hindi = "hi"
+    hungarian = "hu"
+    italian = "it"
+    japanese = "ja"
+    korean = "ko"
+    latin_american_spanish = "es-419"
+    lithuanian = "lt"
+    norwegian = "no"
+    polish = "pl"
+    brazil_portuguese = "pt-BR"
+    romanian = "ro"
+    russian = "ru"
+    spain_spanish = "es-ES"
+    swedish = "sv-SE"
+    thai = "th"
+    turkish = "tr"
+    ukrainian = "uk"
+    vietnamese = "vi"
 
     def __str__(self) -> str:
         return self.value
 
 
-E = TypeVar('E', bound='Enum')
+E = TypeVar("E", bound="Enum")
 
 
 class EntityType(Enum):
@@ -786,9 +810,9 @@ class ForumOrderType(Enum):
 
 
 class SelectDefaultValueType(Enum):
-    user = 'user'
-    role = 'role'
-    channel = 'channel'
+    user = "user"
+    role = "role"
+    channel = "channel"
 
 
 class SKUType(Enum):
@@ -807,7 +831,7 @@ class EntitlementOwnerType(Enum):
 
 def create_unknown_value(cls: Type[E], val: Any) -> E:
     value_cls = cls._enum_value_cls_  # type: ignore # This is narrowed below
-    name = f'unknown_{val}'
+    name = f"unknown_{val}"
     return value_cls(name=name, value=val)
 
 

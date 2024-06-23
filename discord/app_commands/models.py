@@ -26,9 +26,21 @@ from __future__ import annotations
 from datetime import datetime
 
 from .errors import MissingApplicationID
-from .translator import TranslationContextLocation, TranslationContext, locale_str, Translator
+from .translator import (
+    TranslationContextLocation,
+    TranslationContext,
+    locale_str,
+    Translator,
+)
 from ..permissions import Permissions
-from ..enums import AppCommandOptionType, AppCommandType, AppCommandPermissionType, ChannelType, Locale, try_enum
+from ..enums import (
+    AppCommandOptionType,
+    AppCommandType,
+    AppCommandPermissionType,
+    ChannelType,
+    Locale,
+    try_enum,
+)
 from ..mixins import Hashable
 from ..utils import _get_as_snowflake, parse_time, snowflake_time, MISSING
 from ..object import Object
@@ -38,18 +50,18 @@ from ..member import Member
 from typing import Any, Dict, Generic, List, TYPE_CHECKING, Optional, TypeVar, Union
 
 __all__ = (
-    'AppCommand',
-    'AppCommandGroup',
-    'AppCommandChannel',
-    'AppCommandThread',
-    'AppCommandPermissions',
-    'GuildAppCommandPermissions',
-    'Argument',
-    'Choice',
-    'AllChannels',
+    "AppCommand",
+    "AppCommandGroup",
+    "AppCommandChannel",
+    "AppCommandThread",
+    "AppCommandPermissions",
+    "GuildAppCommandPermissions",
+    "Argument",
+    "Choice",
+    "AllChannels",
 )
 
-ChoiceT = TypeVar('ChoiceT', str, int, float, Union[str, int, float])
+ChoiceT = TypeVar("ChoiceT", str, int, float, Union[str, int, float])
 
 
 def is_app_command_argument_type(value: int) -> bool:
@@ -80,7 +92,7 @@ if TYPE_CHECKING:
     from ..threads import Thread
     from ..user import User
 
-    ApplicationCommandParent = Union['AppCommand', 'AppCommandGroup']
+    ApplicationCommandParent = Union["AppCommand", "AppCommandGroup"]
 
 
 class AllChannels:
@@ -94,7 +106,7 @@ class AllChannels:
         The guild the application command permission is for.
     """
 
-    __slots__ = ('guild',)
+    __slots__ = ("guild",)
 
     def __init__(self, guild: Guild):
         self.guild: Guild = guild
@@ -105,7 +117,7 @@ class AllChannels:
         return self.guild.id - 1
 
     def __repr__(self) -> str:
-        return f'<AllChannels guild={self.guild}>'
+        return f"<AllChannels guild={self.guild}>"
 
 
 def _to_locale_dict(data: Dict[str, str]) -> Dict[Locale, str]:
@@ -168,74 +180,85 @@ class AppCommand(Hashable):
     """
 
     __slots__ = (
-        'id',
-        'type',
-        'application_id',
-        'name',
-        'description',
-        'name_localizations',
-        'description_localizations',
-        'guild_id',
-        'options',
-        'default_member_permissions',
-        'dm_permission',
-        'nsfw',
-        '_state',
+        "id",
+        "type",
+        "application_id",
+        "name",
+        "description",
+        "name_localizations",
+        "description_localizations",
+        "guild_id",
+        "options",
+        "default_member_permissions",
+        "dm_permission",
+        "nsfw",
+        "_state",
     )
 
-    def __init__(self, *, data: ApplicationCommandPayload, state: ConnectionState) -> None:
+    def __init__(
+        self, *, data: ApplicationCommandPayload, state: ConnectionState
+    ) -> None:
         self._state: ConnectionState = state
         self._from_data(data)
 
     def _from_data(self, data: ApplicationCommandPayload) -> None:
-        self.id: int = int(data['id'])
-        self.application_id: int = int(data['application_id'])
-        self.name: str = data['name']
-        self.description: str = data['description']
-        self.guild_id: Optional[int] = _get_as_snowflake(data, 'guild_id')
-        self.type: AppCommandType = try_enum(AppCommandType, data.get('type', 1))
+        self.id: int = int(data["id"])
+        self.application_id: int = int(data["application_id"])
+        self.name: str = data["name"]
+        self.description: str = data["description"]
+        self.guild_id: Optional[int] = _get_as_snowflake(data, "guild_id")
+        self.type: AppCommandType = try_enum(AppCommandType, data.get("type", 1))
         self.options: List[Union[Argument, AppCommandGroup]] = [
-            app_command_option_factory(data=d, parent=self, state=self._state) for d in data.get('options', [])
+            app_command_option_factory(data=d, parent=self, state=self._state)
+            for d in data.get("options", [])
         ]
         self.default_member_permissions: Optional[Permissions]
-        permissions = data.get('default_member_permissions')
+        permissions = data.get("default_member_permissions")
         if permissions is None:
             self.default_member_permissions = None
         else:
             self.default_member_permissions = Permissions(int(permissions))
 
-        dm_permission = data.get('dm_permission')
+        dm_permission = data.get("dm_permission")
         # For some reason this field can be explicit null and mean True
         if dm_permission is None:
             dm_permission = True
 
         self.dm_permission: bool = dm_permission
-        self.nsfw: bool = data.get('nsfw', False)
-        self.name_localizations: Dict[Locale, str] = _to_locale_dict(data.get('name_localizations') or {})
-        self.description_localizations: Dict[Locale, str] = _to_locale_dict(data.get('description_localizations') or {})
+        self.nsfw: bool = data.get("nsfw", False)
+        self.name_localizations: Dict[Locale, str] = _to_locale_dict(
+            data.get("name_localizations") or {}
+        )
+        self.description_localizations: Dict[Locale, str] = _to_locale_dict(
+            data.get("description_localizations") or {}
+        )
 
     def to_dict(self) -> ApplicationCommandPayload:
         return {
-            'id': self.id,
-            'type': self.type.value,
-            'application_id': self.application_id,
-            'name': self.name,
-            'description': self.description,
-            'name_localizations': {str(k): v for k, v in self.name_localizations.items()},
-            'description_localizations': {str(k): v for k, v in self.description_localizations.items()},
-            'options': [opt.to_dict() for opt in self.options],
+            "id": self.id,
+            "type": self.type.value,
+            "application_id": self.application_id,
+            "name": self.name,
+            "description": self.description,
+            "name_localizations": {
+                str(k): v for k, v in self.name_localizations.items()
+            },
+            "description_localizations": {
+                str(k): v for k, v in self.description_localizations.items()
+            },
+            "options": [opt.to_dict() for opt in self.options],
         }  # type: ignore # Type checker does not understand this literal.
 
     def __str__(self) -> str:
         return self.name
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} id={self.id!r} name={self.name!r} type={self.type!r}>'
+        return f"<{self.__class__.__name__} id={self.id!r} name={self.name!r} type={self.type!r}>"
 
     @property
     def mention(self) -> str:
         """:class:`str`: Returns a string that allows you to mention the given AppCommand."""
-        return f'</{self.name}:{self.id}>'
+        return f"</{self.name}:{self.id}>"
 
     @property
     def guild(self) -> Optional[Guild]:
@@ -326,22 +349,22 @@ class AppCommand(Hashable):
         payload = {}
 
         if name is not MISSING:
-            payload['name'] = name
+            payload["name"] = name
 
         if description is not MISSING:
-            payload['description'] = description
+            payload["description"] = description
 
         if default_member_permissions is not MISSING:
             if default_member_permissions is not None:
-                payload['default_member_permissions'] = default_member_permissions.value
+                payload["default_member_permissions"] = default_member_permissions.value
             else:
-                payload['default_member_permissions'] = None
+                payload["default_member_permissions"] = None
 
         if self.guild_id is None and dm_permission is not MISSING:
-            payload['dm_permission'] = dm_permission
+            payload["dm_permission"] = dm_permission
 
         if options is not MISSING:
-            payload['options'] = [option.to_dict() for option in options]
+            payload["options"] = [option.to_dict() for option in options]
 
         if not payload:
             return self
@@ -432,10 +455,12 @@ class Choice(Generic[ChoiceT]):
         up to 100 characters long.
     """
 
-    __slots__ = ('name', 'value', '_locale_name', 'name_localizations')
+    __slots__ = ("name", "value", "_locale_name", "name_localizations")
 
     def __init__(self, *, name: Union[str, locale_str], value: ChoiceT):
-        name, locale = (name.message, name) if isinstance(name, locale_str) else (name, None)
+        name, locale = (
+            (name.message, name) if isinstance(name, locale_str) else (name, None)
+        )
         self.name: str = name
         self._locale_name: Optional[locale_str] = locale
         self.value: ChoiceT = value
@@ -444,9 +469,9 @@ class Choice(Generic[ChoiceT]):
     @classmethod
     def from_dict(cls, data: ApplicationCommandOptionChoice) -> Choice[ChoiceT]:
         self = cls.__new__(cls)
-        self.name = data['name']
-        self.value = data['value']  # type: ignore # This seems to break every other pyright release
-        self.name_localizations = _to_locale_dict(data.get('name_localizations') or {})
+        self.name = data["name"]
+        self.value = data["value"]  # type: ignore # This seems to break every other pyright release
+        self.name_localizations = _to_locale_dict(data.get("name_localizations") or {})
         return self
 
     def __eq__(self, o: object) -> bool:
@@ -456,7 +481,7 @@ class Choice(Generic[ChoiceT]):
         return hash((self.name, self.value))
 
     def __repr__(self) -> str:
-        return f'{self.__class__.__name__}(name={self.name!r}, value={self.value!r})'
+        return f"{self.__class__.__name__}(name={self.name!r}, value={self.value!r})"
 
     @property
     def _option_type(self) -> AppCommandOptionType:
@@ -468,41 +493,53 @@ class Choice(Generic[ChoiceT]):
             return AppCommandOptionType.string
         else:
             raise TypeError(
-                f'invalid Choice value type given, expected int, str, or float but received {self.value.__class__.__name__}'
+                f"invalid Choice value type given, expected int, str, or float but received {self.value.__class__.__name__}"
             )
 
     async def get_translated_payload(self, translator: Translator) -> Dict[str, Any]:
         base = self.to_dict()
         name_localizations: Dict[str, str] = {}
-        context = TranslationContext(location=TranslationContextLocation.choice_name, data=self)
+        context = TranslationContext(
+            location=TranslationContextLocation.choice_name, data=self
+        )
         if self._locale_name:
             for locale in Locale:
-                translation = await translator._checked_translate(self._locale_name, locale, context)
+                translation = await translator._checked_translate(
+                    self._locale_name, locale, context
+                )
                 if translation is not None:
                     name_localizations[locale.value] = translation
 
         if name_localizations:
-            base['name_localizations'] = name_localizations
+            base["name_localizations"] = name_localizations
 
         return base
 
-    async def get_translated_payload_for_locale(self, translator: Translator, locale: Locale) -> Dict[str, Any]:
+    async def get_translated_payload_for_locale(
+        self, translator: Translator, locale: Locale
+    ) -> Dict[str, Any]:
         base = self.to_dict()
         if self._locale_name:
-            context = TranslationContext(location=TranslationContextLocation.choice_name, data=self)
-            translation = await translator._checked_translate(self._locale_name, locale, context)
+            context = TranslationContext(
+                location=TranslationContextLocation.choice_name, data=self
+            )
+            translation = await translator._checked_translate(
+                self._locale_name, locale, context
+            )
             if translation is not None:
-                base['name'] = translation
+                base["name"] = translation
 
         return base
 
     def to_dict(self) -> Dict[str, Any]:
         base = {
-            'name': self.name,
-            'value': self.value,
+            "name": self.name,
+            "value": self.value,
         }
         if self.name_localizations:
-            base['name_localizations'] = {str(k): v for k, v in self.name_localizations.items()}
+            base["name_localizations"] = {
+                str(k): v for k, v in self.name_localizations.items()
+            }
         return base
 
 
@@ -545,12 +582,12 @@ class AppCommandChannel(Hashable):
     """
 
     __slots__ = (
-        'id',
-        'type',
-        'name',
-        'permissions',
-        'guild_id',
-        '_state',
+        "id",
+        "type",
+        "name",
+        "permissions",
+        "guild_id",
+        "_state",
     )
 
     def __init__(
@@ -562,16 +599,16 @@ class AppCommandChannel(Hashable):
     ):
         self._state: ConnectionState = state
         self.guild_id: int = guild_id
-        self.id: int = int(data['id'])
-        self.type: ChannelType = try_enum(ChannelType, data['type'])
-        self.name: str = data['name']
-        self.permissions: Permissions = Permissions(int(data['permissions']))
+        self.id: int = int(data["id"])
+        self.type: ChannelType = try_enum(ChannelType, data["type"])
+        self.name: str = data["name"]
+        self.permissions: Permissions = Permissions(int(data["permissions"]))
 
     def __str__(self) -> str:
         return self.name
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} id={self.id!r} name={self.name!r} type={self.type!r}>'
+        return f"<{self.__class__.__name__} id={self.id!r} name={self.name!r} type={self.type!r}>"
 
     @property
     def guild(self) -> Optional[Guild]:
@@ -617,7 +654,7 @@ class AppCommandChannel(Hashable):
     @property
     def mention(self) -> str:
         """:class:`str`: The string that allows you to mention the channel."""
-        return f'<#{self.id}>'
+        return f"<#{self.id}>"
 
     @property
     def created_at(self) -> datetime:
@@ -680,20 +717,20 @@ class AppCommandThread(Hashable):
     """
 
     __slots__ = (
-        'id',
-        'type',
-        'name',
-        'permissions',
-        'guild_id',
-        'parent_id',
-        'archived',
-        'archiver_id',
-        'auto_archive_duration',
-        'archive_timestamp',
-        'locked',
-        'invitable',
-        '_created_at',
-        '_state',
+        "id",
+        "type",
+        "name",
+        "permissions",
+        "guild_id",
+        "parent_id",
+        "archived",
+        "archiver_id",
+        "auto_archive_duration",
+        "archive_timestamp",
+        "locked",
+        "invitable",
+        "_created_at",
+        "_state",
     )
 
     def __init__(
@@ -705,18 +742,18 @@ class AppCommandThread(Hashable):
     ):
         self._state: ConnectionState = state
         self.guild_id: int = guild_id
-        self.id: int = int(data['id'])
-        self.parent_id: int = int(data['parent_id'])
-        self.type: ChannelType = try_enum(ChannelType, data['type'])
-        self.name: str = data['name']
-        self.permissions: Permissions = Permissions(int(data['permissions']))
-        self._unroll_metadata(data['thread_metadata'])
+        self.id: int = int(data["id"])
+        self.parent_id: int = int(data["parent_id"])
+        self.type: ChannelType = try_enum(ChannelType, data["type"])
+        self.name: str = data["name"]
+        self.permissions: Permissions = Permissions(int(data["permissions"]))
+        self._unroll_metadata(data["thread_metadata"])
 
     def __str__(self) -> str:
         return self.name
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} id={self.id!r} name={self.name!r} archived={self.archived} type={self.type!r}>'
+        return f"<{self.__class__.__name__} id={self.id!r} name={self.name!r} archived={self.archived} type={self.type!r}>"
 
     @property
     def guild(self) -> Optional[Guild]:
@@ -724,13 +761,15 @@ class AppCommandThread(Hashable):
         return self._state._get_guild(self.guild_id)
 
     def _unroll_metadata(self, data: ThreadMetadata) -> None:
-        self.archived: bool = data['archived']
-        self.archiver_id: Optional[int] = _get_as_snowflake(data, 'archiver_id')
-        self.auto_archive_duration: ThreadArchiveDuration = data['auto_archive_duration']
-        self.archive_timestamp: datetime = parse_time(data['archive_timestamp'])
-        self.locked: bool = data.get('locked', False)
-        self.invitable: bool = data.get('invitable', True)
-        self._created_at: Optional[datetime] = parse_time(data.get('create_timestamp'))
+        self.archived: bool = data["archived"]
+        self.archiver_id: Optional[int] = _get_as_snowflake(data, "archiver_id")
+        self.auto_archive_duration: ThreadArchiveDuration = data[
+            "auto_archive_duration"
+        ]
+        self.archive_timestamp: datetime = parse_time(data["archive_timestamp"])
+        self.locked: bool = data.get("locked", False)
+        self.invitable: bool = data.get("invitable", True)
+        self._created_at: Optional[datetime] = parse_time(data.get("create_timestamp"))
 
     @property
     def parent(self) -> Optional[TextChannel]:
@@ -740,7 +779,7 @@ class AppCommandThread(Hashable):
     @property
     def mention(self) -> str:
         """:class:`str`: The string that allows you to mention the thread."""
-        return f'<#{self.id}>'
+        return f"<#{self.id}>"
 
     @property
     def created_at(self) -> Optional[datetime]:
@@ -827,64 +866,82 @@ class Argument:
     """
 
     __slots__ = (
-        'type',
-        'name',
-        'description',
-        'name_localizations',
-        'description_localizations',
-        'required',
-        'choices',
-        'channel_types',
-        'min_value',
-        'max_value',
-        'min_length',
-        'max_length',
-        'autocomplete',
-        'parent',
-        '_state',
+        "type",
+        "name",
+        "description",
+        "name_localizations",
+        "description_localizations",
+        "required",
+        "choices",
+        "channel_types",
+        "min_value",
+        "max_value",
+        "min_length",
+        "max_length",
+        "autocomplete",
+        "parent",
+        "_state",
     )
 
     def __init__(
-        self, *, parent: ApplicationCommandParent, data: ApplicationCommandOption, state: Optional[ConnectionState] = None
+        self,
+        *,
+        parent: ApplicationCommandParent,
+        data: ApplicationCommandOption,
+        state: Optional[ConnectionState] = None,
     ) -> None:
         self._state: Optional[ConnectionState] = state
         self.parent: ApplicationCommandParent = parent
         self._from_data(data)
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} name={self.name!r} type={self.type!r} required={self.required}>'
+        return f"<{self.__class__.__name__} name={self.name!r} type={self.type!r} required={self.required}>"
 
     def _from_data(self, data: ApplicationCommandOption) -> None:
-        self.type: AppCommandOptionType = try_enum(AppCommandOptionType, data['type'])
-        self.name: str = data['name']
-        self.description: str = data['description']
-        self.required: bool = data.get('required', False)
-        self.min_value: Optional[Union[int, float]] = data.get('min_value')
-        self.max_value: Optional[Union[int, float]] = data.get('max_value')
-        self.min_length: Optional[int] = data.get('min_length')
-        self.max_length: Optional[int] = data.get('max_length')
-        self.autocomplete: bool = data.get('autocomplete', False)
-        self.channel_types: List[ChannelType] = [try_enum(ChannelType, d) for d in data.get('channel_types', [])]
-        self.choices: List[Choice[Union[int, float, str]]] = [Choice.from_dict(d) for d in data.get('choices', [])]
-        self.name_localizations: Dict[Locale, str] = _to_locale_dict(data.get('name_localizations') or {})
-        self.description_localizations: Dict[Locale, str] = _to_locale_dict(data.get('description_localizations') or {})
+        self.type: AppCommandOptionType = try_enum(AppCommandOptionType, data["type"])
+        self.name: str = data["name"]
+        self.description: str = data["description"]
+        self.required: bool = data.get("required", False)
+        self.min_value: Optional[Union[int, float]] = data.get("min_value")
+        self.max_value: Optional[Union[int, float]] = data.get("max_value")
+        self.min_length: Optional[int] = data.get("min_length")
+        self.max_length: Optional[int] = data.get("max_length")
+        self.autocomplete: bool = data.get("autocomplete", False)
+        self.channel_types: List[ChannelType] = [
+            try_enum(ChannelType, d) for d in data.get("channel_types", [])
+        ]
+        self.choices: List[Choice[Union[int, float, str]]] = [
+            Choice.from_dict(d) for d in data.get("choices", [])
+        ]
+        self.name_localizations: Dict[Locale, str] = _to_locale_dict(
+            data.get("name_localizations") or {}
+        )
+        self.description_localizations: Dict[Locale, str] = _to_locale_dict(
+            data.get("description_localizations") or {}
+        )
 
     def to_dict(self) -> ApplicationCommandOption:
         return {
-            'name': self.name,
-            'type': self.type.value,
-            'description': self.description,
-            'required': self.required,
-            'choices': [choice.to_dict() for choice in self.choices],
-            'channel_types': [channel_type.value for channel_type in self.channel_types],
-            'min_value': self.min_value,
-            'max_value': self.max_value,
-            'min_length': self.min_length,
-            'max_length': self.max_length,
-            'autocomplete': self.autocomplete,
-            'options': [],
-            'name_localizations': {str(k): v for k, v in self.name_localizations.items()},
-            'description_localizations': {str(k): v for k, v in self.description_localizations.items()},
+            "name": self.name,
+            "type": self.type.value,
+            "description": self.description,
+            "required": self.required,
+            "choices": [choice.to_dict() for choice in self.choices],
+            "channel_types": [
+                channel_type.value for channel_type in self.channel_types
+            ],
+            "min_value": self.min_value,
+            "max_value": self.max_value,
+            "min_length": self.min_length,
+            "max_length": self.max_length,
+            "autocomplete": self.autocomplete,
+            "options": [],
+            "name_localizations": {
+                str(k): v for k, v in self.name_localizations.items()
+            },
+            "description_localizations": {
+                str(k): v for k, v in self.description_localizations.items()
+            },
         }  # type: ignore # Type checker does not understand this literal.
 
 
@@ -912,25 +969,29 @@ class AppCommandGroup:
     """
 
     __slots__ = (
-        'type',
-        'name',
-        'description',
-        'name_localizations',
-        'description_localizations',
-        'options',
-        'parent',
-        '_state',
+        "type",
+        "name",
+        "description",
+        "name_localizations",
+        "description_localizations",
+        "options",
+        "parent",
+        "_state",
     )
 
     def __init__(
-        self, *, parent: ApplicationCommandParent, data: ApplicationCommandOption, state: Optional[ConnectionState] = None
+        self,
+        *,
+        parent: ApplicationCommandParent,
+        data: ApplicationCommandOption,
+        state: Optional[ConnectionState] = None,
     ) -> None:
         self.parent: ApplicationCommandParent = parent
         self._state: Optional[ConnectionState] = state
         self._from_data(data)
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} name={self.name!r} type={self.type!r}>'
+        return f"<{self.__class__.__name__} name={self.name!r} type={self.type!r}>"
 
     @property
     def qualified_name(self) -> str:
@@ -947,7 +1008,7 @@ class AppCommandGroup:
         if isinstance(self.parent, AppCommandGroup):
             names.append(self.parent.parent.name)
 
-        return ' '.join(reversed(names))
+        return " ".join(reversed(names))
 
     @property
     def mention(self) -> str:
@@ -956,26 +1017,35 @@ class AppCommandGroup:
             base_command = self.parent
         else:
             base_command = self.parent.parent
-        return f'</{self.qualified_name}:{base_command.id}>'  # type: ignore
+        return f"</{self.qualified_name}:{base_command.id}>"  # type: ignore
 
     def _from_data(self, data: ApplicationCommandOption) -> None:
-        self.type: AppCommandOptionType = try_enum(AppCommandOptionType, data['type'])
-        self.name: str = data['name']
-        self.description: str = data['description']
+        self.type: AppCommandOptionType = try_enum(AppCommandOptionType, data["type"])
+        self.name: str = data["name"]
+        self.description: str = data["description"]
         self.options: List[Union[Argument, AppCommandGroup]] = [
-            app_command_option_factory(data=d, parent=self, state=self._state) for d in data.get('options', [])
+            app_command_option_factory(data=d, parent=self, state=self._state)
+            for d in data.get("options", [])
         ]
-        self.name_localizations: Dict[Locale, str] = _to_locale_dict(data.get('name_localizations') or {})
-        self.description_localizations: Dict[Locale, str] = _to_locale_dict(data.get('description_localizations') or {})
+        self.name_localizations: Dict[Locale, str] = _to_locale_dict(
+            data.get("name_localizations") or {}
+        )
+        self.description_localizations: Dict[Locale, str] = _to_locale_dict(
+            data.get("description_localizations") or {}
+        )
 
-    def to_dict(self) -> 'ApplicationCommandOption':
+    def to_dict(self) -> "ApplicationCommandOption":
         return {
-            'name': self.name,
-            'type': self.type.value,
-            'description': self.description,
-            'options': [arg.to_dict() for arg in self.options],
-            'name_localizations': {str(k): v for k, v in self.name_localizations.items()},
-            'description_localizations': {str(k): v for k, v in self.description_localizations.items()},
+            "name": self.name,
+            "type": self.type.value,
+            "description": self.description,
+            "options": [arg.to_dict() for arg in self.options],
+            "name_localizations": {
+                str(k): v for k, v in self.name_localizations.items()
+            },
+            "description_localizations": {
+                str(k): v for k, v in self.description_localizations.items()
+            },
         }  # type: ignore # Type checker does not understand this literal.
 
 
@@ -1000,15 +1070,23 @@ class AppCommandPermissions:
         The permission value. ``True`` for allow, ``False`` for deny.
     """
 
-    __slots__ = ('id', 'type', 'permission', 'target', 'guild', '_state')
+    __slots__ = ("id", "type", "permission", "target", "guild", "_state")
 
-    def __init__(self, *, data: ApplicationCommandPermissions, guild: Guild, state: ConnectionState) -> None:
+    def __init__(
+        self,
+        *,
+        data: ApplicationCommandPermissions,
+        guild: Guild,
+        state: ConnectionState,
+    ) -> None:
         self._state: ConnectionState = state
         self.guild: Guild = guild
 
-        self.id: int = int(data['id'])
-        self.type: AppCommandPermissionType = try_enum(AppCommandPermissionType, data['type'])
-        self.permission: bool = data['permission']
+        self.id: int = int(data["id"])
+        self.type: AppCommandPermissionType = try_enum(
+            AppCommandPermissionType, data["type"]
+        )
+        self.permission: bool = data["permission"]
 
         _object = None
         _type = MISSING
@@ -1028,13 +1106,15 @@ class AppCommandPermissions:
         if _object is None:
             _object = Object(id=self.id, type=_type)
 
-        self.target: Union[Object, User, Member, Role, AllChannels, GuildChannel] = _object
+        self.target: Union[Object, User, Member, Role, AllChannels, GuildChannel] = (
+            _object
+        )
 
     def to_dict(self) -> ApplicationCommandPermissions:
         return {
-            'id': self.target.id,
-            'type': self.type.value,
-            'permission': self.permission,
+            "id": self.target.id,
+            "type": self.type.value,
+            "permission": self.permission,
         }
 
 
@@ -1059,22 +1139,29 @@ class GuildAppCommandPermissions:
        The permissions, this is a max of 100.
     """
 
-    __slots__ = ('id', 'application_id', 'command', 'guild_id', 'permissions', '_state')
+    __slots__ = ("id", "application_id", "command", "guild_id", "permissions", "_state")
 
-    def __init__(self, *, data: GuildApplicationCommandPermissions, state: ConnectionState, command: AppCommand) -> None:
+    def __init__(
+        self,
+        *,
+        data: GuildApplicationCommandPermissions,
+        state: ConnectionState,
+        command: AppCommand,
+    ) -> None:
         self._state: ConnectionState = state
         self.command: AppCommand = command
 
-        self.id: int = int(data['id'])
-        self.application_id: int = int(data['application_id'])
-        self.guild_id: int = int(data['guild_id'])
+        self.id: int = int(data["id"])
+        self.application_id: int = int(data["application_id"])
+        self.guild_id: int = int(data["guild_id"])
         guild = self.guild
         self.permissions: List[AppCommandPermissions] = [
-            AppCommandPermissions(data=value, guild=guild, state=self._state) for value in data['permissions']
+            AppCommandPermissions(data=value, guild=guild, state=self._state)
+            for value in data["permissions"]
         ]
 
     def to_dict(self) -> Dict[str, Any]:
-        return {'permissions': [p.to_dict() for p in self.permissions]}
+        return {"permissions": [p.to_dict() for p in self.permissions]}
 
     @property
     def guild(self) -> Guild:
@@ -1083,9 +1170,12 @@ class GuildAppCommandPermissions:
 
 
 def app_command_option_factory(
-    parent: ApplicationCommandParent, data: ApplicationCommandOption, *, state: Optional[ConnectionState] = None
+    parent: ApplicationCommandParent,
+    data: ApplicationCommandOption,
+    *,
+    state: Optional[ConnectionState] = None,
 ) -> Union[Argument, AppCommandGroup]:
-    if is_app_command_argument_type(data['type']):
+    if is_app_command_argument_type(data["type"]):
         return Argument(parent=parent, data=data, state=state)
     else:
         return AppCommandGroup(parent=parent, data=data, state=state)

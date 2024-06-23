@@ -87,14 +87,14 @@ if TYPE_CHECKING:
     PrefixType = Union[_Prefix, _PrefixCallable[BotT]]
 
 __all__ = (
-    'when_mentioned',
-    'when_mentioned_or',
-    'Bot',
-    'AutoShardedBot',
+    "when_mentioned",
+    "when_mentioned_or",
+    "Bot",
+    "AutoShardedBot",
 )
 
-T = TypeVar('T')
-CFT = TypeVar('CFT', bound='CoroFunc')
+T = TypeVar("T")
+CFT = TypeVar("CFT", bound="CoroFunc")
 
 _log = logging.getLogger(__name__)
 
@@ -109,7 +109,7 @@ def when_mentioned(bot: _Bot, msg: Message, /) -> List[str]:
             ``bot`` and ``msg`` parameters are now positional-only.
     """
     # bot.user will never be None when this is called
-    return [f'<@{bot.user.id}> ', f'<@!{bot.user.id}> ']  # type: ignore
+    return [f"<@{bot.user.id}> ", f"<@!{bot.user.id}> "]  # type: ignore
 
 
 def when_mentioned_or(*prefixes: str) -> Callable[[_Bot, Message], List[str]]:
@@ -152,7 +152,7 @@ def when_mentioned_or(*prefixes: str) -> Callable[[_Bot, Message], List[str]]:
 
 class _DefaultRepr:
     def __repr__(self):
-        return '<default-help-command>'
+        return "<default-help-command>"
 
 
 _default: Any = _DefaultRepr()
@@ -181,16 +181,20 @@ class BotBase(GroupMixin[None]):
         self._before_invoke: Optional[CoroFunc] = None
         self._after_invoke: Optional[CoroFunc] = None
         self._help_command: Optional[HelpCommand] = None
-        self.description: str = inspect.cleandoc(description) if description else ''
-        self.owner_id: Optional[int] = options.get('owner_id')
-        self.owner_ids: Optional[Collection[int]] = options.get('owner_ids', set())
-        self.strip_after_prefix: bool = options.get('strip_after_prefix', False)
+        self.description: str = inspect.cleandoc(description) if description else ""
+        self.owner_id: Optional[int] = options.get("owner_id")
+        self.owner_ids: Optional[Collection[int]] = options.get("owner_ids", set())
+        self.strip_after_prefix: bool = options.get("strip_after_prefix", False)
 
         if self.owner_id and self.owner_ids:
-            raise TypeError('Both owner_id and owner_ids are set.')
+            raise TypeError("Both owner_id and owner_ids are set.")
 
-        if self.owner_ids and not isinstance(self.owner_ids, collections.abc.Collection):
-            raise TypeError(f'owner_ids must be a collection not {self.owner_ids.__class__.__name__}')
+        if self.owner_ids and not isinstance(
+            self.owner_ids, collections.abc.Collection
+        ):
+            raise TypeError(
+                f"owner_ids must be a collection not {self.owner_ids.__class__.__name__}"
+            )
 
         if help_command is _default:
             self.help_command = DefaultHelpCommand()
@@ -211,15 +215,20 @@ class BotBase(GroupMixin[None]):
             trigger_warning = (
                 (callable(prefix) and prefix is not when_mentioned)
                 or isinstance(prefix, str)
-                or (isinstance(prefix, collections.abc.Iterable) and len(list(prefix)) >= 1)
+                or (
+                    isinstance(prefix, collections.abc.Iterable)
+                    and len(list(prefix)) >= 1
+                )
             )
             if trigger_warning:
-                _log.warning('Privileged message content intent is missing, commands may not work as expected.')
+                _log.warning(
+                    "Privileged message content intent is missing, commands may not work as expected."
+                )
 
     def dispatch(self, event_name: str, /, *args: Any, **kwargs: Any) -> None:
         # super() will resolve to Client
         super().dispatch(event_name, *args, **kwargs)  # type: ignore
-        ev = 'on_' + event_name
+        ev = "on_" + event_name
         for event in self.extra_events.get(ev, []):
             self._schedule_event(event, ev, *args, **kwargs)  # type: ignore
 
@@ -286,8 +295,10 @@ class BotBase(GroupMixin[None]):
         """
 
         def decorator(func: CommandCallback[Any, ContextT, P, T]):
-            kwargs.setdefault('parent', self)
-            result = hybrid_command(name=name, *args, with_app_command=with_app_command, **kwargs)(func)
+            kwargs.setdefault("parent", self)
+            result = hybrid_command(
+                name=name, *args, with_app_command=with_app_command, **kwargs
+            )(func)
             self.add_command(result)
             return result
 
@@ -310,8 +321,10 @@ class BotBase(GroupMixin[None]):
         """
 
         def decorator(func: CommandCallback[Any, ContextT, P, T]):
-            kwargs.setdefault('parent', self)
-            result = hybrid_group(name=name, *args, with_app_command=with_app_command, **kwargs)(func)
+            kwargs.setdefault("parent", self)
+            result = hybrid_group(
+                name=name, *args, with_app_command=with_app_command, **kwargs
+            )(func)
             self.add_command(result)
             return result
 
@@ -319,7 +332,9 @@ class BotBase(GroupMixin[None]):
 
     # Error handler
 
-    async def on_command_error(self, context: Context[BotT], exception: errors.CommandError, /) -> None:
+    async def on_command_error(
+        self, context: Context[BotT], exception: errors.CommandError, /
+    ) -> None:
         """|coro|
 
         The default command error handler provided by the bot.
@@ -334,7 +349,7 @@ class BotBase(GroupMixin[None]):
             ``context`` and ``exception`` parameters are now positional-only.
             Instead of writing to ``sys.stderr`` this now uses the library logger.
         """
-        if self.extra_events.get('on_command_error', None):
+        if self.extra_events.get("on_command_error", None):
             return
 
         command = context.command
@@ -345,7 +360,7 @@ class BotBase(GroupMixin[None]):
         if cog and cog.has_error_handler():
             return
 
-        _log.error('Ignoring exception in command %s', command, exc_info=exception)
+        _log.error("Ignoring exception in command %s", command, exc_info=exception)
 
     # global check registration
 
@@ -381,7 +396,9 @@ class BotBase(GroupMixin[None]):
         self.add_check(func)  # type: ignore
         return func
 
-    def add_check(self, func: UserCheck[ContextT], /, *, call_once: bool = False) -> None:
+    def add_check(
+        self, func: UserCheck[ContextT], /, *, call_once: bool = False
+    ) -> None:
         """Adds a global check to the bot.
 
         This is the non-decorator interface to :meth:`.check`
@@ -407,7 +424,9 @@ class BotBase(GroupMixin[None]):
         else:
             self._checks.append(func)
 
-    def remove_check(self, func: UserCheck[ContextT], /, *, call_once: bool = False) -> None:
+    def remove_check(
+        self, func: UserCheck[ContextT], /, *, call_once: bool = False
+    ) -> None:
         """Removes a global check from the bot.
 
         This function is idempotent and will not raise an exception
@@ -527,7 +546,8 @@ class BotBase(GroupMixin[None]):
                 self.owner_ids = ids = {
                     m.id
                     for m in app.team.members
-                    if m.role in (discord.TeamMemberRole.admin, discord.TeamMemberRole.developer)
+                    if m.role
+                    in (discord.TeamMemberRole.admin, discord.TeamMemberRole.developer)
                 }
                 return user.id in ids
             else:
@@ -565,7 +585,7 @@ class BotBase(GroupMixin[None]):
             The coroutine passed is not actually a coroutine.
         """
         if not asyncio.iscoroutinefunction(coro):
-            raise TypeError('The pre-invoke hook must be a coroutine.')
+            raise TypeError("The pre-invoke hook must be a coroutine.")
 
         self._before_invoke = coro
         return coro
@@ -602,7 +622,7 @@ class BotBase(GroupMixin[None]):
             The coroutine passed is not actually a coroutine.
         """
         if not asyncio.iscoroutinefunction(coro):
-            raise TypeError('The post-invoke hook must be a coroutine.')
+            raise TypeError("The post-invoke hook must be a coroutine.")
 
         self._after_invoke = coro
         return coro
@@ -638,7 +658,7 @@ class BotBase(GroupMixin[None]):
         name = func.__name__ if name is MISSING else name
 
         if not asyncio.iscoroutinefunction(func):
-            raise TypeError('Listeners must be coroutines')
+            raise TypeError("Listeners must be coroutines")
 
         if name in self.extra_events:
             self.extra_events[name].append(func)
@@ -777,18 +797,23 @@ class BotBase(GroupMixin[None]):
         """
 
         if not isinstance(cog, Cog):
-            raise TypeError('cogs must derive from Cog')
+            raise TypeError("cogs must derive from Cog")
 
         cog_name = cog.__cog_name__
         existing = self.__cogs.get(cog_name)
 
         if existing is not None:
             if not override:
-                raise discord.ClientException(f'Cog named {cog_name!r} already loaded')
+                raise discord.ClientException(f"Cog named {cog_name!r} already loaded")
             await self.remove_cog(cog_name, guild=guild, guilds=guilds)
 
         if cog.__cog_app_commands_group__:
-            self.__tree.add_command(cog.__cog_app_commands_group__, override=override, guild=guild, guilds=guilds)
+            self.__tree.add_command(
+                cog.__cog_app_commands_group__,
+                override=override,
+                guild=guild,
+                guilds=guilds,
+            )
 
         cog = await cog._inject(self, override=override, guild=guild, guilds=guilds)
         self.__cogs[cog_name] = cog
@@ -910,7 +935,9 @@ class BotBase(GroupMixin[None]):
         for event_list in self.extra_events.copy().values():
             remove = []
             for index, event in enumerate(event_list):
-                if event.__module__ is not None and _is_submodule(name, event.__module__):
+                if event.__module__ is not None and _is_submodule(
+                    name, event.__module__
+                ):
                     remove.append(index)
 
             for index in reversed(remove):
@@ -921,7 +948,7 @@ class BotBase(GroupMixin[None]):
 
     async def _call_module_finalizers(self, lib: types.ModuleType, key: str) -> None:
         try:
-            func = getattr(lib, 'teardown')
+            func = getattr(lib, "teardown")
         except AttributeError:
             pass
         else:
@@ -937,7 +964,9 @@ class BotBase(GroupMixin[None]):
                 if _is_submodule(name, module):
                     del sys.modules[module]
 
-    async def _load_from_module_spec(self, spec: importlib.machinery.ModuleSpec, key: str) -> None:
+    async def _load_from_module_spec(
+        self, spec: importlib.machinery.ModuleSpec, key: str
+    ) -> None:
         # precondition: key not in self.__extensions
         lib = importlib.util.module_from_spec(spec)
         sys.modules[key] = lib
@@ -948,7 +977,7 @@ class BotBase(GroupMixin[None]):
             raise errors.ExtensionFailed(key, e) from e
 
         try:
-            setup = getattr(lib, 'setup')
+            setup = getattr(lib, "setup")
         except AttributeError:
             del sys.modules[key]
             raise errors.NoEntryPointError(key)
@@ -1022,7 +1051,9 @@ class BotBase(GroupMixin[None]):
 
         await self._load_from_module_spec(spec, name)
 
-    async def unload_extension(self, name: str, *, package: Optional[str] = None) -> None:
+    async def unload_extension(
+        self, name: str, *, package: Optional[str] = None
+    ) -> None:
         """|coro|
 
         Unloads an extension.
@@ -1069,7 +1100,9 @@ class BotBase(GroupMixin[None]):
         await self._remove_module_references(lib.__name__)
         await self._call_module_finalizers(lib, name)
 
-    async def reload_extension(self, name: str, *, package: Optional[str] = None) -> None:
+    async def reload_extension(
+        self, name: str, *, package: Optional[str] = None
+    ) -> None:
         """|coro|
 
         Atomically reloads an extension.
@@ -1151,7 +1184,7 @@ class BotBase(GroupMixin[None]):
     def help_command(self, value: Optional[HelpCommand]) -> None:
         if value is not None:
             if not isinstance(value, HelpCommand):
-                raise TypeError('help_command must be a subclass of HelpCommand')
+                raise TypeError("help_command must be a subclass of HelpCommand")
             if self._help_command is not None:
                 self._help_command._remove_from_bot(self)
             self._help_command = value
@@ -1236,8 +1269,7 @@ class BotBase(GroupMixin[None]):
         /,
         *,
         cls: Type[ContextT],
-    ) -> ContextT:
-        ...
+    ) -> ContextT: ...
 
     async def get_context(
         self,
@@ -1314,7 +1346,8 @@ class BotBase(GroupMixin[None]):
             except TypeError:
                 if not isinstance(prefix, list):
                     raise TypeError(
-                        "get_prefix must return either a string or a list of string, " f"not {prefix.__class__.__name__}"
+                        "get_prefix must return either a string or a list of string, "
+                        f"not {prefix.__class__.__name__}"
                     )
 
                 # It's possible a bad command_prefix got us here.
@@ -1354,19 +1387,19 @@ class BotBase(GroupMixin[None]):
             The invocation context to invoke.
         """
         if ctx.command is not None:
-            self.dispatch('command', ctx)
+            self.dispatch("command", ctx)
             try:
                 if await self.can_run(ctx, call_once=True):
                     await ctx.command.invoke(ctx)
                 else:
-                    raise errors.CheckFailure('The global check once functions failed.')
+                    raise errors.CheckFailure("The global check once functions failed.")
             except errors.CommandError as exc:
                 await ctx.command.dispatch_error(ctx, exc)
             else:
-                self.dispatch('command_completion', ctx)
+                self.dispatch("command_completion", ctx)
         elif ctx.invoked_with:
             exc = errors.CommandNotFound(f'Command "{ctx.invoked_with}" is not found')
-            self.dispatch('command_error', ctx, exc)
+            self.dispatch("command_error", ctx, exc)
 
     async def process_commands(self, message: Message, /) -> None:
         """|coro|

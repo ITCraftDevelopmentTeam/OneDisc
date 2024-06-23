@@ -15,16 +15,21 @@ except FileNotFoundError:
 except json.JSONDecodeError:
     logger.error(f"无法读取指令列表: {traceback.format_exc()}")
     commands = []
-deferred_sessions: dict[str, tuple[Callable[..., Awaitable[None]], Callable[[], Awaitable[None]]]] = {}
+deferred_sessions: dict[
+    str, tuple[Callable[..., Awaitable[None]], Callable[[], Awaitable[None]]]
+] = {}
+
 
 async def handle_command(interaction: Interaction, args: Optional[str]) -> None:
     logger.debug(f"收到命令: {interaction.command} ({args=})")
     if not interaction.command:
         return
     if not (user := client.get_user(interaction.user.id)):
-        return    
-    
-    content = f"{config['system'].get('prefix', '/')}{interaction.command.name} {args or ''}"
+        return
+
+    content = (
+        f"{config['system'].get('prefix', '/')}{interaction.command.name} {args or ''}"
+    )
     await interaction.response.defer()
     session_id = str(interaction.channel_id or interaction.user.id)
     if session_id in deferred_sessions:
@@ -36,10 +41,12 @@ async def handle_command(interaction: Interaction, args: Optional[str]) -> None:
     async def followup(**kwargs) -> None:
         await interaction.followup.send(**kwargs)
         remove()
-    
+
     async def abandon() -> None:
         # 我不知道有没有用，但是它能跑
-        await interaction.followup.send(config['system'].get('command_timeout_message', 'timeout'))
+        await interaction.followup.send(
+            config["system"].get("command_timeout_message", "timeout")
+        )
         remove()
 
     deferred_sessions[session_id] = (followup, abandon)
@@ -49,7 +56,7 @@ async def handle_command(interaction: Interaction, args: Optional[str]) -> None:
         interaction.created_at,
         content,
         interaction.channel.id if interaction.channel is not None else -1,
-        user
+        user,
     )
 
 
@@ -59,8 +66,9 @@ def register_commands() -> None:
             command["guild"] = Object(id=int(command["guild"]))
         if "guilds" in command:
             for i in range(len(command["guilds"])):
-                command['guilds'][i] = Object(id=int(command['guilds'][i]))
+                command["guilds"][i] = Object(id=int(command["guilds"][i]))
         tree.command(**command)(handle_command)
         logger.debug(f"已注册指令: {command['name']} (guild={command.get('guild')})")
+
 
 register_commands()

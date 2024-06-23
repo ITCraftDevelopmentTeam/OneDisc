@@ -24,8 +24,24 @@ DEALINGS IN THE SOFTWARE.
 
 from __future__ import annotations
 
-from typing import ClassVar, List, Literal, Optional, TYPE_CHECKING, Tuple, Union, overload
-from .enums import try_enum, ComponentType, ButtonStyle, TextStyle, ChannelType, SelectDefaultValueType
+from typing import (
+    ClassVar,
+    List,
+    Literal,
+    Optional,
+    TYPE_CHECKING,
+    Tuple,
+    Union,
+    overload,
+)
+from .enums import (
+    try_enum,
+    ComponentType,
+    ButtonStyle,
+    TextStyle,
+    ChannelType,
+    SelectDefaultValueType,
+)
 from .utils import get_slots, MISSING
 from .partial_emoji import PartialEmoji, _EmojiTag
 
@@ -45,17 +61,17 @@ if TYPE_CHECKING:
     from .emoji import Emoji
     from .abc import Snowflake
 
-    ActionRowChildComponentType = Union['Button', 'SelectMenu', 'TextInput']
+    ActionRowChildComponentType = Union["Button", "SelectMenu", "TextInput"]
 
 
 __all__ = (
-    'Component',
-    'ActionRow',
-    'Button',
-    'SelectMenu',
-    'SelectOption',
-    'TextInput',
-    'SelectDefaultValue',
+    "Component",
+    "ActionRow",
+    "Button",
+    "SelectMenu",
+    "SelectOption",
+    "TextInput",
+    "SelectDefaultValue",
 )
 
 
@@ -79,8 +95,8 @@ class Component:
     __repr_info__: ClassVar[Tuple[str, ...]]
 
     def __repr__(self) -> str:
-        attrs = ' '.join(f'{key}={getattr(self, key)!r}' for key in self.__repr_info__)
-        return f'<{self.__class__.__name__} {attrs}>'
+        attrs = " ".join(f"{key}={getattr(self, key)!r}" for key in self.__repr_info__)
+        return f"<{self.__class__.__name__} {attrs}>"
 
     @property
     def type(self) -> ComponentType:
@@ -118,14 +134,14 @@ class ActionRow(Component):
         The children components that this holds, if any.
     """
 
-    __slots__: Tuple[str, ...] = ('children',)
+    __slots__: Tuple[str, ...] = ("children",)
 
     __repr_info__: ClassVar[Tuple[str, ...]] = __slots__
 
     def __init__(self, data: ActionRowPayload, /) -> None:
         self.children: List[ActionRowChildComponentType] = []
 
-        for component_data in data.get('components', []):
+        for component_data in data.get("components", []):
             component = _component_factory(component_data)
 
             if component is not None:
@@ -138,8 +154,8 @@ class ActionRow(Component):
 
     def to_dict(self) -> ActionRowPayload:
         return {
-            'type': self.type.value,
-            'components': [child.to_dict() for child in self.children],
+            "type": self.type.value,
+            "components": [child.to_dict() for child in self.children],
         }
 
 
@@ -173,25 +189,25 @@ class Button(Component):
     """
 
     __slots__: Tuple[str, ...] = (
-        'style',
-        'custom_id',
-        'url',
-        'disabled',
-        'label',
-        'emoji',
+        "style",
+        "custom_id",
+        "url",
+        "disabled",
+        "label",
+        "emoji",
     )
 
     __repr_info__: ClassVar[Tuple[str, ...]] = __slots__
 
     def __init__(self, data: ButtonComponentPayload, /) -> None:
-        self.style: ButtonStyle = try_enum(ButtonStyle, data['style'])
-        self.custom_id: Optional[str] = data.get('custom_id')
-        self.url: Optional[str] = data.get('url')
-        self.disabled: bool = data.get('disabled', False)
-        self.label: Optional[str] = data.get('label')
+        self.style: ButtonStyle = try_enum(ButtonStyle, data["style"])
+        self.custom_id: Optional[str] = data.get("custom_id")
+        self.url: Optional[str] = data.get("url")
+        self.disabled: bool = data.get("disabled", False)
+        self.label: Optional[str] = data.get("label")
         self.emoji: Optional[PartialEmoji]
         try:
-            self.emoji = PartialEmoji.from_dict(data['emoji'])
+            self.emoji = PartialEmoji.from_dict(data["emoji"])
         except KeyError:
             self.emoji = None
 
@@ -202,22 +218,22 @@ class Button(Component):
 
     def to_dict(self) -> ButtonComponentPayload:
         payload: ButtonComponentPayload = {
-            'type': 2,
-            'style': self.style.value,
-            'disabled': self.disabled,
+            "type": 2,
+            "style": self.style.value,
+            "disabled": self.disabled,
         }
 
         if self.label:
-            payload['label'] = self.label
+            payload["label"] = self.label
 
         if self.custom_id:
-            payload['custom_id'] = self.custom_id
+            payload["custom_id"] = self.custom_id
 
         if self.url:
-            payload['url'] = self.url
+            payload["url"] = self.url
 
         if self.emoji:
-            payload['emoji'] = self.emoji.to_dict()
+            payload["emoji"] = self.emoji.to_dict()
 
         return payload
 
@@ -258,46 +274,50 @@ class SelectMenu(Component):
     """
 
     __slots__: Tuple[str, ...] = (
-        'type',
-        'custom_id',
-        'placeholder',
-        'min_values',
-        'max_values',
-        'options',
-        'disabled',
-        'channel_types',
-        'default_values',
+        "type",
+        "custom_id",
+        "placeholder",
+        "min_values",
+        "max_values",
+        "options",
+        "disabled",
+        "channel_types",
+        "default_values",
     )
 
     __repr_info__: ClassVar[Tuple[str, ...]] = __slots__
 
     def __init__(self, data: SelectMenuPayload, /) -> None:
-        self.type: ComponentType = try_enum(ComponentType, data['type'])
-        self.custom_id: str = data['custom_id']
-        self.placeholder: Optional[str] = data.get('placeholder')
-        self.min_values: int = data.get('min_values', 1)
-        self.max_values: int = data.get('max_values', 1)
-        self.options: List[SelectOption] = [SelectOption.from_dict(option) for option in data.get('options', [])]
-        self.disabled: bool = data.get('disabled', False)
-        self.channel_types: List[ChannelType] = [try_enum(ChannelType, t) for t in data.get('channel_types', [])]
+        self.type: ComponentType = try_enum(ComponentType, data["type"])
+        self.custom_id: str = data["custom_id"]
+        self.placeholder: Optional[str] = data.get("placeholder")
+        self.min_values: int = data.get("min_values", 1)
+        self.max_values: int = data.get("max_values", 1)
+        self.options: List[SelectOption] = [
+            SelectOption.from_dict(option) for option in data.get("options", [])
+        ]
+        self.disabled: bool = data.get("disabled", False)
+        self.channel_types: List[ChannelType] = [
+            try_enum(ChannelType, t) for t in data.get("channel_types", [])
+        ]
         self.default_values: List[SelectDefaultValue] = [
-            SelectDefaultValue.from_dict(d) for d in data.get('default_values', [])
+            SelectDefaultValue.from_dict(d) for d in data.get("default_values", [])
         ]
 
     def to_dict(self) -> SelectMenuPayload:
         payload: SelectMenuPayload = {
-            'type': self.type.value,  # type: ignore # we know this is a select menu.
-            'custom_id': self.custom_id,
-            'min_values': self.min_values,
-            'max_values': self.max_values,
-            'disabled': self.disabled,
+            "type": self.type.value,  # type: ignore # we know this is a select menu.
+            "custom_id": self.custom_id,
+            "min_values": self.min_values,
+            "max_values": self.max_values,
+            "disabled": self.disabled,
         }
         if self.placeholder:
-            payload['placeholder'] = self.placeholder
+            payload["placeholder"] = self.placeholder
         if self.options:
-            payload['options'] = [op.to_dict() for op in self.options]
+            payload["options"] = [op.to_dict() for op in self.options]
         if self.channel_types:
-            payload['channel_types'] = [t.value for t in self.channel_types]
+            payload["channel_types"] = [t.value for t in self.channel_types]
         if self.default_values:
             payload["default_values"] = [v.to_dict() for v in self.default_values]
 
@@ -345,11 +365,11 @@ class SelectOption:
     """
 
     __slots__: Tuple[str, ...] = (
-        'label',
-        'value',
-        'description',
-        '_emoji',
-        'default',
+        "label",
+        "value",
+        "description",
+        "_emoji",
+        "default",
     )
 
     def __init__(
@@ -370,18 +390,18 @@ class SelectOption:
 
     def __repr__(self) -> str:
         return (
-            f'<SelectOption label={self.label!r} value={self.value!r} description={self.description!r} '
-            f'emoji={self.emoji!r} default={self.default!r}>'
+            f"<SelectOption label={self.label!r} value={self.value!r} description={self.description!r} "
+            f"emoji={self.emoji!r} default={self.default!r}>"
         )
 
     def __str__(self) -> str:
         if self.emoji:
-            base = f'{self.emoji} {self.label}'
+            base = f"{self.emoji} {self.label}"
         else:
             base = self.label
 
         if self.description:
-            return f'{base}\n{self.description}'
+            return f"{base}\n{self.description}"
         return base
 
     @property
@@ -397,37 +417,39 @@ class SelectOption:
             elif isinstance(value, _EmojiTag):
                 self._emoji = value._to_partial()
             else:
-                raise TypeError(f'expected str, Emoji, or PartialEmoji, received {value.__class__.__name__} instead')
+                raise TypeError(
+                    f"expected str, Emoji, or PartialEmoji, received {value.__class__.__name__} instead"
+                )
         else:
             self._emoji = None
 
     @classmethod
     def from_dict(cls, data: SelectOptionPayload) -> SelectOption:
         try:
-            emoji = PartialEmoji.from_dict(data['emoji'])
+            emoji = PartialEmoji.from_dict(data["emoji"])
         except KeyError:
             emoji = None
 
         return cls(
-            label=data['label'],
-            value=data['value'],
-            description=data.get('description'),
+            label=data["label"],
+            value=data["value"],
+            description=data.get("description"),
             emoji=emoji,
-            default=data.get('default', False),
+            default=data.get("default", False),
         )
 
     def to_dict(self) -> SelectOptionPayload:
         payload: SelectOptionPayload = {
-            'label': self.label,
-            'value': self.value,
-            'default': self.default,
+            "label": self.label,
+            "value": self.value,
+            "default": self.default,
         }
 
         if self.emoji:
-            payload['emoji'] = self.emoji.to_dict()
+            payload["emoji"] = self.emoji.to_dict()
 
         if self.description:
-            payload['description'] = self.description
+            payload["description"] = self.description
 
         return payload
 
@@ -462,27 +484,27 @@ class TextInput(Component):
     """
 
     __slots__: Tuple[str, ...] = (
-        'style',
-        'label',
-        'custom_id',
-        'placeholder',
-        'value',
-        'required',
-        'min_length',
-        'max_length',
+        "style",
+        "label",
+        "custom_id",
+        "placeholder",
+        "value",
+        "required",
+        "min_length",
+        "max_length",
     )
 
     __repr_info__: ClassVar[Tuple[str, ...]] = __slots__
 
     def __init__(self, data: TextInputPayload, /) -> None:
-        self.style: TextStyle = try_enum(TextStyle, data['style'])
-        self.label: str = data['label']
-        self.custom_id: str = data['custom_id']
-        self.placeholder: Optional[str] = data.get('placeholder')
-        self.value: Optional[str] = data.get('value')
-        self.required: bool = data.get('required', True)
-        self.min_length: Optional[int] = data.get('min_length')
-        self.max_length: Optional[int] = data.get('max_length')
+        self.style: TextStyle = try_enum(TextStyle, data["style"])
+        self.label: str = data["label"]
+        self.custom_id: str = data["custom_id"]
+        self.placeholder: Optional[str] = data.get("placeholder")
+        self.value: Optional[str] = data.get("value")
+        self.required: bool = data.get("required", True)
+        self.min_length: Optional[int] = data.get("min_length")
+        self.max_length: Optional[int] = data.get("max_length")
 
     @property
     def type(self) -> Literal[ComponentType.text_input]:
@@ -491,24 +513,24 @@ class TextInput(Component):
 
     def to_dict(self) -> TextInputPayload:
         payload: TextInputPayload = {
-            'type': self.type.value,
-            'style': self.style.value,
-            'label': self.label,
-            'custom_id': self.custom_id,
-            'required': self.required,
+            "type": self.type.value,
+            "style": self.style.value,
+            "label": self.label,
+            "custom_id": self.custom_id,
+            "required": self.required,
         }
 
         if self.placeholder:
-            payload['placeholder'] = self.placeholder
+            payload["placeholder"] = self.placeholder
 
         if self.value:
-            payload['value'] = self.value
+            payload["value"] = self.value
 
         if self.min_length:
-            payload['min_length'] = self.min_length
+            payload["min_length"] = self.min_length
 
         if self.max_length:
-            payload['max_length'] = self.max_length
+            payload["max_length"] = self.max_length
 
         return payload
 
@@ -553,24 +575,26 @@ class SelectDefaultValue:
     @type.setter
     def type(self, value: SelectDefaultValueType) -> None:
         if not isinstance(value, SelectDefaultValueType):
-            raise TypeError(f'expected SelectDefaultValueType, received {value.__class__.__name__} instead')
+            raise TypeError(
+                f"expected SelectDefaultValueType, received {value.__class__.__name__} instead"
+            )
 
         self._type = value
 
     def __repr__(self) -> str:
-        return f'<SelectDefaultValue id={self.id!r} type={self.type!r}>'
+        return f"<SelectDefaultValue id={self.id!r} type={self.type!r}>"
 
     @classmethod
     def from_dict(cls, data: SelectDefaultValuesPayload) -> SelectDefaultValue:
         return cls(
-            id=data['id'],
-            type=try_enum(SelectDefaultValueType, data['type']),
+            id=data["id"],
+            type=try_enum(SelectDefaultValueType, data["type"]),
         )
 
     def to_dict(self) -> SelectDefaultValuesPayload:
         return {
-            'id': self.id,
-            'type': self._type.value,
+            "id": self.id,
+            "type": self._type.value,
         }
 
     @classmethod
@@ -632,21 +656,25 @@ class SelectDefaultValue:
 
 
 @overload
-def _component_factory(data: ActionRowChildComponentPayload) -> Optional[ActionRowChildComponentType]:
-    ...
+def _component_factory(
+    data: ActionRowChildComponentPayload,
+) -> Optional[ActionRowChildComponentType]: ...
 
 
 @overload
-def _component_factory(data: ComponentPayload) -> Optional[Union[ActionRow, ActionRowChildComponentType]]:
-    ...
+def _component_factory(
+    data: ComponentPayload,
+) -> Optional[Union[ActionRow, ActionRowChildComponentType]]: ...
 
 
-def _component_factory(data: ComponentPayload) -> Optional[Union[ActionRow, ActionRowChildComponentType]]:
-    if data['type'] == 1:
+def _component_factory(
+    data: ComponentPayload,
+) -> Optional[Union[ActionRow, ActionRowChildComponentType]]:
+    if data["type"] == 1:
         return ActionRow(data)
-    elif data['type'] == 2:
+    elif data["type"] == 2:
         return Button(data)
-    elif data['type'] == 4:
+    elif data["type"] == 4:
         return TextInput(data)
-    elif data['type'] in (3, 5, 6, 7, 8):
+    elif data["type"] in (3, 5, 6, 7, 8):
         return SelectMenu(data)

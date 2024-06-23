@@ -21,6 +21,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 from typing import (
     Any,
@@ -60,12 +61,12 @@ from ..abc import GuildChannel
 from ..threads import Thread
 
 __all__ = (
-    'Select',
-    'UserSelect',
-    'RoleSelect',
-    'MentionableSelect',
-    'ChannelSelect',
-    'select',
+    "Select",
+    "UserSelect",
+    "RoleSelect",
+    "MentionableSelect",
+    "ChannelSelect",
+    "select",
 )
 
 if TYPE_CHECKING:
@@ -85,7 +86,14 @@ if TYPE_CHECKING:
         ComponentType.mentionable_select,
     ]
     PossibleValue: TypeAlias = Union[
-        str, User, Member, Role, AppCommandChannel, AppCommandThread, Union[Role, Member], Union[Role, User]
+        str,
+        User,
+        Member,
+        Role,
+        AppCommandChannel,
+        AppCommandThread,
+        Union[Role, Member],
+        Union[Role, User],
     ]
     ValidDefaultValues: TypeAlias = Union[
         SelectDefaultValue,
@@ -100,14 +108,16 @@ if TYPE_CHECKING:
         Thread,
     ]
 
-V = TypeVar('V', bound='View', covariant=True)
-BaseSelectT = TypeVar('BaseSelectT', bound='BaseSelect[Any]')
-SelectT = TypeVar('SelectT', bound='Select[Any]')
-UserSelectT = TypeVar('UserSelectT', bound='UserSelect[Any]')
-RoleSelectT = TypeVar('RoleSelectT', bound='RoleSelect[Any]')
-ChannelSelectT = TypeVar('ChannelSelectT', bound='ChannelSelect[Any]')
-MentionableSelectT = TypeVar('MentionableSelectT', bound='MentionableSelect[Any]')
-SelectCallbackDecorator: TypeAlias = Callable[[ItemCallbackType[V, BaseSelectT]], BaseSelectT]
+V = TypeVar("V", bound="View", covariant=True)
+BaseSelectT = TypeVar("BaseSelectT", bound="BaseSelect[Any]")
+SelectT = TypeVar("SelectT", bound="Select[Any]")
+UserSelectT = TypeVar("UserSelectT", bound="UserSelect[Any]")
+RoleSelectT = TypeVar("RoleSelectT", bound="RoleSelect[Any]")
+ChannelSelectT = TypeVar("ChannelSelectT", bound="ChannelSelect[Any]")
+MentionableSelectT = TypeVar("MentionableSelectT", bound="MentionableSelect[Any]")
+SelectCallbackDecorator: TypeAlias = Callable[
+    [ItemCallbackType[V, BaseSelectT]], BaseSelectT
+]
 DefaultSelectComponentTypes = Literal[
     ComponentType.user_select,
     ComponentType.role_select,
@@ -115,13 +125,17 @@ DefaultSelectComponentTypes = Literal[
     ComponentType.mentionable_select,
 ]
 
-selected_values: ContextVar[Dict[str, List[PossibleValue]]] = ContextVar('selected_values')
+selected_values: ContextVar[Dict[str, List[PossibleValue]]] = ContextVar(
+    "selected_values"
+)
 
 
 def _is_valid_object_type(
     obj: Any,
     component_type: DefaultSelectComponentTypes,
-    type_to_supported_classes: Dict[ValidSelectType, Tuple[Type[ValidDefaultValues], ...]],
+    type_to_supported_classes: Dict[
+        ValidSelectType, Tuple[Type[ValidDefaultValues], ...]
+    ],
 ) -> TypeGuard[Type[ValidDefaultValues]]:
     return issubclass(obj, type_to_supported_classes[component_type])
 
@@ -144,10 +158,18 @@ def _handle_select_defaults(
         AppCommandThread: SelectDefaultValueType.channel,
         Thread: SelectDefaultValueType.channel,
     }
-    type_to_supported_classes: Dict[ValidSelectType, Tuple[Type[ValidDefaultValues], ...]] = {
+    type_to_supported_classes: Dict[
+        ValidSelectType, Tuple[Type[ValidDefaultValues], ...]
+    ] = {
         ComponentType.user_select: (User, ClientUser, Member, Object),
         ComponentType.role_select: (Role, Object),
-        ComponentType.channel_select: (GuildChannel, AppCommandChannel, AppCommandThread, Thread, Object),
+        ComponentType.channel_select: (
+            GuildChannel,
+            AppCommandChannel,
+            AppCommandThread,
+            Thread,
+            Object,
+        ),
         ComponentType.mentionable_select: (User, ClientUser, Member, Role, Object),
     }
 
@@ -159,14 +181,20 @@ def _handle_select_defaults(
 
         object_type = obj.__class__ if not isinstance(obj, Object) else obj.type
 
-        if not _is_valid_object_type(object_type, component_type, type_to_supported_classes):
-            supported_classes = _human_join([c.__name__ for c in type_to_supported_classes[component_type]])
-            raise TypeError(f'Expected an instance of {supported_classes} not {object_type.__name__}')
+        if not _is_valid_object_type(
+            object_type, component_type, type_to_supported_classes
+        ):
+            supported_classes = _human_join(
+                [c.__name__ for c in type_to_supported_classes[component_type]]
+            )
+            raise TypeError(
+                f"Expected an instance of {supported_classes} not {object_type.__name__}"
+            )
 
         if object_type is Object:
             if component_type is ComponentType.mentionable_select:
                 raise ValueError(
-                    'Object must have a type specified for the chosen select type. Please pass one using the `type`` kwarg.'
+                    "Object must have a type specified for the chosen select type. Please pass one using the `type`` kwarg."
                 )
             elif component_type is ComponentType.user_select:
                 object_type = User
@@ -208,20 +236,20 @@ class BaseSelect(Item[V]):
         ordering. The row number must be between 0 and 4 (i.e. zero indexed).
     """
 
-    __slots__ = ('_provided_custom_id', '_underlying', 'row', '_values')
+    __slots__ = ("_provided_custom_id", "_underlying", "row", "_values")
 
     __item_repr_attributes__: Tuple[str, ...] = (
-        'placeholder',
-        'min_values',
-        'max_values',
-        'disabled',
+        "placeholder",
+        "min_values",
+        "max_values",
+        "disabled",
     )
     __component_attributes__: Tuple[str, ...] = (
-        'custom_id',
-        'placeholder',
-        'min_values',
-        'max_values',
-        'disabled',
+        "custom_id",
+        "placeholder",
+        "min_values",
+        "max_values",
+        "disabled",
     )
 
     def __init__(
@@ -242,7 +270,9 @@ class BaseSelect(Item[V]):
         self._provided_custom_id = custom_id is not MISSING
         custom_id = os.urandom(16).hex() if custom_id is MISSING else custom_id
         if not isinstance(custom_id, str):
-            raise TypeError(f'expected custom_id to be str not {custom_id.__class__.__name__}')
+            raise TypeError(
+                f"expected custom_id to be str not {custom_id.__class__.__name__}"
+            )
 
         self._underlying = SelectMenu._raw_construct(
             type=type,
@@ -272,7 +302,7 @@ class BaseSelect(Item[V]):
     @custom_id.setter
     def custom_id(self, value: str) -> None:
         if not isinstance(value, str):
-            raise TypeError('custom_id must be a str')
+            raise TypeError("custom_id must be a str")
 
         self._underlying.custom_id = value
         self._provided_custom_id = True
@@ -285,7 +315,7 @@ class BaseSelect(Item[V]):
     @placeholder.setter
     def placeholder(self, value: Optional[str]) -> None:
         if value is not None and not isinstance(value, str):
-            raise TypeError('placeholder must be None or str')
+            raise TypeError("placeholder must be None or str")
 
         self._underlying.placeholder = value
 
@@ -326,11 +356,13 @@ class BaseSelect(Item[V]):
     def _refresh_component(self, component: SelectMenu) -> None:
         self._underlying = component
 
-    def _refresh_state(self, interaction: Interaction, data: SelectMessageComponentInteractionData) -> None:
+    def _refresh_state(
+        self, interaction: Interaction, data: SelectMessageComponentInteractionData
+    ) -> None:
         values = selected_values.get({})
         payload: List[PossibleValue]
         try:
-            resolved = Namespace._get_resolved_items(interaction, data['resolved'])
+            resolved = Namespace._get_resolved_items(interaction, data["resolved"])
             payload = list(resolved.values())
         except KeyError:
             payload = data.get("values", [])  # type: ignore
@@ -351,7 +383,9 @@ class BaseSelect(Item[V]):
             ComponentType.mentionable_select: MentionableSelect,
         }
         constructor = type_to_cls.get(component.type, Select)
-        kwrgs = {key: getattr(component, key) for key in constructor.__component_attributes__}
+        kwrgs = {
+            key: getattr(component, key) for key in constructor.__component_attributes__
+        }
         return constructor(**kwrgs)
 
 
@@ -386,7 +420,7 @@ class Select(BaseSelect[V]):
         ordering. The row number must be between 0 and 4 (i.e. zero indexed).
     """
 
-    __component_attributes__ = BaseSelect.__component_attributes__ + ('options',)
+    __component_attributes__ = BaseSelect.__component_attributes__ + ("options",)
 
     def __init__(
         self,
@@ -428,9 +462,9 @@ class Select(BaseSelect[V]):
     @options.setter
     def options(self, value: List[SelectOption]) -> None:
         if not isinstance(value, list):
-            raise TypeError('options must be a list of SelectOption')
+            raise TypeError("options must be a list of SelectOption")
         if not all(isinstance(obj, SelectOption) for obj in value):
-            raise TypeError('all list items must subclass SelectOption')
+            raise TypeError("all list items must subclass SelectOption")
 
         self._underlying.options = value
 
@@ -496,7 +530,7 @@ class Select(BaseSelect[V]):
         """
 
         if len(self._underlying.options) > 25:
-            raise ValueError('maximum number of options already provided')
+            raise ValueError("maximum number of options already provided")
 
         self._underlying.options.append(option)
 
@@ -537,7 +571,7 @@ class UserSelect(BaseSelect[V]):
         ordering. The row number must be between 0 and 4 (i.e. zero indexed).
     """
 
-    __component_attributes__ = BaseSelect.__component_attributes__ + ('default_values',)
+    __component_attributes__ = BaseSelect.__component_attributes__ + ("default_values",)
 
     def __init__(
         self,
@@ -626,7 +660,7 @@ class RoleSelect(BaseSelect[V]):
         ordering. The row number must be between 0 and 4 (i.e. zero indexed).
     """
 
-    __component_attributes__ = BaseSelect.__component_attributes__ + ('default_values',)
+    __component_attributes__ = BaseSelect.__component_attributes__ + ("default_values",)
 
     def __init__(
         self,
@@ -711,7 +745,7 @@ class MentionableSelect(BaseSelect[V]):
         ordering. The row number must be between 0 and 4 (i.e. zero indexed).
     """
 
-    __component_attributes__ = BaseSelect.__component_attributes__ + ('default_values',)
+    __component_attributes__ = BaseSelect.__component_attributes__ + ("default_values",)
 
     def __init__(
         self,
@@ -803,8 +837,8 @@ class ChannelSelect(BaseSelect[V]):
     """
 
     __component_attributes__ = BaseSelect.__component_attributes__ + (
-        'channel_types',
-        'default_values',
+        "channel_types",
+        "default_values",
     )
 
     def __init__(
@@ -844,9 +878,9 @@ class ChannelSelect(BaseSelect[V]):
     @channel_types.setter
     def channel_types(self, value: List[ChannelType]) -> None:
         if not isinstance(value, list):
-            raise TypeError('channel_types must be a list of ChannelType')
+            raise TypeError("channel_types must be a list of ChannelType")
         if not all(isinstance(obj, ChannelType) for obj in value):
-            raise TypeError('all list items must be a ChannelType')
+            raise TypeError("all list items must be a ChannelType")
 
         self._underlying.channel_types = value
 
@@ -880,8 +914,7 @@ def select(
     max_values: int = ...,
     disabled: bool = ...,
     row: Optional[int] = ...,
-) -> SelectCallbackDecorator[V, SelectT]:
-    ...
+) -> SelectCallbackDecorator[V, SelectT]: ...
 
 
 @overload
@@ -897,8 +930,7 @@ def select(
     disabled: bool = ...,
     default_values: Sequence[ValidDefaultValues] = ...,
     row: Optional[int] = ...,
-) -> SelectCallbackDecorator[V, UserSelectT]:
-    ...
+) -> SelectCallbackDecorator[V, UserSelectT]: ...
 
 
 @overload
@@ -914,8 +946,7 @@ def select(
     disabled: bool = ...,
     default_values: Sequence[ValidDefaultValues] = ...,
     row: Optional[int] = ...,
-) -> SelectCallbackDecorator[V, RoleSelectT]:
-    ...
+) -> SelectCallbackDecorator[V, RoleSelectT]: ...
 
 
 @overload
@@ -931,8 +962,7 @@ def select(
     disabled: bool = ...,
     default_values: Sequence[ValidDefaultValues] = ...,
     row: Optional[int] = ...,
-) -> SelectCallbackDecorator[V, ChannelSelectT]:
-    ...
+) -> SelectCallbackDecorator[V, ChannelSelectT]: ...
 
 
 @overload
@@ -948,8 +978,7 @@ def select(
     disabled: bool = ...,
     default_values: Sequence[ValidDefaultValues] = ...,
     row: Optional[int] = ...,
-) -> SelectCallbackDecorator[V, MentionableSelectT]:
-    ...
+) -> SelectCallbackDecorator[V, MentionableSelectT]: ...
 
 
 def select(
@@ -1041,27 +1070,39 @@ def select(
         .. versionadded:: 2.4
     """
 
-    def decorator(func: ItemCallbackType[V, BaseSelectT]) -> ItemCallbackType[V, BaseSelectT]:
+    def decorator(
+        func: ItemCallbackType[V, BaseSelectT]
+    ) -> ItemCallbackType[V, BaseSelectT]:
         if not inspect.iscoroutinefunction(func):
-            raise TypeError('select function must be a coroutine function')
-        callback_cls = getattr(cls, '__origin__', cls)
+            raise TypeError("select function must be a coroutine function")
+        callback_cls = getattr(cls, "__origin__", cls)
         if not issubclass(callback_cls, BaseSelect):
-            supported_classes = ', '.join(['ChannelSelect', 'MentionableSelect', 'RoleSelect', 'Select', 'UserSelect'])
-            raise TypeError(f'cls must be one of {supported_classes} or a subclass of one of them, not {cls.__name__}.')
+            supported_classes = ", ".join(
+                [
+                    "ChannelSelect",
+                    "MentionableSelect",
+                    "RoleSelect",
+                    "Select",
+                    "UserSelect",
+                ]
+            )
+            raise TypeError(
+                f"cls must be one of {supported_classes} or a subclass of one of them, not {cls.__name__}."
+            )
 
         func.__discord_ui_model_type__ = callback_cls
         func.__discord_ui_model_kwargs__ = {
-            'placeholder': placeholder,
-            'custom_id': custom_id,
-            'row': row,
-            'min_values': min_values,
-            'max_values': max_values,
-            'disabled': disabled,
+            "placeholder": placeholder,
+            "custom_id": custom_id,
+            "row": row,
+            "min_values": min_values,
+            "max_values": max_values,
+            "disabled": disabled,
         }
         if issubclass(callback_cls, Select):
-            func.__discord_ui_model_kwargs__['options'] = options
+            func.__discord_ui_model_kwargs__["options"] = options
         if issubclass(callback_cls, ChannelSelect):
-            func.__discord_ui_model_kwargs__['channel_types'] = channel_types
+            func.__discord_ui_model_kwargs__["channel_types"] = channel_types
         if not issubclass(callback_cls, Select):
             cls_to_type: Dict[
                 Type[BaseSelect],
@@ -1077,8 +1118,10 @@ def select(
                 MentionableSelect: ComponentType.mentionable_select,
                 ChannelSelect: ComponentType.channel_select,
             }
-            func.__discord_ui_model_kwargs__['default_values'] = (
-                MISSING if default_values is MISSING else _handle_select_defaults(default_values, cls_to_type[callback_cls])
+            func.__discord_ui_model_kwargs__["default_values"] = (
+                MISSING
+                if default_values is MISSING
+                else _handle_select_defaults(default_values, cls_to_type[callback_cls])
             )
 
         return func

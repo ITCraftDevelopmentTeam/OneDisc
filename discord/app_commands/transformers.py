@@ -46,8 +46,19 @@ from typing import (
 
 from .errors import AppCommandError, TransformerError
 from .models import AppCommandChannel, AppCommandThread, Choice
-from .translator import TranslationContextLocation, TranslationContext, Translator, locale_str
-from ..channel import StageChannel, VoiceChannel, TextChannel, CategoryChannel, ForumChannel
+from .translator import (
+    TranslationContextLocation,
+    TranslationContext,
+    Translator,
+    locale_str,
+)
+from ..channel import (
+    StageChannel,
+    VoiceChannel,
+    TextChannel,
+    CategoryChannel,
+    ForumChannel,
+)
 from ..abc import GuildChannel
 from ..threads import Thread
 from ..enums import Enum as InternalEnum, AppCommandOptionType, ChannelType, Locale
@@ -58,14 +69,14 @@ from ..member import Member
 from ..message import Attachment
 
 __all__ = (
-    'Transformer',
-    'Transform',
-    'Range',
+    "Transformer",
+    "Transform",
+    "Range",
 )
 
-T = TypeVar('T')
-FuncT = TypeVar('FuncT', bound=Callable[..., Any])
-ChoiceT = TypeVar('ChoiceT', str, int, float, Union[str, int, float])
+T = TypeVar("T")
+FuncT = TypeVar("FuncT", bound=Callable[..., Any])
+ChoiceT = TypeVar("ChoiceT", str, int, float, Union[str, int, float])
 NoneType = type(None)
 
 if TYPE_CHECKING:
@@ -90,7 +101,9 @@ class CommandParameter:
     _rename: Union[str, locale_str] = MISSING
     _annotation: Any = MISSING
 
-    async def get_translated_payload(self, translator: Translator, data: Parameter) -> Dict[str, Any]:
+    async def get_translated_payload(
+        self, translator: Translator, data: Parameter
+    ) -> Dict[str, Any]:
         base = self.to_dict()
 
         rename = self._rename
@@ -101,47 +114,60 @@ class CommandParameter:
         description_localizations: Dict[str, str] = {}
 
         # Prevent creating these objects in a heavy loop
-        name_context = TranslationContext(location=TranslationContextLocation.parameter_name, data=data)
-        description_context = TranslationContext(location=TranslationContextLocation.parameter_description, data=data)
+        name_context = TranslationContext(
+            location=TranslationContextLocation.parameter_name, data=data
+        )
+        description_context = TranslationContext(
+            location=TranslationContextLocation.parameter_description, data=data
+        )
         for locale in Locale:
             if needs_name_translations:
-                translation = await translator._checked_translate(rename, locale, name_context)
+                translation = await translator._checked_translate(
+                    rename, locale, name_context
+                )
                 if translation is not None:
                     name_localizations[locale.value] = translation
 
             if needs_description_translations:
-                translation = await translator._checked_translate(description, locale, description_context)
+                translation = await translator._checked_translate(
+                    description, locale, description_context
+                )
                 if translation is not None:
                     description_localizations[locale.value] = translation
 
         if self.choices:
-            base['choices'] = [await choice.get_translated_payload(translator) for choice in self.choices]
+            base["choices"] = [
+                await choice.get_translated_payload(translator)
+                for choice in self.choices
+            ]
 
         if name_localizations:
-            base['name_localizations'] = name_localizations
+            base["name_localizations"] = name_localizations
 
         if description_localizations:
-            base['description_localizations'] = description_localizations
+            base["description_localizations"] = description_localizations
 
         return base
 
     def to_dict(self) -> Dict[str, Any]:
         base = {
-            'type': self.type.value,
-            'name': self.display_name,
-            'description': str(self.description),
-            'required': self.required,
+            "type": self.type.value,
+            "name": self.display_name,
+            "description": str(self.description),
+            "required": self.required,
         }
 
         if self.choices:
-            base['choices'] = [choice.to_dict() for choice in self.choices]
+            base["choices"] = [choice.to_dict() for choice in self.choices]
         if self.channel_types:
-            base['channel_types'] = [t.value for t in self.channel_types]
+            base["channel_types"] = [t.value for t in self.channel_types]
         if self.autocomplete:
-            base['autocomplete'] = True
+            base["autocomplete"] = True
 
         min_key, max_key = (
-            ('min_value', 'max_value') if self.type is not AppCommandOptionType.string else ('min_length', 'max_length')
+            ("min_value", "max_value")
+            if self.type is not AppCommandOptionType.string
+            else ("min_length", "max_length")
         )
         if self.min_value is not None:
             base[min_key] = self.min_value
@@ -165,10 +191,10 @@ class CommandParameter:
                     choice._locale_name = locale_str(choice.name)
 
     def is_choice_annotation(self) -> bool:
-        return getattr(self._annotation, '__discord_app_commands_is_choice__', False)
+        return getattr(self._annotation, "__discord_app_commands_is_choice__", False)
 
     async def transform(self, interaction: Interaction, value: Any, /) -> Any:
-        if hasattr(self._annotation, '__discord_app_commands_transformer__'):
+        if hasattr(self._annotation, "__discord_app_commands_transformer__"):
             # This one needs special handling for type safety reasons
             if self._annotation.__discord_app_commands_is_choice__:
                 choice = next((c for c in self.choices if c.value == value), None)
@@ -177,7 +203,9 @@ class CommandParameter:
                 return choice
 
             try:
-                return await maybe_coroutine(self._annotation.transform, interaction, value)
+                return await maybe_coroutine(
+                    self._annotation.transform, interaction, value
+                )
             except AppCommandError:
                 raise
             except Exception as e:
@@ -299,7 +327,7 @@ class Transformer:
     @property
     def _error_display_name(self) -> str:
         name = self.__class__.__name__
-        if name.endswith('Transformer'):
+        if name.endswith("Transformer"):
             return name[:-11]
         else:
             return name
@@ -321,7 +349,7 @@ class Transformer:
             See the :class:`conversion table <discord.app_commands.Namespace>`
             for how certain option types correspond to certain values.
         """
-        raise NotImplementedError('Derived classes need to implement this.')
+        raise NotImplementedError("Derived classes need to implement this.")
 
     async def autocomplete(
         self, interaction: Interaction, value: Union[int, float, str], /
@@ -349,7 +377,7 @@ class Transformer:
             A list of choices to be displayed to the user, a maximum of 25.
 
         """
-        raise NotImplementedError('Derived classes can implement this.')
+        raise NotImplementedError("Derived classes can implement this.")
 
 
 class IdentityTransformer(Transformer):
@@ -373,7 +401,7 @@ class RangeTransformer(IdentityTransformer):
         max: Optional[Union[int, float]] = None,
     ) -> None:
         if min and max and min > max:
-            raise TypeError('minimum cannot be larger than maximum')
+            raise TypeError("minimum cannot be larger than maximum")
 
         self._min: Optional[Union[int, float]] = min
         self._max: Optional[Union[int, float]] = max
@@ -398,7 +426,7 @@ class LiteralTransformer(IdentityTransformer):
         elif first is str:
             opt_type = AppCommandOptionType.string
         else:
-            raise TypeError(f'expected int, str, or float values not {first!r}')
+            raise TypeError(f"expected int, str, or float values not {first!r}")
 
         self._choices = [Choice(name=str(v), value=v) for v in values]
         super().__init__(opt_type)
@@ -419,7 +447,7 @@ class ChoiceTransformer(IdentityTransformer):
         elif inner_type is str:
             opt_type = AppCommandOptionType.string
         else:
-            raise TypeError(f'expected int, str, or float values not {inner_type!r}')
+            raise TypeError(f"expected int, str, or float values not {inner_type!r}")
 
         super().__init__(opt_type)
 
@@ -430,7 +458,7 @@ class EnumValueTransformer(Transformer):
 
         values = list(enum)
         if len(values) < 2:
-            raise TypeError('enum.Enum requires at least two values.')
+            raise TypeError("enum.Enum requires at least two values.")
 
         first = type(values[0].value)
         if first is int:
@@ -440,7 +468,7 @@ class EnumValueTransformer(Transformer):
         elif first is str:
             opt_type = AppCommandOptionType.string
         else:
-            raise TypeError(f'expected int, str, or float values not {first!r}')
+            raise TypeError(f"expected int, str, or float values not {first!r}")
 
         self._type: AppCommandOptionType = opt_type
         self._enum: Any = enum
@@ -468,7 +496,7 @@ class EnumNameTransformer(Transformer):
 
         values = list(enum)
         if len(values) < 2:
-            raise TypeError('enum.Enum requires at least two values.')
+            raise TypeError("enum.Enum requires at least two values.")
 
         self._enum: Any = enum
         self._choices = [Choice(name=v.name, value=v.name) for v in values]
@@ -527,19 +555,25 @@ else:
 
         def __class_getitem__(cls, items) -> Transformer:
             if not isinstance(items, tuple):
-                raise TypeError(f'expected tuple for arguments, received {items.__class__.__name__} instead')
+                raise TypeError(
+                    f"expected tuple for arguments, received {items.__class__.__name__} instead"
+                )
 
             if len(items) != 2:
-                raise TypeError('Transform only accepts exactly two arguments')
+                raise TypeError("Transform only accepts exactly two arguments")
 
             _, transformer = items
 
             if inspect.isclass(transformer):
                 if not issubclass(transformer, Transformer):
-                    raise TypeError(f'second argument of Transform must be a Transformer class not {transformer!r}')
+                    raise TypeError(
+                        f"second argument of Transform must be a Transformer class not {transformer!r}"
+                    )
                 transformer = transformer()
             elif not isinstance(transformer, Transformer):
-                raise TypeError(f'second argument of Transform must be a Transformer not {transformer.__class__.__name__}')
+                raise TypeError(
+                    f"second argument of Transform must be a Transformer not {transformer.__class__.__name__}"
+                )
 
             return transformer
 
@@ -572,22 +606,26 @@ else:
 
         def __class_getitem__(cls, obj) -> RangeTransformer:
             if not isinstance(obj, tuple):
-                raise TypeError(f'expected tuple for arguments, received {obj.__class__.__name__} instead')
+                raise TypeError(
+                    f"expected tuple for arguments, received {obj.__class__.__name__} instead"
+                )
 
             if len(obj) == 2:
                 obj = (*obj, None)
             elif len(obj) != 3:
-                raise TypeError('Range accepts either two or three arguments with the first being the type of range.')
+                raise TypeError(
+                    "Range accepts either two or three arguments with the first being the type of range."
+                )
 
             obj_type, min, max = obj
 
             if min is None and max is None:
-                raise TypeError('Range must not be empty')
+                raise TypeError("Range must not be empty")
 
             if min is not None and max is not None:
                 # At this point max and min are both not none
                 if type(min) != type(max):
-                    raise TypeError('Both min and max in Range must be the same type')
+                    raise TypeError("Both min and max in Range must be the same type")
 
             if obj_type is int:
                 opt_type = AppCommandOptionType.integer
@@ -596,7 +634,9 @@ else:
             elif obj_type is str:
                 opt_type = AppCommandOptionType.string
             else:
-                raise TypeError(f'expected int, float, or str as range type, received {obj_type!r} instead')
+                raise TypeError(
+                    f"expected int, float, or str as range type, received {obj_type!r} instead"
+                )
 
             if obj_type in (str, int):
                 cast = int
@@ -629,14 +669,19 @@ class BaseChannelTransformer(Transformer):
             display_name = channel_types[0].__name__
             types = CHANNEL_TO_TYPES[channel_types[0]]
         else:
-            display_name = '{}, and {}'.format(', '.join(t.__name__ for t in channel_types[:-1]), channel_types[-1].__name__)
+            display_name = "{}, and {}".format(
+                ", ".join(t.__name__ for t in channel_types[:-1]),
+                channel_types[-1].__name__,
+            )
             types = []
 
             for t in channel_types:
                 try:
                     types.extend(CHANNEL_TO_TYPES[t])
                 except KeyError:
-                    raise TypeError('Union type of channels must be entirely made up of channels') from None
+                    raise TypeError(
+                        "Union type of channels must be entirely made up of channels"
+                    ) from None
 
         self._types: Tuple[Type[Any]] = channel_types
         self._channel_types: List[ChannelType] = types
@@ -696,8 +741,16 @@ CHANNEL_TO_TYPES: Dict[Any, List[ChannelType]] = {
         ChannelType.category,
         ChannelType.forum,
     ],
-    AppCommandThread: [ChannelType.news_thread, ChannelType.private_thread, ChannelType.public_thread],
-    Thread: [ChannelType.news_thread, ChannelType.private_thread, ChannelType.public_thread],
+    AppCommandThread: [
+        ChannelType.news_thread,
+        ChannelType.private_thread,
+        ChannelType.public_thread,
+    ],
+    Thread: [
+        ChannelType.news_thread,
+        ChannelType.private_thread,
+        ChannelType.public_thread,
+    ],
     StageChannel: [ChannelType.stage_voice],
     VoiceChannel: [ChannelType.voice],
     TextChannel: [ChannelType.text, ChannelType.news],
@@ -764,21 +817,25 @@ def get_supported_annotation(
             else:
                 return (EnumNameTransformer(annotation), MISSING, False)
         if annotation is Choice:
-            raise TypeError('Choice requires a type argument of int, str, or float')
+            raise TypeError("Choice requires a type argument of int, str, or float")
 
         # Check if a transform @classmethod is given to the class
         # These flatten into simple "inline" transformers with implicit strings
-        transform_classmethod = annotation.__dict__.get('transform', None)
+        transform_classmethod = annotation.__dict__.get("transform", None)
         if isinstance(transform_classmethod, classmethod):
             params = inspect.signature(transform_classmethod.__func__).parameters
             if len(params) != 3:
-                raise TypeError('Inline transformer with transform classmethod requires 3 parameters')
+                raise TypeError(
+                    "Inline transformer with transform classmethod requires 3 parameters"
+                )
             if not inspect.iscoroutinefunction(transform_classmethod.__func__):
-                raise TypeError('Inline transformer with transform classmethod must be a coroutine')
+                raise TypeError(
+                    "Inline transformer with transform classmethod must be a coroutine"
+                )
             return (InlineTransformer(annotation), MISSING, False)
 
     # Check if there's an origin
-    origin = getattr(annotation, '__origin__', None)
+    origin = getattr(annotation, "__origin__", None)
     if origin is Literal:
         args = annotation.__args__  # type: ignore
         return (LiteralTransformer(args), MISSING, True)
@@ -789,7 +846,7 @@ def get_supported_annotation(
 
     if origin is not Union:
         # Only Union/Optional is supported right now so bail early
-        raise TypeError(f'unsupported type annotation {annotation!r}')
+        raise TypeError(f"unsupported type annotation {annotation!r}")
 
     default = MISSING
     args = annotation.__args__  # type: ignore
@@ -798,7 +855,7 @@ def get_supported_annotation(
             underlying = args[0]
             inner, _, validate_default = get_supported_annotation(underlying)
             if inner is None:
-                raise TypeError(f'unsupported inner optional type {underlying!r}')
+                raise TypeError(f"unsupported inner optional type {underlying!r}")
             return (inner, None, validate_default)
         else:
             args = args[:-1]
@@ -815,14 +872,16 @@ def get_supported_annotation(
     # [Member | User, Role] => mentionable
     supported_types: Set[Any] = {Role, Member, User}
     if not all(arg in supported_types for arg in args):
-        raise TypeError(f'unsupported types given inside {annotation!r}')
+        raise TypeError(f"unsupported types given inside {annotation!r}")
     if args == (User, Member) or args == (Member, User):
         return (IdentityTransformer(AppCommandOptionType.user), default, True)
 
     return (IdentityTransformer(AppCommandOptionType.mentionable), default, True)
 
 
-def annotation_to_parameter(annotation: Any, parameter: inspect.Parameter) -> CommandParameter:
+def annotation_to_parameter(
+    annotation: Any, parameter: inspect.Parameter
+) -> CommandParameter:
     """Returns the appropriate :class:`CommandParameter` for the given annotation.
 
     The resulting ``_annotation`` attribute might not match the one given here and might
@@ -842,7 +901,9 @@ def annotation_to_parameter(annotation: Any, parameter: inspect.Parameter) -> Co
     if default is not MISSING and validate_default:
         valid_types: Tuple[Any, ...] = ALLOWED_DEFAULTS.get(type, (NoneType,))
         if not isinstance(default, valid_types):
-            raise TypeError(f'invalid default parameter type given ({default.__class__}), expected {valid_types}')
+            raise TypeError(
+                f"invalid default parameter type given ({default.__class__}), expected {valid_types}"
+            )
 
     result = CommandParameter(
         type=type,
@@ -857,15 +918,23 @@ def annotation_to_parameter(annotation: Any, parameter: inspect.Parameter) -> Co
         result.choices = choices
 
     # These methods should be duck typed
-    if type in (AppCommandOptionType.number, AppCommandOptionType.string, AppCommandOptionType.integer):
+    if type in (
+        AppCommandOptionType.number,
+        AppCommandOptionType.string,
+        AppCommandOptionType.integer,
+    ):
         result.min_value = inner.min_value
         result.max_value = inner.max_value
 
     if type is AppCommandOptionType.channel:
         result.channel_types = inner.channel_types
 
-    if parameter.kind in (parameter.POSITIONAL_ONLY, parameter.VAR_KEYWORD, parameter.VAR_POSITIONAL):
-        raise TypeError(f'unsupported parameter kind in callback: {parameter.kind!s}')
+    if parameter.kind in (
+        parameter.POSITIONAL_ONLY,
+        parameter.VAR_KEYWORD,
+        parameter.VAR_POSITIONAL,
+    ):
+        raise TypeError(f"unsupported parameter kind in callback: {parameter.kind!s}")
 
     # Check if the method is overridden
     if inner.autocomplete.__func__ is not Transformer.autocomplete:
