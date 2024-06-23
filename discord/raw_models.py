@@ -58,23 +58,23 @@ if TYPE_CHECKING:
     from .guild import Guild
 
     ReactionActionEvent = Union[MessageReactionAddEvent, MessageReactionRemoveEvent]
-    ReactionActionType = Literal['REACTION_ADD', 'REACTION_REMOVE']
+    ReactionActionType = Literal["REACTION_ADD", "REACTION_REMOVE"]
 
 
 __all__ = (
-    'RawMessageDeleteEvent',
-    'RawBulkMessageDeleteEvent',
-    'RawMessageUpdateEvent',
-    'RawReactionActionEvent',
-    'RawReactionClearEvent',
-    'RawReactionClearEmojiEvent',
-    'RawIntegrationDeleteEvent',
-    'RawThreadUpdateEvent',
-    'RawThreadDeleteEvent',
-    'RawThreadMembersUpdate',
-    'RawTypingEvent',
-    'RawMemberRemoveEvent',
-    'RawAppCommandPermissionsUpdateEvent',
+    "RawMessageDeleteEvent",
+    "RawBulkMessageDeleteEvent",
+    "RawMessageUpdateEvent",
+    "RawReactionActionEvent",
+    "RawReactionClearEvent",
+    "RawReactionClearEmojiEvent",
+    "RawIntegrationDeleteEvent",
+    "RawThreadUpdateEvent",
+    "RawThreadDeleteEvent",
+    "RawThreadMembersUpdate",
+    "RawTypingEvent",
+    "RawMemberRemoveEvent",
+    "RawAppCommandPermissionsUpdateEvent",
 )
 
 
@@ -82,8 +82,8 @@ class _RawReprMixin:
     __slots__: Tuple[str, ...] = ()
 
     def __repr__(self) -> str:
-        value = ' '.join(f'{attr}={getattr(self, attr)!r}' for attr in self.__slots__)
-        return f'<{self.__class__.__name__} {value}>'
+        value = " ".join(f"{attr}={getattr(self, attr)!r}" for attr in self.__slots__)
+        return f"<{self.__class__.__name__} {value}>"
 
 
 class RawMessageDeleteEvent(_RawReprMixin):
@@ -101,14 +101,14 @@ class RawMessageDeleteEvent(_RawReprMixin):
         The cached message, if found in the internal message cache.
     """
 
-    __slots__ = ('message_id', 'channel_id', 'guild_id', 'cached_message')
+    __slots__ = ("message_id", "channel_id", "guild_id", "cached_message")
 
     def __init__(self, data: MessageDeleteEvent) -> None:
-        self.message_id: int = int(data['id'])
-        self.channel_id: int = int(data['channel_id'])
+        self.message_id: int = int(data["id"])
+        self.channel_id: int = int(data["channel_id"])
         self.cached_message: Optional[Message] = None
         try:
-            self.guild_id: Optional[int] = int(data['guild_id'])
+            self.guild_id: Optional[int] = int(data["guild_id"])
         except KeyError:
             self.guild_id: Optional[int] = None
 
@@ -128,15 +128,15 @@ class RawBulkMessageDeleteEvent(_RawReprMixin):
         The cached messages, if found in the internal message cache.
     """
 
-    __slots__ = ('message_ids', 'channel_id', 'guild_id', 'cached_messages')
+    __slots__ = ("message_ids", "channel_id", "guild_id", "cached_messages")
 
     def __init__(self, data: BulkMessageDeleteEvent) -> None:
-        self.message_ids: Set[int] = {int(x) for x in data.get('ids', [])}
-        self.channel_id: int = int(data['channel_id'])
+        self.message_ids: Set[int] = {int(x) for x in data.get("ids", [])}
+        self.channel_id: int = int(data["channel_id"])
         self.cached_messages: List[Message] = []
 
         try:
-            self.guild_id: Optional[int] = int(data['guild_id'])
+            self.guild_id: Optional[int] = int(data["guild_id"])
         except KeyError:
             self.guild_id: Optional[int] = None
 
@@ -164,16 +164,16 @@ class RawMessageUpdateEvent(_RawReprMixin):
         it is modified by the data in :attr:`RawMessageUpdateEvent.data`.
     """
 
-    __slots__ = ('message_id', 'channel_id', 'guild_id', 'data', 'cached_message')
+    __slots__ = ("message_id", "channel_id", "guild_id", "data", "cached_message")
 
     def __init__(self, data: MessageUpdateEvent) -> None:
-        self.message_id: int = int(data['id'])
-        self.channel_id: int = int(data['channel_id'])
+        self.message_id: int = int(data["id"])
+        self.channel_id: int = int(data["channel_id"])
         self.data: MessageUpdateEvent = data
         self.cached_message: Optional[Message] = None
 
         try:
-            self.guild_id: Optional[int] = int(data['guild_id'])
+            self.guild_id: Optional[int] = int(data["guild_id"])
         except KeyError:
             self.guild_id: Optional[int] = None
 
@@ -220,31 +220,40 @@ class RawReactionActionEvent(_RawReprMixin):
     """
 
     __slots__ = (
-        'message_id',
-        'user_id',
-        'channel_id',
-        'guild_id',
-        'emoji',
-        'event_type',
-        'member',
-        'message_author_id',
-        'burst',
-        'burst_colours',
+        "message_id",
+        "user_id",
+        "channel_id",
+        "guild_id",
+        "emoji",
+        "event_type",
+        "member",
+        "message_author_id",
+        "burst",
+        "burst_colours",
     )
 
-    def __init__(self, data: ReactionActionEvent, emoji: PartialEmoji, event_type: ReactionActionType) -> None:
-        self.message_id: int = int(data['message_id'])
-        self.channel_id: int = int(data['channel_id'])
-        self.user_id: int = int(data['user_id'])
+    def __init__(
+        self,
+        data: ReactionActionEvent,
+        emoji: PartialEmoji,
+        event_type: ReactionActionType,
+    ) -> None:
+        self.message_id: int = int(data["message_id"])
+        self.channel_id: int = int(data["channel_id"])
+        self.user_id: int = int(data["user_id"])
         self.emoji: PartialEmoji = emoji
         self.event_type: ReactionActionType = event_type
         self.member: Optional[Member] = None
-        self.message_author_id: Optional[int] = _get_as_snowflake(data, 'message_author_id')
-        self.burst: bool = data.get('burst', False)
-        self.burst_colours: List[Colour] = [Colour.from_str(c) for c in data.get('burst_colours', [])]
+        self.message_author_id: Optional[int] = _get_as_snowflake(
+            data, "message_author_id"
+        )
+        self.burst: bool = data.get("burst", False)
+        self.burst_colours: List[Colour] = [
+            Colour.from_str(c) for c in data.get("burst_colours", [])
+        ]
 
         try:
-            self.guild_id: Optional[int] = int(data['guild_id'])
+            self.guild_id: Optional[int] = int(data["guild_id"])
         except KeyError:
             self.guild_id: Optional[int] = None
 
@@ -270,14 +279,14 @@ class RawReactionClearEvent(_RawReprMixin):
         The guild ID where the reactions got cleared.
     """
 
-    __slots__ = ('message_id', 'channel_id', 'guild_id')
+    __slots__ = ("message_id", "channel_id", "guild_id")
 
     def __init__(self, data: ReactionClearEvent) -> None:
-        self.message_id: int = int(data['message_id'])
-        self.channel_id: int = int(data['channel_id'])
+        self.message_id: int = int(data["message_id"])
+        self.channel_id: int = int(data["channel_id"])
 
         try:
-            self.guild_id: Optional[int] = int(data['guild_id'])
+            self.guild_id: Optional[int] = int(data["guild_id"])
         except KeyError:
             self.guild_id: Optional[int] = None
 
@@ -299,15 +308,15 @@ class RawReactionClearEmojiEvent(_RawReprMixin):
         The custom or unicode emoji being removed.
     """
 
-    __slots__ = ('message_id', 'channel_id', 'guild_id', 'emoji')
+    __slots__ = ("message_id", "channel_id", "guild_id", "emoji")
 
     def __init__(self, data: ReactionClearEmojiEvent, emoji: PartialEmoji) -> None:
         self.emoji: PartialEmoji = emoji
-        self.message_id: int = int(data['message_id'])
-        self.channel_id: int = int(data['channel_id'])
+        self.message_id: int = int(data["message_id"])
+        self.channel_id: int = int(data["channel_id"])
 
         try:
-            self.guild_id: Optional[int] = int(data['guild_id'])
+            self.guild_id: Optional[int] = int(data["guild_id"])
         except KeyError:
             self.guild_id: Optional[int] = None
 
@@ -327,14 +336,14 @@ class RawIntegrationDeleteEvent(_RawReprMixin):
         The guild ID where the integration got deleted.
     """
 
-    __slots__ = ('integration_id', 'application_id', 'guild_id')
+    __slots__ = ("integration_id", "application_id", "guild_id")
 
     def __init__(self, data: IntegrationDeleteEvent) -> None:
-        self.integration_id: int = int(data['id'])
-        self.guild_id: int = int(data['guild_id'])
+        self.integration_id: int = int(data["id"])
+        self.guild_id: int = int(data["guild_id"])
 
         try:
-            self.application_id: Optional[int] = int(data['application_id'])
+            self.application_id: Optional[int] = int(data["application_id"])
         except KeyError:
             self.application_id: Optional[int] = None
 
@@ -360,13 +369,13 @@ class RawThreadUpdateEvent(_RawReprMixin):
         The thread, if it could be found in the internal cache.
     """
 
-    __slots__ = ('thread_id', 'thread_type', 'parent_id', 'guild_id', 'data', 'thread')
+    __slots__ = ("thread_id", "thread_type", "parent_id", "guild_id", "data", "thread")
 
     def __init__(self, data: ThreadUpdateEvent) -> None:
-        self.thread_id: int = int(data['id'])
-        self.thread_type: ChannelType = try_enum(ChannelType, data['type'])
-        self.guild_id: int = int(data['guild_id'])
-        self.parent_id: int = int(data['parent_id'])
+        self.thread_id: int = int(data["id"])
+        self.thread_type: ChannelType = try_enum(ChannelType, data["type"])
+        self.guild_id: int = int(data["guild_id"])
+        self.parent_id: int = int(data["parent_id"])
         self.data: ThreadUpdateEvent = data
         self.thread: Optional[Thread] = None
 
@@ -390,13 +399,13 @@ class RawThreadDeleteEvent(_RawReprMixin):
         The thread, if it could be found in the internal cache.
     """
 
-    __slots__ = ('thread_id', 'thread_type', 'parent_id', 'guild_id', 'thread')
+    __slots__ = ("thread_id", "thread_type", "parent_id", "guild_id", "thread")
 
     def __init__(self, data: ThreadDeleteEvent) -> None:
-        self.thread_id: int = int(data['id'])
-        self.thread_type: ChannelType = try_enum(ChannelType, data['type'])
-        self.guild_id: int = int(data['guild_id'])
-        self.parent_id: int = int(data['parent_id'])
+        self.thread_id: int = int(data["id"])
+        self.thread_type: ChannelType = try_enum(ChannelType, data["type"])
+        self.guild_id: int = int(data["guild_id"])
+        self.parent_id: int = int(data["parent_id"])
         self.thread: Optional[Thread] = None
 
 
@@ -417,12 +426,12 @@ class RawThreadMembersUpdate(_RawReprMixin):
         The raw data given by the :ddocs:`gateway <topics/gateway#thread-members-update>`.
     """
 
-    __slots__ = ('thread_id', 'guild_id', 'member_count', 'data')
+    __slots__ = ("thread_id", "guild_id", "member_count", "data")
 
     def __init__(self, data: ThreadMembersUpdate) -> None:
-        self.thread_id: int = int(data['id'])
-        self.guild_id: int = int(data['guild_id'])
-        self.member_count: int = int(data['member_count'])
+        self.thread_id: int = int(data["id"])
+        self.guild_id: int = int(data["guild_id"])
+        self.member_count: int = int(data["member_count"])
         self.data: ThreadMembersUpdate = data
 
 
@@ -445,14 +454,16 @@ class RawTypingEvent(_RawReprMixin):
         The ID of the guild the user started typing in, if applicable.
     """
 
-    __slots__ = ('channel_id', 'user_id', 'user', 'timestamp', 'guild_id')
+    __slots__ = ("channel_id", "user_id", "user", "timestamp", "guild_id")
 
     def __init__(self, data: TypingStartEvent, /) -> None:
-        self.channel_id: int = int(data['channel_id'])
-        self.user_id: int = int(data['user_id'])
+        self.channel_id: int = int(data["channel_id"])
+        self.user_id: int = int(data["user_id"])
         self.user: Optional[Union[User, Member]] = None
-        self.timestamp: datetime.datetime = datetime.datetime.fromtimestamp(data['timestamp'], tz=datetime.timezone.utc)
-        self.guild_id: Optional[int] = _get_as_snowflake(data, 'guild_id')
+        self.timestamp: datetime.datetime = datetime.datetime.fromtimestamp(
+            data["timestamp"], tz=datetime.timezone.utc
+        )
+        self.guild_id: Optional[int] = _get_as_snowflake(data, "guild_id")
 
 
 class RawMemberRemoveEvent(_RawReprMixin):
@@ -468,11 +479,11 @@ class RawMemberRemoveEvent(_RawReprMixin):
         The ID of the guild the user left.
     """
 
-    __slots__ = ('user', 'guild_id')
+    __slots__ = ("user", "guild_id")
 
     def __init__(self, data: GuildMemberRemoveEvent, user: User, /) -> None:
         self.user: Union[User, Member] = user
-        self.guild_id: int = int(data['guild_id'])
+        self.guild_id: int = int(data["guild_id"])
 
 
 class RawAppCommandPermissionsUpdateEvent(_RawReprMixin):
@@ -494,12 +505,17 @@ class RawAppCommandPermissionsUpdateEvent(_RawReprMixin):
         List of new permissions for the app command.
     """
 
-    __slots__ = ('target_id', 'application_id', 'guild', 'permissions')
+    __slots__ = ("target_id", "application_id", "guild", "permissions")
 
-    def __init__(self, *, data: GuildApplicationCommandPermissions, state: ConnectionState):
-        self.target_id: int = int(data['id'])
-        self.application_id: int = int(data['application_id'])
-        self.guild: Guild = state._get_or_create_unavailable_guild(int(data['guild_id']))
+    def __init__(
+        self, *, data: GuildApplicationCommandPermissions, state: ConnectionState
+    ):
+        self.target_id: int = int(data["id"])
+        self.application_id: int = int(data["application_id"])
+        self.guild: Guild = state._get_or_create_unavailable_guild(
+            int(data["guild_id"])
+        )
         self.permissions: List[AppCommandPermissions] = [
-            AppCommandPermissions(data=perm, guild=self.guild, state=state) for perm in data['permissions']
+            AppCommandPermissions(data=perm, guild=self.guild, state=state)
+            for perm in data["permissions"]
         ]

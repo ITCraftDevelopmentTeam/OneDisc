@@ -19,4 +19,3 @@ import actions.v11.basic
 import actions.v11.operations
 
 client.run(config["account_token"], log_handler=None)
-

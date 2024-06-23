@@ -8,9 +8,5 @@ intents.message_content = True
 intents.members = True
 discord.http.verify_ssl = not config["system"].get("disable_ssl", False)
 
-client = Client(
-    intents=intents,
-    proxy=config["system"]["proxy"]
-)
+client = Client(intents=intents, proxy=config["system"]["proxy"])
 tree = app_commands.CommandTree(client)
-

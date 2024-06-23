@@ -65,8 +65,7 @@ class Invite(IncompleteInvite, total=False):
     guild_scheduled_event: GuildScheduledEvent
 
 
-class InviteWithCounts(Invite, _GuildPreviewUnique):
-    ...
+class InviteWithCounts(Invite, _GuildPreviewUnique): ...
 
 
 class GatewayInviteCreate(TypedDict):

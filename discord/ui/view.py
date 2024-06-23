@@ -23,7 +23,20 @@ DEALINGS IN THE SOFTWARE.
 """
 
 from __future__ import annotations
-from typing import Any, Callable, ClassVar, Coroutine, Dict, Iterator, List, Optional, Sequence, TYPE_CHECKING, Tuple, Type
+from typing import (
+    Any,
+    Callable,
+    ClassVar,
+    Coroutine,
+    Dict,
+    Iterator,
+    List,
+    Optional,
+    Sequence,
+    TYPE_CHECKING,
+    Tuple,
+    Type,
+)
 from functools import partial
 from itertools import groupby
 
@@ -56,7 +69,9 @@ if TYPE_CHECKING:
     from ..interactions import Interaction
     from ..message import Message
     from ..types.components import Component as ComponentPayload
-    from ..types.interactions import ModalSubmitComponentInteractionData as ModalSubmitComponentInteractionDataPayload
+    from ..types.interactions import (
+        ModalSubmitComponentInteractionData as ModalSubmitComponentInteractionDataPayload,
+    )
     from ..state import ConnectionState
     from .modal import Modal
 
@@ -106,13 +121,15 @@ class _ViewWeights:
             if weight + item.width <= 5:
                 return index
 
-        raise ValueError('could not find open space for item')
+        raise ValueError("could not find open space for item")
 
     def add_item(self, item: Item) -> None:
         if item.row is not None:
             total = self.weights[item.row] + item.width
             if total > 5:
-                raise ValueError(f'item would not fit at row {item.row} ({total} > 5 width)')
+                raise ValueError(
+                    f"item would not fit at row {item.row} ({total} > 5 width)"
+                )
             self.weights[item.row] = total
             item._rendered_row = item.row
         else:
@@ -130,9 +147,11 @@ class _ViewWeights:
 
 
 class _ViewCallback:
-    __slots__ = ('view', 'callback', 'item')
+    __slots__ = ("view", "callback", "item")
 
-    def __init__(self, callback: ItemCallbackType[Any, Any], view: View, item: Item[View]) -> None:
+    def __init__(
+        self, callback: ItemCallbackType[Any, Any], view: View, item: Item[View]
+    ) -> None:
         self.callback: ItemCallbackType[Any, Any] = callback
         self.view: View = view
         self.item: Item[View] = item
@@ -165,18 +184,20 @@ class View:
         children: Dict[str, ItemCallbackType[Any, Any]] = {}
         for base in reversed(cls.__mro__):
             for name, member in base.__dict__.items():
-                if hasattr(member, '__discord_ui_model_type__'):
+                if hasattr(member, "__discord_ui_model_type__"):
                     children[name] = member
 
         if len(children) > 25:
-            raise TypeError('View cannot have more than 25 children')
+            raise TypeError("View cannot have more than 25 children")
 
         cls.__view_children_items__ = list(children.values())
 
     def _init_children(self) -> List[Item[Self]]:
         children = []
         for func in self.__view_children_items__:
-            item: Item = func.__discord_ui_model_type__(**func.__discord_ui_model_kwargs__)
+            item: Item = func.__discord_ui_model_type__(
+                **func.__discord_ui_model_kwargs__
+            )
             item.callback = _ViewCallback(func, self, item)
             item._view = self
             setattr(self, func.__name__, item)
@@ -192,10 +213,12 @@ class View:
         self.__cancel_callback: Optional[Callable[[View], None]] = None
         self.__timeout_expiry: Optional[float] = None
         self.__timeout_task: Optional[asyncio.Task[None]] = None
-        self.__stopped: asyncio.Future[bool] = asyncio.get_running_loop().create_future()
+        self.__stopped: asyncio.Future[bool] = (
+            asyncio.get_running_loop().create_future()
+        )
 
     def __repr__(self) -> str:
-        return f'<{self.__class__.__name__} timeout={self.timeout} children={len(self._children)}>'
+        return f"<{self.__class__.__name__} timeout={self.timeout} children={len(self._children)}>"
 
     async def __timeout_task_impl(self) -> None:
         while True:
@@ -227,8 +250,8 @@ class View:
 
             components.append(
                 {
-                    'type': 1,
-                    'components': children,
+                    "type": 1,
+                    "components": children,
                 }
             )
 
@@ -263,7 +286,9 @@ class View:
         return self._children.copy()
 
     @classmethod
-    def from_message(cls, message: Message, /, *, timeout: Optional[float] = 180.0) -> View:
+    def from_message(
+        cls, message: Message, /, *, timeout: Optional[float] = 180.0
+    ) -> View:
         """Converts a message's components into a :class:`View`.
 
         The :attr:`.Message.components` of a message are read-only
@@ -321,10 +346,10 @@ class View:
         """
 
         if len(self._children) > 25:
-            raise ValueError('maximum number of children exceeded')
+            raise ValueError("maximum number of children exceeded")
 
         if not isinstance(item, Item):
-            raise TypeError(f'expected Item not {item.__class__.__name__}')
+            raise TypeError(f"expected Item not {item.__class__.__name__}")
 
         self.__weights.add_item(item)
 
@@ -397,7 +422,9 @@ class View:
         """
         pass
 
-    async def on_error(self, interaction: Interaction, error: Exception, item: Item[Any], /) -> None:
+    async def on_error(
+        self, interaction: Interaction, error: Exception, item: Item[Any], /
+    ) -> None:
         """|coro|
 
         A callback that is called when an item's callback or :meth:`interaction_check`
@@ -414,13 +441,17 @@ class View:
         item: :class:`Item`
             The item that failed the dispatch.
         """
-        _log.error('Ignoring exception in view %r for item %r', self, item, exc_info=error)
+        _log.error(
+            "Ignoring exception in view %r for item %r", self, item, exc_info=error
+        )
 
     async def _scheduled_task(self, item: Item, interaction: Interaction):
         try:
             item._refresh_state(interaction, interaction.data)  # type: ignore
 
-            allow = await item.interaction_check(interaction) and await self.interaction_check(interaction)
+            allow = await item.interaction_check(
+                interaction
+            ) and await self.interaction_check(interaction)
             if not allow:
                 return
 
@@ -449,13 +480,18 @@ class View:
             self.__cancel_callback = None
 
         self.__stopped.set_result(True)
-        asyncio.create_task(self.on_timeout(), name=f'discord-ui-view-timeout-{self.id}')
+        asyncio.create_task(
+            self.on_timeout(), name=f"discord-ui-view-timeout-{self.id}"
+        )
 
     def _dispatch_item(self, item: Item, interaction: Interaction):
         if self.__stopped.done():
             return
 
-        asyncio.create_task(self._scheduled_task(item, interaction), name=f'discord-ui-view-dispatch-{self.id}')
+        asyncio.create_task(
+            self._scheduled_task(item, interaction),
+            name=f"discord-ui-view-dispatch-{self.id}",
+        )
 
     def _refresh(self, components: List[Component]) -> None:
         # fmt: off
@@ -467,14 +503,17 @@ class View:
         # fmt: on
 
         for component in _walk_all_components(components):
-            custom_id = getattr(component, 'custom_id', None)
+            custom_id = getattr(component, "custom_id", None)
             if custom_id is None:
                 continue
 
             try:
                 older = old_state[custom_id]
             except KeyError:
-                _log.debug('View interaction referenced an unknown item custom_id %s. Discarding', custom_id)
+                _log.debug(
+                    "View interaction referenced an unknown item custom_id %s. Discarding",
+                    custom_id,
+                )
                 continue
             else:
                 older._refresh_component(component)
@@ -510,7 +549,9 @@ class View:
         A persistent view has all their components with a set ``custom_id`` and
         a :attr:`timeout` set to ``None``.
         """
-        return self.timeout is None and all(item.is_persistent() for item in self._children)
+        return self.timeout is None and all(
+            item.is_persistent() for item in self._children
+        )
 
     async def wait(self) -> bool:
         """|coro|
@@ -617,7 +658,10 @@ class ViewStore:
 
         base_item_index: Optional[int] = None
         for index, child in enumerate(view._children):
-            if child.type.value == component_type and getattr(child, 'custom_id', None) == custom_id:
+            if (
+                child.type.value == component_type
+                and getattr(child, "custom_id", None) == custom_id
+            ):
                 base_item_index = index
                 break
 
@@ -628,7 +672,9 @@ class ViewStore:
         try:
             item = await factory.from_custom_id(interaction, base_item, match)
         except Exception:
-            _log.exception('Ignoring exception in dynamic item creation for %r', factory)
+            _log.exception(
+                "Ignoring exception in dynamic item creation for %r", factory
+            )
             return
 
         # Swap the item in the view with our new dynamic item
@@ -647,18 +693,24 @@ class ViewStore:
         try:
             await item.callback(interaction)
         except Exception:
-            _log.exception('Ignoring exception in dynamic item callback for %r', item)
+            _log.exception("Ignoring exception in dynamic item callback for %r", item)
 
-    def dispatch_dynamic_items(self, component_type: int, custom_id: str, interaction: Interaction) -> None:
+    def dispatch_dynamic_items(
+        self, component_type: int, custom_id: str, interaction: Interaction
+    ) -> None:
         for pattern, item in self._dynamic_items.items():
             match = pattern.fullmatch(custom_id)
             if match is not None:
                 asyncio.create_task(
-                    self.schedule_dynamic_item_call(component_type, item, interaction, custom_id, match),
-                    name=f'discord-ui-dynamic-item-{item.__name__}-{custom_id}',
+                    self.schedule_dynamic_item_call(
+                        component_type, item, interaction, custom_id, match
+                    ),
+                    name=f"discord-ui-dynamic-item-{item.__name__}-{custom_id}",
                 )
 
-    def dispatch_view(self, component_type: int, custom_id: str, interaction: Interaction) -> None:
+    def dispatch_view(
+        self, component_type: int, custom_id: str, interaction: Interaction
+    ) -> None:
         self.dispatch_dynamic_items(component_type, custom_id, interaction)
         interaction_id: Optional[int] = None
         message_id: Optional[int] = None
@@ -712,7 +764,10 @@ class ViewStore:
     ) -> None:
         modal = self._modals.get(custom_id)
         if modal is None:
-            _log.debug("Modal interaction referencing unknown custom_id %s. Discarding", custom_id)
+            _log.debug(
+                "Modal interaction referencing unknown custom_id %s. Discarding",
+                custom_id,
+            )
             return
 
         modal._dispatch_submit(interaction, components)
@@ -728,7 +783,9 @@ class ViewStore:
     def remove_message_tracking(self, message_id: int) -> Optional[View]:
         return self._synced_message_views.pop(message_id, None)
 
-    def update_from_message(self, message_id: int, data: List[ComponentPayload]) -> None:
+    def update_from_message(
+        self, message_id: int, data: List[ComponentPayload]
+    ) -> None:
         components: List[Component] = []
 
         for component_data in data:

@@ -11,8 +11,4 @@ async def setup_heartbeat_event(config: dict) -> None:
     """
     while config.get("enabled", True):
         await asyncio.sleep(config.get("interval", 5000) * 0.001)
-        event.new_event(
-            "meta",
-            "heartbeat",
-            interval=config.get("interval", 5000)
-        )
+        event.new_event("meta", "heartbeat", interval=config.get("interval", 5000))

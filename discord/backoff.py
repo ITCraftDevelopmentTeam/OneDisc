@@ -29,7 +29,7 @@ import time
 import random
 from typing import Callable, Generic, Literal, TypeVar, overload, Union
 
-T = TypeVar('T', bool, Literal[True], Literal[False])
+T = TypeVar("T", bool, Literal[True], Literal[False])
 
 # fmt: off
 __all__ = (
@@ -72,19 +72,18 @@ class ExponentialBackoff(Generic[T]):
         rand = random.Random()
         rand.seed()
 
-        self._randfunc: Callable[..., Union[int, float]] = rand.randrange if integral else rand.uniform
+        self._randfunc: Callable[..., Union[int, float]] = (
+            rand.randrange if integral else rand.uniform
+        )
 
     @overload
-    def delay(self: ExponentialBackoff[Literal[False]]) -> float:
-        ...
+    def delay(self: ExponentialBackoff[Literal[False]]) -> float: ...
 
     @overload
-    def delay(self: ExponentialBackoff[Literal[True]]) -> int:
-        ...
+    def delay(self: ExponentialBackoff[Literal[True]]) -> int: ...
 
     @overload
-    def delay(self: ExponentialBackoff[bool]) -> Union[int, float]:
-        ...
+    def delay(self: ExponentialBackoff[bool]) -> Union[int, float]: ...
 
     def delay(self) -> Union[int, float]:
         """Compute the next delay

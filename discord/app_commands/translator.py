@@ -23,7 +23,16 @@ DEALINGS IN THE SOFTWARE.
 """
 
 from __future__ import annotations
-from typing import TYPE_CHECKING, Any, Generic, Literal, Optional, TypeVar, Union, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Generic,
+    Literal,
+    Optional,
+    TypeVar,
+    Union,
+    overload,
+)
 from .errors import TranslationError
 from ..enums import Enum, Locale
 
@@ -34,11 +43,11 @@ if TYPE_CHECKING:
 
 
 __all__ = (
-    'TranslationContextLocation',
-    'TranslationContextTypes',
-    'TranslationContext',
-    'Translator',
-    'locale_str',
+    "TranslationContextLocation",
+    "TranslationContextTypes",
+    "TranslationContext",
+    "Translator",
+    "locale_str",
 )
 
 
@@ -53,8 +62,8 @@ class TranslationContextLocation(Enum):
     other = 7
 
 
-_L = TypeVar('_L', bound=TranslationContextLocation)
-_D = TypeVar('_D')
+_L = TypeVar("_L", bound=TranslationContextLocation)
+_D = TypeVar("_D")
 
 
 class TranslationContext(Generic[_L, _D]):
@@ -71,43 +80,53 @@ class TranslationContext(Generic[_L, _D]):
         The extraneous data that is being translated.
     """
 
-    __slots__ = ('location', 'data')
-
-    @overload
-    def __init__(
-        self, location: Literal[TranslationContextLocation.command_name], data: Union[Command[Any, ..., Any], ContextMenu]
-    ) -> None:
-        ...
-
-    @overload
-    def __init__(
-        self, location: Literal[TranslationContextLocation.command_description], data: Command[Any, ..., Any]
-    ) -> None:
-        ...
+    __slots__ = ("location", "data")
 
     @overload
     def __init__(
         self,
-        location: Literal[TranslationContextLocation.group_name, TranslationContextLocation.group_description],
+        location: Literal[TranslationContextLocation.command_name],
+        data: Union[Command[Any, ..., Any], ContextMenu],
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self,
+        location: Literal[TranslationContextLocation.command_description],
+        data: Command[Any, ..., Any],
+    ) -> None: ...
+
+    @overload
+    def __init__(
+        self,
+        location: Literal[
+            TranslationContextLocation.group_name,
+            TranslationContextLocation.group_description,
+        ],
         data: Group,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @overload
     def __init__(
         self,
-        location: Literal[TranslationContextLocation.parameter_name, TranslationContextLocation.parameter_description],
+        location: Literal[
+            TranslationContextLocation.parameter_name,
+            TranslationContextLocation.parameter_description,
+        ],
         data: Parameter,
-    ) -> None:
-        ...
+    ) -> None: ...
 
     @overload
-    def __init__(self, location: Literal[TranslationContextLocation.choice_name], data: Choice[Any]) -> None:
-        ...
+    def __init__(
+        self,
+        location: Literal[TranslationContextLocation.choice_name],
+        data: Choice[Any],
+    ) -> None: ...
 
     @overload
-    def __init__(self, location: Literal[TranslationContextLocation.other], data: Any) -> None:
-        ...
+    def __init__(
+        self, location: Literal[TranslationContextLocation.other], data: Any
+    ) -> None: ...
 
     def __init__(self, location: _L, data: _D) -> None:  # type: ignore # pyright doesn't like the overloads
         self.location: _L = location
@@ -122,19 +141,32 @@ class TranslationContext(Generic[_L, _D]):
 #
 # This requires a union of types
 CommandNameTranslationContext = TranslationContext[
-    Literal[TranslationContextLocation.command_name], Union['Command[Any, ..., Any]', 'ContextMenu']
+    Literal[TranslationContextLocation.command_name],
+    Union["Command[Any, ..., Any]", "ContextMenu"],
 ]
 CommandDescriptionTranslationContext = TranslationContext[
-    Literal[TranslationContextLocation.command_description], 'Command[Any, ..., Any]'
+    Literal[TranslationContextLocation.command_description], "Command[Any, ..., Any]"
 ]
 GroupTranslationContext = TranslationContext[
-    Literal[TranslationContextLocation.group_name, TranslationContextLocation.group_description], 'Group'
+    Literal[
+        TranslationContextLocation.group_name,
+        TranslationContextLocation.group_description,
+    ],
+    "Group",
 ]
 ParameterTranslationContext = TranslationContext[
-    Literal[TranslationContextLocation.parameter_name, TranslationContextLocation.parameter_description], 'Parameter'
+    Literal[
+        TranslationContextLocation.parameter_name,
+        TranslationContextLocation.parameter_description,
+    ],
+    "Parameter",
 ]
-ChoiceTranslationContext = TranslationContext[Literal[TranslationContextLocation.choice_name], 'Choice[Any]']
-OtherTranslationContext = TranslationContext[Literal[TranslationContextLocation.other], Any]
+ChoiceTranslationContext = TranslationContext[
+    Literal[TranslationContextLocation.choice_name], "Choice[Any]"
+]
+OtherTranslationContext = TranslationContext[
+    Literal[TranslationContextLocation.other], Any
+]
 
 TranslationContextTypes = Union[
     CommandNameTranslationContext,
@@ -199,7 +231,9 @@ class Translator:
         except Exception as e:
             raise TranslationError(string=string, locale=locale, context=context) from e
 
-    async def translate(self, string: locale_str, locale: Locale, context: TranslationContextTypes) -> Optional[str]:
+    async def translate(
+        self, string: locale_str, locale: Locale, context: TranslationContextTypes
+    ) -> Optional[str]:
         """|coro|
 
         Translates the given string to the specified locale.
@@ -279,7 +313,7 @@ class locale_str:
         Since these are passed via keyword arguments, the keys are strings.
     """
 
-    __slots__ = ('__message', 'extras')
+    __slots__ = ("__message", "extras")
 
     def __init__(self, message: str, /, **kwargs: Any) -> None:
         self.__message: str = message
@@ -293,10 +327,10 @@ class locale_str:
         return self.__message
 
     def __repr__(self) -> str:
-        kwargs = ', '.join(f'{k}={v!r}' for k, v in self.extras.items())
+        kwargs = ", ".join(f"{k}={v!r}" for k, v in self.extras.items())
         if kwargs:
-            return f'{self.__class__.__name__}({self.__message!r}, {kwargs})'
-        return f'{self.__class__.__name__}({self.__message!r})'
+            return f"{self.__class__.__name__}({self.__message!r}, {kwargs})"
+        return f"{self.__class__.__name__}({self.__message!r})"
 
     def __eq__(self, obj: object) -> bool:
         return isinstance(obj, locale_str) and self.message == obj.message

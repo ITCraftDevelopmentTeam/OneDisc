@@ -183,7 +183,7 @@ class Message(PartialMessage):
     thread: NotRequired[Thread]
 
 
-AllowedMentionType = Literal['roles', 'users', 'everyone']
+AllowedMentionType = Literal["roles", "users", "everyone"]
 
 
 class AllowedMentions(TypedDict):

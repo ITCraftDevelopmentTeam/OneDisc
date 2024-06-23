@@ -7,12 +7,15 @@ from utils.logger import get_logger
 
 logger = get_logger()
 
-class BadParam(Exception): pass
+
+class BadParam(Exception):
+    pass
+
 
 def check_arguments(*args) -> None:
     if None in args:
         raise BadParam("None is not allowed")
-    
+
 
 def check_request_params(func: Callable, params: dict) -> tuple[bool, dict]:
     """
@@ -33,7 +36,9 @@ def check_request_params(func: Callable, params: dict) -> tuple[bool, dict]:
                 del params[key]
                 continue
             else:
-                return False, return_object.get(10004, f"参数 {key} 未在 {func.__name__} 中定义")
+                return False, return_object.get(
+                    10004, f"参数 {key} 未在 {func.__name__} 中定义"
+                )
         if config["system"].get("skip_params_type_checking", False):
             continue
         try:
@@ -46,13 +51,17 @@ def check_request_params(func: Callable, params: dict) -> tuple[bool, dict]:
                 else:
                     continue
             if not isinstance(params[key], arg_type):
-                logger.warning(f"参数 {key} ({type(params[key])}，应为 {arg_spec.annotations[key]}) 类型不正确，尝试强制转换")
+                logger.warning(
+                    f"参数 {key} ({type(params[key])}，应为 {arg_spec.annotations[key]}) 类型不正确，尝试强制转换"
+                )
                 try:
                     params[key] = arg_spec.annotations[key](params[key])
                 except Exception:
                     logger.error(f"强制转换类型失败：{traceback.format_exc()}")
-                    return False, return_object.get(10001, f"参数 {key} ({type(params[key])}，应为 {arg_spec.annotations[key]}) 类型不正确")
+                    return False, return_object.get(
+                        10001,
+                        f"参数 {key} ({type(params[key])}，应为 {arg_spec.annotations[key]}) 类型不正确",
+                    )
         except TypeError:
             logger.warning(f"检查参数 {key} 的类型时出现错误：{traceback.format_exc()}")
     return True, {}
-        

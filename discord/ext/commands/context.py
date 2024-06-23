@@ -21,14 +21,38 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 DEALINGS IN THE SOFTWARE.
 """
+
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Any, Dict, Generator, Generic, List, Optional, TypeVar, Union, Sequence, Type, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Generator,
+    Generic,
+    List,
+    Optional,
+    TypeVar,
+    Union,
+    Sequence,
+    Type,
+    overload,
+)
 
 import discord.abc
 import discord.utils
-from discord import Interaction, Message, Attachment, MessageType, User, PartialMessageable, Permissions, ChannelType, Thread
+from discord import (
+    Interaction,
+    Message,
+    Attachment,
+    MessageType,
+    User,
+    PartialMessageable,
+    Permissions,
+    ChannelType,
+    Thread,
+)
 from discord.context_managers import Typing
 from .view import StringView
 
@@ -57,7 +81,7 @@ if TYPE_CHECKING:
 
     from types import TracebackType
 
-    BE = TypeVar('BE', bound=BaseException)
+    BE = TypeVar("BE", bound=BaseException)
 
 # fmt: off
 __all__ = (
@@ -68,17 +92,17 @@ __all__ = (
 MISSING: Any = discord.utils.MISSING
 
 
-T = TypeVar('T')
-CogT = TypeVar('CogT', bound="Cog")
+T = TypeVar("T")
+CogT = TypeVar("CogT", bound="Cog")
 
 if TYPE_CHECKING:
-    P = ParamSpec('P')
+    P = ParamSpec("P")
 else:
-    P = TypeVar('P')
+    P = TypeVar("P")
 
 
 def is_cog(obj: Any) -> TypeGuard[Cog]:
-    return hasattr(obj, '__cog_commands__')
+    return hasattr(obj, "__cog_commands__")
 
 
 class DeferTyping:
@@ -245,48 +269,60 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         from .bot import BotBase
 
         if not isinstance(interaction.client, BotBase):
-            raise TypeError('Interaction client is not derived from commands.Bot or commands.AutoShardedBot')
+            raise TypeError(
+                "Interaction client is not derived from commands.Bot or commands.AutoShardedBot"
+            )
 
         command = interaction.command
         if command is None:
-            raise ValueError('interaction does not have command data')
+            raise ValueError("interaction does not have command data")
 
         bot: BotT = interaction.client
         data: ApplicationCommandInteractionData = interaction.data  # type: ignore
         if interaction.message is None:
             synthetic_payload = {
-                'id': interaction.id,
-                'reactions': [],
-                'embeds': [],
-                'mention_everyone': False,
-                'tts': False,
-                'pinned': False,
-                'edited_timestamp': None,
-                'type': MessageType.chat_input_command if data.get('type', 1) == 1 else MessageType.context_menu_command,
-                'flags': 64,
-                'content': '',
-                'mentions': [],
-                'mention_roles': [],
-                'attachments': [],
+                "id": interaction.id,
+                "reactions": [],
+                "embeds": [],
+                "mention_everyone": False,
+                "tts": False,
+                "pinned": False,
+                "edited_timestamp": None,
+                "type": (
+                    MessageType.chat_input_command
+                    if data.get("type", 1) == 1
+                    else MessageType.context_menu_command
+                ),
+                "flags": 64,
+                "content": "",
+                "mentions": [],
+                "mention_roles": [],
+                "attachments": [],
             }
 
             if interaction.channel_id is None:
-                raise RuntimeError('interaction channel ID is null, this is probably a Discord bug')
+                raise RuntimeError(
+                    "interaction channel ID is null, this is probably a Discord bug"
+                )
 
             channel = interaction.channel or PartialMessageable(
-                state=interaction._state, guild_id=interaction.guild_id, id=interaction.channel_id
+                state=interaction._state,
+                guild_id=interaction.guild_id,
+                id=interaction.channel_id,
             )
             message = Message(state=interaction._state, channel=channel, data=synthetic_payload)  # type: ignore
             message.author = interaction.user
-            message.attachments = [a for _, a in interaction.namespace if isinstance(a, Attachment)]
+            message.attachments = [
+                a for _, a in interaction.namespace if isinstance(a, Attachment)
+            ]
         else:
             message = interaction.message
 
-        prefix = '/' if data.get('type', 1) == 1 else '\u200b'  # Mock the prefix
+        prefix = "/" if data.get("type", 1) == 1 else "\u200b"  # Mock the prefix
         ctx = cls(
             message=message,
             bot=bot,
-            view=StringView(''),
+            view=StringView(""),
             args=[],
             kwargs={},
             prefix=prefix,
@@ -298,7 +334,9 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         ctx.command_failed = interaction.command_failed
         return ctx
 
-    async def invoke(self, command: Command[CogT, P, T], /, *args: P.args, **kwargs: P.kwargs) -> T:
+    async def invoke(
+        self, command: Command[CogT, P, T], /, *args: P.args, **kwargs: P.kwargs
+    ) -> T:
         r"""|coro|
 
         Calls a command with the arguments given.
@@ -368,7 +406,7 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         cmd = self.command
         view = self.view
         if cmd is None:
-            raise ValueError('This context is not valid.')
+            raise ValueError("This context is not valid.")
 
         # some state to revert to when we're done
         index, previous = view.index, view.previous
@@ -379,7 +417,7 @@ class Context(discord.abc.Messageable, Generic[BotT]):
 
         if restart:
             to_call = cmd.root_parent or cmd
-            view.index = len(self.prefix or '')
+            view.index = len(self.prefix or "")
             view.previous = 0
             self.invoked_parents = []
             self.invoked_with = view.get_word()  # advance to get the root command
@@ -412,7 +450,7 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         .. versionadded:: 2.0
         """
         if self.prefix is None:
-            return ''
+            return ""
 
         user = self.me
         # this breaks if the prefix mention is not the bot itself but I
@@ -420,7 +458,7 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         # for this common use case rather than waste performance for the
         # odd one.
         pattern = re.compile(r"<@!?%s>" % user.id)
-        return pattern.sub("@%s" % user.display_name.replace('\\', r'\\'), self.prefix)
+        return pattern.sub("@%s" % user.display_name.replace("\\", r"\\"), self.prefix)
 
     @property
     def cog(self) -> Optional[Cog]:
@@ -436,7 +474,11 @@ class Context(discord.abc.Messageable, Generic[BotT]):
 
         .. versionadded:: 2.3
         """
-        return self.guild.filesize_limit if self.guild is not None else discord.utils.DEFAULT_FILE_SIZE_LIMIT_BYTES
+        return (
+            self.guild.filesize_limit
+            if self.guild is not None
+            else discord.utils.DEFAULT_FILE_SIZE_LIMIT_BYTES
+        )
 
     @discord.utils.cached_property
     def guild(self) -> Optional[Guild]:
@@ -641,8 +683,7 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         suppress_embeds: bool = ...,
         ephemeral: bool = ...,
         silent: bool = ...,
-    ) -> Message:
-        ...
+    ) -> Message: ...
 
     @overload
     async def reply(
@@ -662,8 +703,7 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         suppress_embeds: bool = ...,
         ephemeral: bool = ...,
         silent: bool = ...,
-    ) -> Message:
-        ...
+    ) -> Message: ...
 
     @overload
     async def reply(
@@ -683,8 +723,7 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         suppress_embeds: bool = ...,
         ephemeral: bool = ...,
         silent: bool = ...,
-    ) -> Message:
-        ...
+    ) -> Message: ...
 
     @overload
     async def reply(
@@ -704,8 +743,7 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         suppress_embeds: bool = ...,
         ephemeral: bool = ...,
         silent: bool = ...,
-    ) -> Message:
-        ...
+    ) -> Message: ...
 
     async def reply(self, content: Optional[str] = None, **kwargs: Any) -> Message:
         """|coro|
@@ -826,8 +864,7 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         suppress_embeds: bool = ...,
         ephemeral: bool = ...,
         silent: bool = ...,
-    ) -> Message:
-        ...
+    ) -> Message: ...
 
     @overload
     async def send(
@@ -847,8 +884,7 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         suppress_embeds: bool = ...,
         ephemeral: bool = ...,
         silent: bool = ...,
-    ) -> Message:
-        ...
+    ) -> Message: ...
 
     @overload
     async def send(
@@ -868,8 +904,7 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         suppress_embeds: bool = ...,
         ephemeral: bool = ...,
         silent: bool = ...,
-    ) -> Message:
-        ...
+    ) -> Message: ...
 
     @overload
     async def send(
@@ -889,8 +924,7 @@ class Context(discord.abc.Messageable, Generic[BotT]):
         suppress_embeds: bool = ...,
         ephemeral: bool = ...,
         silent: bool = ...,
-    ) -> Message:
-        ...
+    ) -> Message: ...
 
     async def send(
         self,
@@ -1041,17 +1075,19 @@ class Context(discord.abc.Messageable, Generic[BotT]):
 
         # Convert the kwargs from None to MISSING to appease the remaining implementations
         kwargs = {
-            'content': content,
-            'tts': tts,
-            'embed': MISSING if embed is None else embed,
-            'embeds': MISSING if embeds is None else embeds,
-            'file': MISSING if file is None else file,
-            'files': MISSING if files is None else files,
-            'allowed_mentions': MISSING if allowed_mentions is None else allowed_mentions,
-            'view': MISSING if view is None else view,
-            'suppress_embeds': suppress_embeds,
-            'ephemeral': ephemeral,
-            'silent': silent,
+            "content": content,
+            "tts": tts,
+            "embed": MISSING if embed is None else embed,
+            "embeds": MISSING if embeds is None else embeds,
+            "file": MISSING if file is None else file,
+            "files": MISSING if files is None else files,
+            "allowed_mentions": (
+                MISSING if allowed_mentions is None else allowed_mentions
+            ),
+            "view": MISSING if view is None else view,
+            "suppress_embeds": suppress_embeds,
+            "ephemeral": ephemeral,
+            "silent": silent,
         }
 
         if self.interaction.response.is_done():

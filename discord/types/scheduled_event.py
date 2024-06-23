@@ -74,27 +74,30 @@ class ExternalScheduledEvent(_BaseGuildScheduledEvent):
     entity_type: Literal[3]
 
 
-GuildScheduledEvent = Union[StageInstanceScheduledEvent, VoiceScheduledEvent, ExternalScheduledEvent]
+GuildScheduledEvent = Union[
+    StageInstanceScheduledEvent, VoiceScheduledEvent, ExternalScheduledEvent
+]
 
 
 class _WithUserCount(TypedDict):
     user_count: int
 
 
-class _StageInstanceScheduledEventWithUserCount(StageInstanceScheduledEvent, _WithUserCount):
-    ...
+class _StageInstanceScheduledEventWithUserCount(
+    StageInstanceScheduledEvent, _WithUserCount
+): ...
 
 
-class _VoiceScheduledEventWithUserCount(VoiceScheduledEvent, _WithUserCount):
-    ...
+class _VoiceScheduledEventWithUserCount(VoiceScheduledEvent, _WithUserCount): ...
 
 
-class _ExternalScheduledEventWithUserCount(ExternalScheduledEvent, _WithUserCount):
-    ...
+class _ExternalScheduledEventWithUserCount(ExternalScheduledEvent, _WithUserCount): ...
 
 
 GuildScheduledEventWithUserCount = Union[
-    _StageInstanceScheduledEventWithUserCount, _VoiceScheduledEventWithUserCount, _ExternalScheduledEventWithUserCount
+    _StageInstanceScheduledEventWithUserCount,
+    _VoiceScheduledEventWithUserCount,
+    _ExternalScheduledEventWithUserCount,
 ]
 
 

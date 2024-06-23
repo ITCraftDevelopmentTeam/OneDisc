@@ -23,15 +23,26 @@ DEALINGS IN THE SOFTWARE.
 """
 
 from __future__ import annotations
-from typing import ClassVar, Dict, Generic, Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Any, Union
+from typing import (
+    ClassVar,
+    Dict,
+    Generic,
+    Optional,
+    Tuple,
+    Type,
+    TypeVar,
+    TYPE_CHECKING,
+    Any,
+    Union,
+)
 import re
 
 from .item import Item
 from .._types import ClientT
 
-__all__ = ('DynamicItem',)
+__all__ = ("DynamicItem",)
 
-BaseT = TypeVar('BaseT', bound='Item[Any]', covariant=True)
+BaseT = TypeVar("BaseT", bound="Item[Any]", covariant=True)
 
 if TYPE_CHECKING:
     from typing_extensions import TypeVar, Self
@@ -40,12 +51,12 @@ if TYPE_CHECKING:
     from ..enums import ComponentType
     from .view import View
 
-    V = TypeVar('V', bound='View', covariant=True, default=View)
+    V = TypeVar("V", bound="View", covariant=True, default=View)
 else:
-    V = TypeVar('V', bound='View', covariant=True)
+    V = TypeVar("V", bound="View", covariant=True)
 
 
-class DynamicItem(Generic[BaseT], Item['View']):
+class DynamicItem(Generic[BaseT], Item["View"]):
     """Represents an item with a dynamic ``custom_id`` that can be used to store state within
     that ``custom_id``.
 
@@ -84,17 +95,19 @@ class DynamicItem(Generic[BaseT], Item['View']):
     """
 
     __item_repr_attributes__: Tuple[str, ...] = (
-        'item',
-        'template',
+        "item",
+        "template",
     )
 
     __discord_ui_compiled_template__: ClassVar[re.Pattern[str]]
 
     def __init_subclass__(cls, *, template: Union[str, re.Pattern[str]]) -> None:
         super().__init_subclass__()
-        cls.__discord_ui_compiled_template__ = re.compile(template) if isinstance(template, str) else template
+        cls.__discord_ui_compiled_template__ = (
+            re.compile(template) if isinstance(template, str) else template
+        )
         if not isinstance(cls.__discord_ui_compiled_template__, re.Pattern):
-            raise TypeError('template must be a str or a re.Pattern')
+            raise TypeError("template must be a str or a re.Pattern")
 
     def __init__(
         self,
@@ -108,10 +121,12 @@ class DynamicItem(Generic[BaseT], Item['View']):
             self.row = row
 
         if not self.item.is_dispatchable():
-            raise TypeError('item must be dispatchable, e.g. not a URL button')
+            raise TypeError("item must be dispatchable, e.g. not a URL button")
 
         if not self.template.match(self.custom_id):
-            raise ValueError(f'item custom_id {self.custom_id!r} must match the template {self.template.pattern!r}')
+            raise ValueError(
+                f"item custom_id {self.custom_id!r} must match the template {self.template.pattern!r}"
+            )
 
     @property
     def template(self) -> re.Pattern[str]:
@@ -129,7 +144,7 @@ class DynamicItem(Generic[BaseT], Item['View']):
 
     @classmethod
     def from_component(cls: Type[Self], component: Component) -> Self:
-        raise TypeError('Dynamic items cannot be created from components')
+        raise TypeError("Dynamic items cannot be created from components")
 
     @property
     def type(self) -> ComponentType:
@@ -149,10 +164,12 @@ class DynamicItem(Generic[BaseT], Item['View']):
     @custom_id.setter
     def custom_id(self, value: str) -> None:
         if not isinstance(value, str):
-            raise TypeError('custom_id must be a str')
+            raise TypeError("custom_id must be a str")
 
         if not self.template.match(value):
-            raise ValueError(f'custom_id must match the template {self.template.pattern!r}')
+            raise ValueError(
+                f"custom_id must match the template {self.template.pattern!r}"
+            )
 
         self.item.custom_id = value  # type: ignore  # This attribute exists for dispatchable items
         self._provided_custom_id = True
@@ -171,7 +188,11 @@ class DynamicItem(Generic[BaseT], Item['View']):
 
     @classmethod
     async def from_custom_id(
-        cls: Type[Self], interaction: Interaction[ClientT], item: Item[Any], match: re.Match[str], /
+        cls: Type[Self],
+        interaction: Interaction[ClientT],
+        item: Item[Any],
+        match: re.Match[str],
+        /,
     ) -> Self:
         """|coro|
 

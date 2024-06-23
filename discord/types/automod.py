@@ -33,8 +33,7 @@ AutoModerationRuleEventType = Literal[1]
 AutoModerationTriggerPresets = Literal[1, 2, 3]
 
 
-class Empty(TypedDict):
-    ...
+class Empty(TypedDict): ...
 
 
 class _AutoModerationActionMetadataAlert(TypedDict):
@@ -64,7 +63,11 @@ class _AutoModerationActionTimeout(TypedDict):
     metadata: _AutoModerationActionMetadataTimeout
 
 
-AutoModerationAction = Union[_AutoModerationActionBlockMessage, _AutoModerationActionAlert, _AutoModerationActionTimeout]
+AutoModerationAction = Union[
+    _AutoModerationActionBlockMessage,
+    _AutoModerationActionAlert,
+    _AutoModerationActionTimeout,
+]
 
 
 class _AutoModerationTriggerMetadataKeyword(TypedDict):
@@ -116,7 +119,11 @@ class _AutoModerationRuleOther(_BaseAutoModerationRule):
     trigger_type: Literal[2, 3]
 
 
-AutoModerationRule = Union[_AutoModerationRuleKeyword, _AutoModerationRuleKeywordPreset, _AutoModerationRuleOther]
+AutoModerationRule = Union[
+    _AutoModerationRuleKeyword,
+    _AutoModerationRuleKeywordPreset,
+    _AutoModerationRuleOther,
+]
 
 
 class AutoModerationActionExecution(TypedDict):

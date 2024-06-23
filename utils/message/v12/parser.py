@@ -31,12 +31,15 @@ def get_embed_color(color: str | None, is_default: bool = False) -> discord.Colo
             except ValueError:
                 logger.warning(f"无效的颜色：{color}")
                 if not is_default:
-                    return get_embed_color(config["system"].get("embed_default_color"), is_default=True)
+                    return get_embed_color(
+                        config["system"].get("embed_default_color"), is_default=True
+                    )
                 return get_embed_color(None, True)
     elif not is_default:
         return get_embed_color(config["system"].get("embed_default_color"), True)
     else:
         return discord.Color.default()
+
 
 def escape_mentions(text):
     text = text.replace("<", "<\u200B").replace(">", "\u200B>")
@@ -56,8 +59,8 @@ async def parse_message(message: list) -> dict:
                     "data": {
                         "title": segment["data"]["title"],
                         "description": segment["data"]["content"],
-                        "url": f"https://www.google.com/maps/place/{segment['data']['latitude']},{segment['data']['longitude']}"
-                    }
+                        "url": f"https://www.google.com/maps/place/{segment['data']['latitude']},{segment['data']['longitude']}",
+                    },
                 }
             match segment["type"]:
                 case "text":
@@ -74,14 +77,18 @@ async def parse_message(message: list) -> dict:
                         discord.file.File(
                             open(
                                 file.get_file_path(
-                                    await file.get_file_name_by_id(segment["data"]["file_id"])
+                                    await file.get_file_name_by_id(
+                                        segment["data"]["file_id"]
+                                    )
                                 ),
                                 "rb",
                             )
                         )
                     )
                     if segment["type"] == "voice":
-                        logger.warning("OneDisc 暂不支持 voice 消息段，将以 audio 消息段发送")
+                        logger.warning(
+                            "OneDisc 暂不支持 voice 消息段，将以 audio 消息段发送"
+                        )
                 case "discord.emoji":
                     message_data[
                         "content"
@@ -104,21 +111,23 @@ async def parse_message(message: list) -> dict:
                             message_data["reference"] = msg
                             break
                     else:
-                        logger.warning(f"解析消息段 {segment} 时出现错误：找不到指定消息，已忽略")
+                        logger.warning(
+                            f"解析消息段 {segment} 时出现错误：找不到指定消息，已忽略"
+                        )
 
                 case "discord.embed":
                     message_data["embed"] = discord.Embed(
                         title=segment["data"]["title"],
                         description=segment["data"].get("description"),
                         color=get_embed_color(segment["data"].get("color")),
-                        url=segment["data"].get("url")
+                        url=segment["data"].get("url"),
                     )
                     if segment["data"].get("fields"):
                         for field in segment["data"]["fields"]:
                             message_data["embed"].add_field(
                                 name=field.get("name"),
                                 value=field.get("value"),
-                                inline=field.get("inline")
+                                inline=field.get("inline"),
                             )
 
                 case "discord.markdown":
@@ -152,12 +161,9 @@ def parse_string(string: str, msg: discord.Message | None = None) -> list:
             case "text":
                 message.append({"type": "text", "data": {"text": token[1]}})
             case "channel":
-                message.append({
-                    "type": "discord.channel",
-                    "data": {
-                        "channel_id": token[1][2:-1]
-                    }
-                })
+                message.append(
+                    {"type": "discord.channel", "data": {"channel_id": token[1][2:-1]}}
+                )
             case "emoji":
                 message.append(
                     {
@@ -169,47 +175,82 @@ def parse_string(string: str, msg: discord.Message | None = None) -> list:
                     }
                 )
             case "role":
-                message.append({
-                    "type": "discord.role",
-                    "data": {
-                        "id": token[1][3:-1]
-                    }
-                })
+                message.append({"type": "discord.role", "data": {"id": token[1][3:-1]}})
             case "navigation":
-                message.append({
-                    "type": "discord.navigation",
-                    "data": {
-                        "type": token[1][4:-1]
-                    }
-                })
+                message.append(
+                    {"type": "discord.navigation", "data": {"type": token[1][4:-1]}}
+                )
             case "timestamp":
-                message.append({
-                    "type": "discord.timestamp",
-                    "data": {
-                        "time": int(re.search("[0-9]+", token[1]).group(0)),
-                        "style": token[1][-2] if token[1][-2] in ["s", "m", "h", "d"] else "d"
+                message.append(
+                    {
+                        "type": "discord.timestamp",
+                        "data": {
+                            "time": int(re.search("[0-9]+", token[1]).group(0)),
+                            "style": (
+                                token[1][-2]
+                                if token[1][-2] in ["s", "m", "h", "d"]
+                                else "d"
+                            ),
+                        },
                     }
-                })
+                )
     if not msg:
         logger.debug(message)
         return message
     for attachment in msg.attachments:
         for file_type in ["image", "video", "audio"]:
             if attachment.content_type.startswith(file_type):
-                message.append({"type": file_type, "data": {"file_id": file.create_url_cache(attachment.filename, attachment.url)}})
+                message.append(
+                    {
+                        "type": file_type,
+                        "data": {
+                            "file_id": file.create_url_cache(
+                                attachment.filename, attachment.url
+                            )
+                        },
+                    }
+                )
                 break
         else:
-            message.append({"type": "file", "data": {"file_id": file.create_url_cache(attachment.filename, attachment.url)}})
+            message.append(
+                {
+                    "type": "file",
+                    "data": {
+                        "file_id": file.create_url_cache(
+                            attachment.filename, attachment.url
+                        )
+                    },
+                }
+            )
     logger.debug(message)
     return message
+
 
 def parse_dict_message(msg: dict) -> list:
     message = parse_string(msg["content"])
     for attachment in msg["attachments"]:
         for file_type in ["image", "video", "audio"]:
             if attachment["content_type"].startswith(file_type):
-                message.append({"type": file_type, "data": {"file_id": file.create_url_cache(attachment["filename"], attachment["url"])}})
+                message.append(
+                    {
+                        "type": file_type,
+                        "data": {
+                            "file_id": file.create_url_cache(
+                                attachment["filename"], attachment["url"]
+                            )
+                        },
+                    }
+                )
                 break
         else:
-            message.append({"type": "file", "data": {"file_id": file.create_url_cache(attachment["filename"], attachment["url"])}})
+            message.append(
+                {
+                    "type": "file",
+                    "data": {
+                        "file_id": file.create_url_cache(
+                            attachment["filename"], attachment["url"]
+                        )
+                    },
+                }
+            )
     return message

@@ -7,6 +7,7 @@ def set_config(conf: dict) -> None:
     global config
     config = conf
 
+
 def read_local_config() -> dict:
     """
     读取本地配置文件
@@ -15,7 +16,7 @@ def read_local_config() -> dict:
         dict: OneDisc 配置
     """
     # config_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.json')
-    with open("config.json", 'r', encoding='utf-8') as f:
+    with open("config.json", "r", encoding="utf-8") as f:
         config = json.load(f)
     if not config.get("system"):
         config["system"] = config.copy()
@@ -57,15 +58,11 @@ def create_wizard() -> None:
         json.dump(config, f, indent=4)
     print(f"已在 {os.path.abspath('config.json')} 创建配置")
 
+
 BASE_CONFIG = {
     "account_token": "your token here",
-    "system": {
-        "proxy": None,
-        "logger": {
-            "level": 20
-        }
-    },
-    "servers": []
+    "system": {"proxy": None, "logger": {"level": 20}},
+    "servers": [],
 }
 
 
@@ -74,5 +71,6 @@ def create_empty_config() -> None:
     创建一个空配置
     """
     json.dump(BASE_CONFIG, open("config.json", "w", encoding="utf-8"), indent=4)
+
 
 config = get_config()

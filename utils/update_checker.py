@@ -12,12 +12,15 @@ async def get_latest_version() -> dict[str, str]:
         response = await client.get("https://onedisc.itcdt.top/version.json")
     return response.json()
 
+
 def get_version_type() -> Literal["beta", "stable"]:
     return "stable" if version.SUB_VER == 0 else "beta"
+
 
 def parse_version_number(version_number: str) -> tuple[str, int, str]:
     ver = version_number.split(".")
     return ".".join(ver[:3]), int(ver[3]), version_number
+
 
 async def check_update() -> None:
     latest_version = parse_version_number(

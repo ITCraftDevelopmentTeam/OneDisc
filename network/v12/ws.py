@@ -7,11 +7,7 @@ from utils.logger import get_logger
 from network.authentication import verify_access_token
 
 logger = get_logger()
-BASE_CONFIG = {
-    "host": "0.0.0.0",
-    "port": 5700,
-    "access_token": None
-}
+BASE_CONFIG = {"host": "0.0.0.0", "port": 5700, "access_token": None}
 
 
 class WebSocketServer:
@@ -32,25 +28,33 @@ class WebSocketServer:
 
     def check_access_token(self) -> None:
         if self.config["host"] == "0.0.0.0" or self.config["access_token"]:
-            logger.warning(f'[{self.config["host"]}:{self.config["port"]}] 未配置 Access Token !')
-        
+            logger.warning(
+                f'[{self.config["host"]}:{self.config["port"]}] 未配置 Access Token !'
+            )
+
     async def start_server(self) -> None:
         await uvicorn_server.run(self.app, self.config["port"], self.config["host"])
 
     async def handle_ws_connect(self, websocket: fastapi.WebSocket) -> None:
-        if self.config["access_token"] and not verify_access_token(websocket, self.config["access_token"]):
+        if self.config["access_token"] and not verify_access_token(
+            websocket, self.config["access_token"]
+        ):
             await websocket.close(fastapi.status.HTTP_401_UNAUTHORIZED)
             return
         await websocket.accept()
         self.clients.append(websocket)
-        await websocket.send(event.get_event_object(
-            "meta",
-            "connect",
-            "",
-            params={
-                "version": dict(impl="onedisc", version=VERSION, onebot_version="12")
-            }
-        ))
+        await websocket.send(
+            event.get_event_object(
+                "meta",
+                "connect",
+                "",
+                params={
+                    "version": dict(
+                        impl="onedisc", version=VERSION, onebot_version="12"
+                    )
+                },
+            )
+        )
         while True:
             recv_data = await websocket.receive_json()
             logger.debug(recv_data)
@@ -64,4 +68,3 @@ class WebSocketServer:
                 logger.error(f"在 {websocket} 推送事件失败：{e}")
                 await websocket.close()
                 self.clients.remove(websocket)
-        

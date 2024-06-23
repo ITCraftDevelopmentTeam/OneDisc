@@ -94,12 +94,14 @@ class Object(Hashable):
         try:
             id = int(id)
         except ValueError:
-            raise TypeError(f'id parameter must be convertible to int not {id.__class__.__name__}') from None
+            raise TypeError(
+                f"id parameter must be convertible to int not {id.__class__.__name__}"
+            ) from None
         self.id: int = id
         self.type: Type[abc.Snowflake] = type or self.__class__
 
     def __repr__(self) -> str:
-        return f'<Object id={self.id!r} type={self.type!r}>'
+        return f"<Object id={self.id!r} type={self.type!r}>"
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, self.type):
