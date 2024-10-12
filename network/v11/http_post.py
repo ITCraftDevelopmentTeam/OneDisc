@@ -1,3 +1,4 @@
+import aiohttp
 from utils.logger import get_logger
 import asyncio
 import utils.event as event
@@ -30,7 +31,21 @@ class HttpPost:
         asyncio.create_task(
             self.push_event(event.get_event_object("meta", "lifecycle", "disable"))
         )
+    async def post_request(self,url, data, headers):
+        """
+        尝试修复post bug
 
+        args:
+            url:目标url
+            data:json data
+            headers:头
+        """
+        try:
+            async with aiohttp.ClientSession() as session:
+                async with session.post(url, json=data, headers=headers) as response:
+                    return response.status,response
+        except aiohttp.ClientError as e:
+            print(f"An error occurred: {e}")
     async def push_event(self, _event: dict) -> None:
         """
         推送事件
@@ -40,24 +55,25 @@ class HttpPost:
         """
         event = await translator.translate_event(_event)
         async with httpx.AsyncClient(timeout=self.config["timeout"]) as client:
-            response = await client.post(
+            
+            response_code,response = await self.post_request(
                 self.config["url"],
-                content=(content := json.dumps(event)),
-                headers=self.get_headers(content),
+                json.dumps(event),
+                self.get_headers(json.dumps(event))
             )
-        if response.status_code == 204:
+        if response_code == 204:
             return
-        elif response.status_code == 200:
+        elif response_code == 200:
             content = response.json()
             logger.debug(f"收到快速操作请求：{content}")
             await quick_operation.handle_quick_operation(content, event)
         else:
             logger.warning(f"上报事件时发生错误：{response.status_code}")
-
+        
     def get_headers(self, content: str) -> dict:
         headers = {
             "Content-Type": "application/json",
-            "X-Self-ID": client.user.id,  # type: ignore
+            "X-Self-ID": str(client.user.id),  # type: ignore
         }
         if self.config["secret"]:
             headers["X-Signature"] = (
