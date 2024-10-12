@@ -1,1 +1,0 @@
-import{_ as t,c as e,o as d,a1 as o}from"./chunks/framework.B7NcDNB9.js";const _=JSON.parse('{"title":"标准偏差细节","description":"","frontmatter":{},"headers":[],"relativePath":"differences.md","filePath":"differences.md"}'),a={name:"differences.md"},r=o("",30),c=[r];function i(h,n,s,l,b,m){return d(),e("div",null,c)}const f=t(a,[["render",i]]);export{_ as __pageData,f as default};
