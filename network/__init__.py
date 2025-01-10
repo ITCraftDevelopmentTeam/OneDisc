@@ -1,13 +1,3 @@
-# from network.v12.http import HTTPServer
-# import asyncio
-# from network.v12.http_webhook import HttpWebhookConnect
-# from network.v11.http import HTTPServer4OB11
-# from network.v11.http_post import HTTPPost4OB11
-# from network.v11.ws import WebSocket4OB11
-# from network.v11.ws_reverse import init_websocket_reverse_connection
-# from network.v12.ws import WebSocketServer
-# from network.v12.ws_reverse import WebSocketClient
-
 from typing import Callable, Coroutine, Union
 import network.v12.http
 import network.v12.http_webhook
@@ -56,7 +46,7 @@ SUPPORTED_CONNECT_TYPES: dict[int, dict[str, Callable[[dict], Coroutine]]] = {
             network.v12.ws.WebSocketServer(config), "start_server"
         ),
         "ws-reverse": lambda config: start_connection(
-            network.v12.ws_reverse.WebSocketClient(config), "connect"
+            network.v12.ws_reverse.WebSocketClient(config), "reconnect"
         ),
     },
     11: {
