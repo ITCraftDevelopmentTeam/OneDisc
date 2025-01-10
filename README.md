@@ -17,14 +17,8 @@ Discord 平台的 OneBot 实现
 [文档](https://onedisc.itcdt.top) · [下载](https://onedisc.itcdt.top/download.html) · [快速开始](https://onedisc.itcdt.top/quickstart.html) · [差异](https://onedisc.itcdt.top/differences.html)
 </div>
 
-> [!WARNING]
-> 本项目含有部分较为混乱的代码，在阅读时请注意控制您的血压
-
 > [!IMPORTANT]
 > 在使用之前，我们建议您阅读: [差异：OneBot V12](https://onedisc.itcdt.top/differences.html) 与 [差异：OneBot V11](https://onedisc.itcdt.top/diff-v11.html)
-
-> [!NOTE]
-> OneDisc 的稳定版暂时没有 MacOS 版本[^2]，我们建议 MacOS 用户使用测试版
 
 ## 兼容性
 
@@ -50,7 +44,4 @@ OneDisc 在 Discord 上实现了 OneBot V11/V12 标准，并做了一些拓展
 
 ## 性能
 
-内存占用约 70MB[^1]，稳定运行无报错
-
-[^1]: 就目前分析表明，这似乎是 `discord_event.py` 造成的，但是我们没有分析出具体原因
-[^2]: 我们尝试提供 MacOS 版本，但是 [Actions](https://github.com/ITCraftDevelopmentTeam/OneDisc/actions/workflows/build-release.yml) 报错了
+内存占用约 70MB，稳定运行无报错
