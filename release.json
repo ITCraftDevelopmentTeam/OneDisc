@@ -22,6 +22,7 @@
     "events_url": "https://api.github.com/users/This-is-XiaoDeng/events{/privacy}",
     "received_events_url": "https://api.github.com/users/This-is-XiaoDeng/received_events",
     "type": "User",
+    "user_view_type": "public",
     "site_admin": false
   },
   "node_id": "RE_kwDOKZjQPs4KtTY3",
@@ -57,6 +58,7 @@
         "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
         "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
         "type": "Bot",
+        "user_view_type": "public",
         "site_admin": false
       },
       "content_type": "application/octet-stream",
@@ -91,12 +93,13 @@
         "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
         "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
         "type": "Bot",
+        "user_view_type": "public",
         "site_admin": false
       },
       "content_type": "application/octet-stream",
       "state": "uploaded",
       "size": 44999328,
-      "download_count": 0,
+      "download_count": 3,
       "created_at": "2024-10-12T15:57:14Z",
       "updated_at": "2024-10-12T15:57:16Z",
       "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.8/OneDisc.for.ubuntu-latest-x64.zip"
@@ -125,6 +128,7 @@
         "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
         "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
         "type": "Bot",
+        "user_view_type": "public",
         "site_admin": false
       },
       "content_type": "application/octet-stream",
@@ -159,6 +163,7 @@
         "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
         "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
         "type": "Bot",
+        "user_view_type": "public",
         "site_admin": false
       },
       "content_type": "application/octet-stream",
@@ -193,6 +198,7 @@
         "events_url": "https://api.github.com/users/github-actions%5Bbot%5D/events{/privacy}",
         "received_events_url": "https://api.github.com/users/github-actions%5Bbot%5D/received_events",
         "type": "Bot",
+        "user_view_type": "public",
         "site_admin": false
       },
       "content_type": "application/octet-stream",
@@ -206,6 +212,5 @@
   ],
   "tarball_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/tarball/v0.2.8",
   "zipball_url": "https://api.github.com/repos/ITCraftDevelopmentTeam/OneDisc/zipball/v0.2.8",
-  "body": "## What's Changed\r\n* Onebot v11 协议问题：AttributeError: 'int' object has no attribute 'encode… by @1qa2ws3ed4rf1 in https://github.com/ITCraftDevelopmentTeam/OneDisc/pull/39\r\n\r\n## New Contributors\r\n* @1qa2ws3ed4rf1 made their first contribution in https://github.com/ITCraftDevelopmentTeam/OneDisc/pull/39\r\n\r\n**Full Changelog**: https://github.com/ITCraftDevelopmentTeam/OneDisc/compare/v0.2.7...v0.2.8",
-  "mentions_count": 1
+  "body": "## What's Changed\r\n* Onebot v11 协议问题：AttributeError: 'int' object has no attribute 'encode… by @1qa2ws3ed4rf1 in https://github.com/ITCraftDevelopmentTeam/OneDisc/pull/39\r\n\r\n## New Contributors\r\n* @1qa2ws3ed4rf1 made their first contribution in https://github.com/ITCraftDevelopmentTeam/OneDisc/pull/39\r\n\r\n**Full Changelog**: https://github.com/ITCraftDevelopmentTeam/OneDisc/compare/v0.2.7...v0.2.8"
 }
