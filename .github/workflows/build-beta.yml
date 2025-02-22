@@ -49,10 +49,10 @@ jobs:
     steps:
       
       - name: "Checkout"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: "Setup Python"
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: 3.11  # 保证兼容性
 
@@ -95,7 +95,7 @@ jobs:
   
 
       - name: "Upload build"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
           path: build/onedisc.exe
@@ -110,10 +110,10 @@ jobs:
     steps:
 
       - name: "Checkout"
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: "Setup Python"
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v5
         with:
           python-version: 3.11  # 保证兼容性
 
@@ -147,7 +147,7 @@ jobs:
           mv build/main.bin build/onedisc
   
       - name: "Upload build"
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
           path: build/onedisc
