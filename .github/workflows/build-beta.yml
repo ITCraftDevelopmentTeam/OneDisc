@@ -70,7 +70,7 @@ jobs:
           SUB_VER: ${{ needs.get-version-number.outputs.SUB_VERSION }}
           
       - name: "Build executeable"
-        uses: Nuitka/Nuitka-Action@v1.0
+        uses: Nuitka/Nuitka-Action@v1.2
         with:
           standalone: true
           onefile: true
@@ -130,7 +130,7 @@ jobs:
           SUB_VER: ${{ needs.get-version-number.outputs.SUB_VERSION }}
       
       - name: "Build executeable"
-        uses: Nuitka/Nuitka-Action@v1.0
+        uses: Nuitka/Nuitka-Action@v1.2
         with:
           standalone: true
           onefile: true
