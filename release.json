@@ -30,8 +30,10 @@
   "target_commitish": "master",
   "name": "v0.2.10",
   "draft": false,
+  "immutable": false,
   "prerelease": false,
   "created_at": "2025-05-31T04:26:03Z",
+  "updated_at": "2025-05-31T06:36:52Z",
   "published_at": "2025-05-31T06:09:46Z",
   "assets": [
     {
@@ -65,7 +67,7 @@
       "state": "uploaded",
       "size": 28518400,
       "digest": "sha256:dc881487dcadb3e3ba1c83bd76c8ebcfce46c732acb8dccc6733ddb4a6a9ad0d",
-      "download_count": 0,
+      "download_count": 1,
       "created_at": "2025-05-31T06:36:47Z",
       "updated_at": "2025-05-31T06:36:48Z",
       "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.10/OneDisc.for.windows-latest-arm64.exe"
@@ -101,7 +103,7 @@
       "state": "uploaded",
       "size": 28518400,
       "digest": "sha256:53b48b5c313d24bf40000399a73c6ca5c5452c39ef328e2d88e8dca5546d40b6",
-      "download_count": 0,
+      "download_count": 15,
       "created_at": "2025-05-31T06:36:49Z",
       "updated_at": "2025-05-31T06:36:50Z",
       "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.10/OneDisc.for.windows-latest-x64.exe"
@@ -137,7 +139,7 @@
       "state": "uploaded",
       "size": 28518400,
       "digest": "sha256:dee18c3aaf5b46591f2c0ee4f3bd51a0a317b81b4f6c784db5b96a2300f384f2",
-      "download_count": 0,
+      "download_count": 2,
       "created_at": "2025-05-31T06:36:51Z",
       "updated_at": "2025-05-31T06:36:52Z",
       "browser_download_url": "https://github.com/ITCraftDevelopmentTeam/OneDisc/releases/download/v0.2.10/OneDisc.for.windows-latest-x86.exe"
