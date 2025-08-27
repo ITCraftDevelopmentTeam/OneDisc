@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-httpx
-aiohttp>=3.7.4,<4
-imgkit
-websockets
-sqlalchemy
-aiosqlite

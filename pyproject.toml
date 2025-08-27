@@ -1,0 +1,33 @@
+[project]
+name = "onedisc"
+version = "1.0.0"
+description = "OneBot implement for Discord"
+authors = [
+    {name = "XiaoDeng3386",email = "1744793737@qq.com"}
+]
+license = {text = "GPL-3"}
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "discord-py (>=2.6.2,<3.0.0)",
+    "fastapi (>=0.116.1,<0.117.0)",
+    "uvicorn (>=0.35.0,<0.36.0)",
+    "imgkit (>=1.2.3,<2.0.0)",
+    "websockets (>=15.0.1,<16.0.0)",
+    "aiosqlite (>=0.21.0,<0.22.0)",
+    "sqlalchemy (>=2.0.43,<3.0.0)",
+    "httpx (>=0.28.1,<0.29.0)",
+    "toml (>=0.10.2,<0.11.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+package-mode = false
+
+[tool.poetry.group.dev.dependencies]
+nuitka = "^2.7.13"
+

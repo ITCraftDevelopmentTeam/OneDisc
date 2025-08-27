@@ -8,7 +8,7 @@ from version import VERSION, SUB_VER
 init_logger(config["system"].get("logger", {"level": 20}))
 logger = get_logger()
 logger.info("OneDisc (By: IT Craft Development Team)")
-logger.info(f"当前版本：{VERSION}.{SUB_VER}")
+logger.info(f"当前版本：{VERSION}")
 
 # 导入插件
 import utils.event.discord_event

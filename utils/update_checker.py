@@ -8,7 +8,7 @@ logger = get_logger()
 
 
 async def get_latest_version() -> dict[str, str]:
-    async with httpx.AsyncClient(proxies=config["system"].get("proxy")) as client:
+    async with httpx.AsyncClient(proxy=config["system"].get("proxy")) as client:
         response = await client.get("https://onedisc.itcdt.top/version.json")
     return response.json()
 
