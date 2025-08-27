@@ -36,7 +36,8 @@ jobs:
             --output-dir=build\
             --lto=yes\
             --windows-icon-from-ico=icon.ico\
-            --enable-console
+            --enable-console\
+            --file-description='OneBot Implementation for Discord'\
             main.py
         
 
