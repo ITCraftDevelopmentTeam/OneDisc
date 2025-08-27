@@ -36,7 +36,7 @@ jobs:
             --lto=yes\
             --windows-icon-from-ico=icon.ico\
             --enable-console
-            --file-description="OneBot Implementation for Discord"\
+            --file-description="OneBot\ Implementation\ for\ Discord"\
             main.py
         
 
