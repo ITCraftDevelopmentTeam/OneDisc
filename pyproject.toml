@@ -30,4 +30,5 @@ package-mode = false
 
 [tool.poetry.group.dev.dependencies]
 nuitka = "^2.7.13"
+imageio = "^2.37.0"
 

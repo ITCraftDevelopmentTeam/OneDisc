@@ -25,24 +25,20 @@ jobs:
       - name: Setup Poetry
         uses: snok/install-poetry@v1.4.1
 
-      - name: "Install requirements"
+      - name: "Install requirements and build"
+        shell: bash
         run: |
-          poetry install
-          
-      - name: "Build executeable"
-        uses: Nuitka/Nuitka-Action@v1.0
-        with:
-          standalone: true
-          onefile: true
-          follow-imports: true
-          show-modules: true
-          output-dir: build
-          lto: yes
-          script-name: main.py
-          windows-icon-from-ico: icon.ico
-          enable-console: true
-          file-description: "OneBot Implementation for Discord"
-          
+          poetry install --all-groups
+          poetry run nuitka \
+            --standalone\
+            --follow-imports\
+            --output-dir=build\
+            --lto=yes\
+            --windows-icon-from-ico=icon.ico\
+            --enable-console
+            --file-description="OneBot Implementation for Discord"\
+            main.py
+        
 
       - name: "Rename application"
         run: |
@@ -74,9 +70,17 @@ jobs:
       - name: Setup Poetry
         uses: snok/install-poetry@v1.4.1
 
-      - name: "Install requirements"
+      - name: "Install requirements and build"
         run: |
-          poetry install
+          poetry install --all-groups
+          poetry run nuitka --standalone\
+            --onefile\
+            --follow-imports\
+            --show-modules\
+            --macos-app-icon=icon.ico\
+            --output-dir=build
+            --lto=yes\
+            main.py
     
       
       - name: "Build executeable"
