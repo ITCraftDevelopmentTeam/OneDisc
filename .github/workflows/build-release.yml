@@ -54,35 +54,25 @@ jobs:
       - name: Setup Poetry
         uses: snok/install-poetry@v1.4.1
 
-      - name: "Install requirements"
+      - name: "Install requirements and build"
+        shell: bash
         run: |
-          poetry install
-      
-      - name: "Write version number"
-        run: |
-          Add-Content -Path "version.py" -Value "SUB_VER = $env:SUB_VER"
-          Get-Content version.py
-        env:
-          SUB_VER: ${{ needs.get-version-number.outputs.SUB_VERSION }}
+          poetry install --all-groups
+          poetry run nuitka \
+            --standalone\
+            --follow-imports\
+            --output-dir=build\
+            --lto=yes\
+            --windows-icon-from-ico=icon.ico\
+            --file-version=${{ needs.get-version-number.outputs.VERSION }}.${{ needs.get-version-number.outputs.SUB_VERSION }}\
+            --product-version=${{ needs.get-version-number.outputs.VERSION }}.${{ needs.get-version-number.outputs.SUB_VERSION }}\
+            --product-name=OneDisc\
+            --enable-console=true\
+            --file-description='OneBot Implementation for Discord'\
+            --company-name='IT Craft Development Team'\
+            --copyright='Copyright (c) 2025 IT Craft Development Team'\
+            main.py
           
-      - name: "Build executeable"
-        uses: Nuitka/Nuitka-Action@v1.0
-        with:
-          standalone: true
-          onefile: true
-          follow-imports: true
-          show-modules: true
-          output-dir: build
-          lto: yes
-          script-name: main.py
-          windows-icon-from-ico: icon.ico
-          file-version: ${{ needs.get-version-number.outputs.VERSION }}.${{ needs.get-version-number.outputs.SUB_VERSION }}
-          product-version: ${{ needs.get-version-number.outputs.VERSION }}.${{ needs.get-version-number.outputs.SUB_VERSION }}
-          product-name: OneDisc
-          enable-console: true
-          file-description: "OneBot Implementation for Discord"
-          company-name: "IT Craft Development Team"
-          copyright: "Copyright (c) 2023 IT Craft Development Team"
           
 
       - name: "Rename application"
@@ -116,22 +106,17 @@ jobs:
       - name: Setup Poetry
         uses: snok/install-poetry@v1.4.1
 
-      - name: "Install requirements"
+      - name: "Install requirements and build"
         run: |
-          poetry install
-      
-      - name: "Build executeable"
-        uses: Nuitka/Nuitka-Action@v1.0
-        with:
-          standalone: true
-          onefile: true
-          follow-imports: true
-          show-modules: true
-          macos-app-icon: icon.ico
-          macos-app-version: ${{ needs.get-version-number.outputs.VERSION }}
-          output-dir: build
-          lto: yes
-          script-name: main.py
+          poetry install --all-groups
+          poetry run nuitka --standalone\
+            --onefile\
+            --follow-imports\
+            --show-modules\
+            --macos-app-icon=icon.ico\
+            --output-dir=build\
+            --lto=yes\
+            main.py
 
       - name: "Rename application"
         run: |
