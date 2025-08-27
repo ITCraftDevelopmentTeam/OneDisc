@@ -31,6 +31,7 @@ jobs:
           poetry install --all-groups
           poetry run nuitka \
             --standalone\
+            --onefile\
             --follow-imports\
             --output-dir=build\
             --lto=yes\
