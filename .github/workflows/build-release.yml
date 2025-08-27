@@ -69,7 +69,6 @@ jobs:
             --product-version=${{ needs.get-version-number.outputs.VERSION }}.${{ needs.get-version-number.outputs.SUB_VERSION }}\
             --product-name=OneDisc\
             --enable-console=true\
-            --file-description='OneBot Implementation for Discord'\
             --company-name='IT Craft Development Team'\
             --copyright='Copyright (c) 2025 IT Craft Development Team'\
             main.py
