@@ -78,7 +78,7 @@ jobs:
             --follow-imports\
             --show-modules\
             --macos-app-icon=icon.ico\
-            --output-dir=build
+            --output-dir=build\
             --lto=yes\
             main.py
     
