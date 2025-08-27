@@ -7,11 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-
-
-
   build-windows:
-    needs: get-version-number
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -60,7 +56,6 @@ jobs:
           path: build/onedisc.exe
 
   build:
-    needs: get-version-number
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
