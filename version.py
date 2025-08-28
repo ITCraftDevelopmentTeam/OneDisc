@@ -14,6 +14,8 @@ def get_version_from_pyproject() -> str:
     else:
         return "Failed to read version number."
 
-
-VERSION = get_version_from_pyproject()
+try:
+    VERSION = get_version_from_pyproject()
+except Exception:
+    VERSION = "FAILED TO GET"
 SUB_VER = 0
