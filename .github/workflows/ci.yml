@@ -81,19 +81,7 @@ jobs:
             --output-dir=build\
             --lto=yes\
             main.py
-    
-      
-      - name: "Build executeable"
-        uses: Nuitka/Nuitka-Action@v1.0
-        with:
-          standalone: true
-          onefile: true
-          follow-imports: true
-          show-modules: true
-          macos-app-icon: icon.ico
-          output-dir: build
-          lto: yes
-          script-name: main.py
+  
           
       - name: "Rename application"
         run: |
@@ -104,3 +92,52 @@ jobs:
         with:
           name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
           path: build/onedisc
+
+  get-version-number:
+    runs-on: ubuntu-latest    
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v5
+        with: 
+          fetch-depth: 0
+      - name: "Get version number"
+        id: get_version
+        run: |
+          export VERSION=$(python -c 'print(__import__("version").VERSION)')
+          export SUB_VER=$(git rev-list --no-merges --count $(git describe --tags --abbrev=0)..HEAD)
+          echo "Currect Version Number: $VERSION.$SUB_VER"
+          echo "SUB_VER = $SUB_VER" >> version.py
+          # Create an environment file
+          echo "VERSION=${VERSION}.${SUB_VER}" >> $GITHUB_OUTPUT
+          echo "SUB_VERSION=${SUB_VER}" >> $GITHUB_OUTPUT
+    outputs:
+      VERSION: ${{ steps.get_version.outputs.VERSION }}
+      SUB_VERSION: ${{ steps.get_version.outputs.SUB_VERSION }}
+
+
+  deloy:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: "Checkout"
+        uses: actions/checkout@v5
+      
+      - name: "Set up Node.js"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '21'
+          registry-url: 'https://registry.npmjs.org/'
+      
+      - name: Install requirements
+        run: |
+          npm install
+      
+      - name: Build Documents
+        run: |
+          npm run docs:build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/.vitepress/dist/
