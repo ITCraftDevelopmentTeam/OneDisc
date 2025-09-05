@@ -8,7 +8,6 @@ import discord
 from discord import Object
 import asyncio
 from ..db import commit_message, init_database
-from utils.update_checker import check_update
 from actions.v12.basic import get_status
 from actions.v11.basic import get_role
 
@@ -30,8 +29,6 @@ async def on_ready() -> None:
     )
     logger.info(config["system"].get("started_text", "OneDisc 已成功启动"))
     event.new_event("meta", "status_update", status=(await get_status())["data"])
-    if config["system"].get("check_update", True):
-        asyncio.create_task(check_update())
     await init_database()
 
 
