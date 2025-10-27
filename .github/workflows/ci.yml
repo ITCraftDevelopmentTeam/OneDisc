@@ -46,7 +46,7 @@ jobs:
   
 
       - name: "Upload build"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
           path: build/onedisc.exe
@@ -88,7 +88,7 @@ jobs:
           mv build/main.bin build/onedisc
   
       - name: "Upload build"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
           path: build/onedisc
