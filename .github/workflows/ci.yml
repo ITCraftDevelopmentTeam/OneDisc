@@ -18,9 +18,16 @@ jobs:
         with: 
           fetch-depth: 0
       
+      
+      - name: "Setup Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      
       - name: "Get version number"
         id: get_version
         run: |
+          pip install toml
           # 获取基础版本号
           BASE_VERSION=$(python -c "import version; print(version.VERSION)")
           echo "Base version: $BASE_VERSION"
