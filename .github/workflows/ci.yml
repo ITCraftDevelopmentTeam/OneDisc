@@ -7,94 +7,11 @@ on:
   workflow_dispatch:
 
 jobs:
-  build-windows:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [windows-latest]
-        arch: [x86, x64, arm64]
-    steps:
-      
-      - name: "Checkout"
-        uses: actions/checkout@v5
-      
-      - name: "Setup Python"
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.12
-      - name: Setup Poetry
-        uses: snok/install-poetry@v1.4.1
-
-      - name: "Install requirements and build"
-        shell: bash
-        run: |
-          poetry install --all-groups
-          poetry run nuitka \
-            --standalone\
-            --onefile\
-            --follow-imports\
-            --output-dir=build\
-            --lto=yes\
-            --windows-icon-from-ico=icon.ico\
-            --enable-console\
-            main.py
-        
-
-      - name: "Rename application"
-        run: |
-          Move-Item -Path .\build\main.exe -Destination .\build\onedisc.exe
-  
-
-      - name: "Upload build"
-        uses: actions/upload-artifact@v4
-        with:
-          name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
-          path: build/onedisc.exe
-
-  build:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-22.04, macos-latest]
-        arch: [x86, x64, arm64]
-    steps:
-
-      - name: "Checkout"
-        uses: actions/checkout@v5
-      
-      - name: "Setup Python"
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.12
-
-      - name: Setup Poetry
-        uses: snok/install-poetry@v1.4.1
-
-      - name: "Install requirements and build"
-        run: |
-          poetry install --all-groups
-          poetry run nuitka --standalone\
-            --onefile\
-            --follow-imports\
-            --show-modules\
-            --macos-app-icon=icon.ico\
-            --output-dir=build\
-            --lto=yes\
-            main.py
-  
-          
-      - name: "Rename application"
-        run: |
-          mv build/main.bin build/onedisc
-  
-      - name: "Upload build"
-        uses: actions/upload-artifact@v4
-        with:
-          name: OneDisc ${{ needs.get-version-number.outputs.VERSION }} for ${{ matrix.os }}-${{ matrix.arch }}
-          path: build/onedisc
-
   get-version-number:
     runs-on: ubuntu-latest    
+    outputs:
+      VERSION: ${{ steps.get_version.outputs.VERSION }}
+      SUB_VERSION: ${{ steps.get_version.outputs.SUB_VERSION }}
     steps:
       - name: "Checkout"
         uses: actions/checkout@v5
@@ -103,22 +20,145 @@ jobs:
       - name: "Get version number"
         id: get_version
         run: |
-          export VERSION=$(python -c 'print(__import__("version").VERSION)')
+          # 创建临时版本文件以避免修改原文件
+          python -c "
+          import re
+          with open('version.py', 'r') as f:
+              content = f.read()
+          version_match = re.search(r'VERSION\s*=\s*[\'"]([^\'"]*)[\'"]', content)
+          if version_match:
+              VERSION = version_match.group(1)
+          else:
+              VERSION = '1.0.0'
+          print(f'Current Version: {VERSION}')
+          "
+          export VERSION=$(python -c "import re; with open('version.py', 'r') as f: content = f.read(); version_match = re.search(r'VERSION\s*=\s*[\'"]([^\'"]*)[\'"]', content); print(version_match.group(1) if version_match else '1.0.0')")
           export SUB_VER=$(git rev-list --no-merges --count $(git describe --tags --abbrev=0)..HEAD)
-          echo "Currect Version Number: $VERSION.$SUB_VER"
-          echo "SUB_VER = $SUB_VER" >> version.py
-          # Create an environment file
-          echo "VERSION=${VERSION}.${SUB_VER}" >> $GITHUB_OUTPUT
-          echo "SUB_VERSION=${SUB_VER}" >> $GITHUB_OUTPUT
-    outputs:
-      VERSION: ${{ steps.get_version.outputs.VERSION }}
-      SUB_VERSION: ${{ steps.get_version.outputs.SUB_VERSION }}
+          echo "Current Version Number: $VERSION.$SUB_VER"
+          echo "VERSION=$VERSION.$SUB_VER" >> $GITHUB_OUTPUT
+          echo "SUB_VERSION=$SUB_VER" >> $GITHUB_OUTPUT
 
+  build-windows:
+    needs: get-version-number
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [windows-latest]
+        arch: [x86, x64, arm64]
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v5
+      
+      - name: "Setup Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+      
+      - name: Setup Poetry
+        uses: snok/install-poetry@v1.4.1
 
-  deloy:
+      - name: "Install requirements and build"
+        shell: bash
+        run: |
+          poetry install --all-groups
+          poetry run nuitka \
+            --standalone \
+            --onefile \
+            --follow-imports \
+            --include-package=websockets \
+            --include-package=aiosqlite \
+            --include-package=sqlalchemy \
+            --include-package=fastapi \
+            --include-package=uvicorn \
+            --output-dir=build \
+            --lto=yes \
+            --windows-icon-from-ico=icon.ico \
+            --enable-console \
+            --assume-yes-for-downloads \
+            main.py
+
+      - name: "Rename application"
+        shell: pwsh
+        run: |
+          if (Test-Path "build\main.exe") {
+              Move-Item -Path "build\main.exe" -Destination "build\onedisc-${{ matrix.arch }}.exe"
+          } else {
+              Write-Host "Error: main.exe not found in build directory"
+              Get-ChildItem -Path "build" -Recurse
+              exit 1
+          }
+
+      - name: "Upload build"
+        uses: actions/upload-artifact@v4
+        with:
+          name: OneDisc-${{ needs.get-version-number.outputs.VERSION }}-windows-${{ matrix.arch }}
+          path: build/onedisc-${{ matrix.arch }}.exe
+
+  build-linux-macos:
+    needs: get-version-number
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            platform: linux
+          - os: macos-latest
+            platform: macos
+        arch: [x64, arm64]
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v5
+      
+      - name: "Setup Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.12
+
+      - name: Setup Poetry
+        uses: snok/install-poetry@v1.4.1
+
+      - name: "Install system dependencies (Linux)"
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsqlite3-dev
+
+      - name: "Install requirements and build"
+        run: |
+          poetry install --all-groups
+          poetry run nuitka --standalone \
+            --onefile \
+            --follow-imports \
+            --include-package=websockets \
+            --include-package=aiosqlite \
+            --include-package=sqlalchemy \
+            --include-package=fastapi \
+            --include-package=uvicorn \
+            --output-dir=build \
+            --lto=yes \
+            --assume-yes-for-downloads \
+            main.py
+          
+      - name: "Rename application"
+        run: |
+          if [ -f "build/main.bin" ]; then
+            mv build/main.bin build/onedisc-${{ matrix.platform }}-${{ matrix.arch }}
+          else
+            echo "Error: main.bin not found in build directory"
+            ls -la build/
+            exit 1
+          fi
+
+      - name: "Upload build"
+        uses: actions/upload-artifact@v4
+        with:
+          name: OneDisc-${{ needs.get-version-number.outputs.VERSION }}-${{ matrix.platform }}-${{ matrix.arch }}
+          path: build/onedisc-${{ matrix.platform }}-${{ matrix.arch }}
+
+  deploy:
+    needs: get-version-number
     runs-on: ubuntu-latest
     steps:
-
       - name: "Checkout"
         uses: actions/checkout@v5
       
