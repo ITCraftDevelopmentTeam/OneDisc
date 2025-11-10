@@ -98,7 +98,7 @@ jobs:
           }
 
       - name: "Upload build"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: OneDisc-${{ needs.get-version-number.outputs.VERSION }}-windows-${{ matrix.arch }}
           path: build/onedisc-${{ matrix.arch }}.exe
@@ -159,7 +159,7 @@ jobs:
           fi
 
       - name: "Upload build"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: OneDisc-${{ needs.get-version-number.outputs.VERSION }}-${{ matrix.platform }}-${{ matrix.arch }}
           path: build/onedisc-${{ matrix.platform }}-${{ matrix.arch }}
