@@ -81,11 +81,14 @@ jobs:
           poetry run python -m nuitka \
             --standalone \
             --onefile \
-            --follow-imports \
             --include-package=discord \
             --include-package=websockets \
             --include-package=aiosqlite \
-            --include-package=sqlalchemy \
+            --include-package=sqlalchemy.engine \
+            --include-package=sqlalchemy.sql \
+            --include-package=sqlalchemy.orm \
+            --include-package=sqlalchemy.ext.asyncio \
+            --include-package=sqlalchemy.dialects.sqlite \
             --include-package=fastapi \
             --include-package=uvicorn \
             --include-package=httpx \
@@ -93,13 +96,24 @@ jobs:
             --include-package=starlette \
             --include-package=pydantic \
             --include-package=anyio \
-            --include-package=aiohttp \
+            --nofollow-import-to=sqlalchemy.dialects.postgresql \
+            --nofollow-import-to=sqlalchemy.dialects.mysql \
+            --nofollow-import-to=sqlalchemy.dialects.oracle \
+            --nofollow-import-to=sqlalchemy.dialects.mssql \
+            --nofollow-import-to=sqlalchemy.dialects.firebird \
+            --nofollow-import-to=sqlalchemy.dialects.sybase \
+            --nofollow-import-to=aiohttp.test_utils \
+            --nofollow-import-to=unittest \
+            --nofollow-import-to=test \
+            --nofollow-import-to=tests \
+            --nofollow-import-to=pytest \
             --include-data-files=pyproject.toml=pyproject.toml \
             --output-dir=build \
             --output-filename=onedisc.exe \
-            --lto=yes \
+            --lto=no \
+            --jobs=1 \
             --windows-icon-from-ico=icon.ico \
-            --enable-console \
+            --windows-console-mode=force \
             --assume-yes-for-downloads \
             main.py
 
@@ -167,11 +181,14 @@ jobs:
           poetry run python -m nuitka \
             --standalone \
             --onefile \
-            --follow-imports \
             --include-package=discord \
             --include-package=websockets \
             --include-package=aiosqlite \
-            --include-package=sqlalchemy \
+            --include-package=sqlalchemy.engine \
+            --include-package=sqlalchemy.sql \
+            --include-package=sqlalchemy.orm \
+            --include-package=sqlalchemy.ext.asyncio \
+            --include-package=sqlalchemy.dialects.sqlite \
             --include-package=fastapi \
             --include-package=uvicorn \
             --include-package=httpx \
@@ -179,11 +196,21 @@ jobs:
             --include-package=starlette \
             --include-package=pydantic \
             --include-package=anyio \
-            --include-package=aiohttp \
+            --nofollow-import-to=sqlalchemy.dialects.postgresql \
+            --nofollow-import-to=sqlalchemy.dialects.mysql \
+            --nofollow-import-to=sqlalchemy.dialects.oracle \
+            --nofollow-import-to=sqlalchemy.dialects.mssql \
+            --nofollow-import-to=sqlalchemy.dialects.firebird \
+            --nofollow-import-to=sqlalchemy.dialects.sybase \
+            --nofollow-import-to=aiohttp.test_utils \
+            --nofollow-import-to=unittest \
+            --nofollow-import-to=test \
+            --nofollow-import-to=tests \
+            --nofollow-import-to=pytest \
             --include-data-files=pyproject.toml=pyproject.toml \
             --output-dir=build \
             --output-filename=onedisc \
-            --lto=yes \
+            --lto=no \
             --assume-yes-for-downloads \
             --static-libpython=no \
             main.py
@@ -250,11 +277,14 @@ jobs:
           poetry run python -m nuitka \
             --standalone \
             --onefile \
-            --follow-imports \
             --include-package=discord \
             --include-package=websockets \
             --include-package=aiosqlite \
-            --include-package=sqlalchemy \
+            --include-package=sqlalchemy.engine \
+            --include-package=sqlalchemy.sql \
+            --include-package=sqlalchemy.orm \
+            --include-package=sqlalchemy.ext.asyncio \
+            --include-package=sqlalchemy.dialects.sqlite \
             --include-package=fastapi \
             --include-package=uvicorn \
             --include-package=httpx \
@@ -262,11 +292,21 @@ jobs:
             --include-package=starlette \
             --include-package=pydantic \
             --include-package=anyio \
-            --include-package=aiohttp \
+            --nofollow-import-to=sqlalchemy.dialects.postgresql \
+            --nofollow-import-to=sqlalchemy.dialects.mysql \
+            --nofollow-import-to=sqlalchemy.dialects.oracle \
+            --nofollow-import-to=sqlalchemy.dialects.mssql \
+            --nofollow-import-to=sqlalchemy.dialects.firebird \
+            --nofollow-import-to=sqlalchemy.dialects.sybase \
+            --nofollow-import-to=aiohttp.test_utils \
+            --nofollow-import-to=unittest \
+            --nofollow-import-to=test \
+            --nofollow-import-to=tests \
+            --nofollow-import-to=pytest \
             --include-data-files=pyproject.toml=pyproject.toml \
             --output-dir=build \
             --output-filename=onedisc \
-            --lto=yes \
+            --lto=no \
             --assume-yes-for-downloads \
             main.py
           
