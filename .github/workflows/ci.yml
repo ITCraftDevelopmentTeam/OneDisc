@@ -14,15 +14,14 @@ jobs:
       SUB_VERSION: ${{ steps.get_version.outputs.SUB_VERSION }}
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with: 
           fetch-depth: 0
       
-      
       - name: "Setup Python"
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: '3.12'
       
       - name: "Get version number"
         id: get_version
@@ -37,7 +36,7 @@ jobs:
           echo "Latest tag: $LATEST_TAG"
           
           # 计算从标签到当前 HEAD 的提交数量
-          SUB_VER=$(git rev-list --no-merges --count "$LATEST_TAG"..HEAD)
+          SUB_VER=$(git rev-list --no-merges --count "$LATEST_TAG"..HEAD 2>/dev/null || echo "0")
           echo "Sub version: $SUB_VER"
           
           # 组合完整版本号
@@ -49,143 +48,275 @@ jobs:
 
   build-windows:
     needs: get-version-number
-    runs-on: ${{ matrix.os }}
+    runs-on: windows-latest
     strategy:
+      fail-fast: false
       matrix:
-        os: [windows-latest]
-        arch: [x86, x64, arm64]
+        arch: [x64]
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
       
       - name: "Setup Python"
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: '3.12'
+          architecture: ${{ matrix.arch }}
       
-      - name: Setup Poetry
-        uses: snok/install-poetry@v1.4.1
+      - name: "Setup Poetry"
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
 
-      - name: "Install requirements and build"
+      - name: "Install dependencies"
         shell: bash
         run: |
           poetry install --all-groups
-          poetry run nuitka \
+
+      - name: "Build with Nuitka"
+        shell: bash
+        run: |
+          poetry run python -m nuitka \
             --standalone \
             --onefile \
             --follow-imports \
+            --include-package=discord \
             --include-package=websockets \
             --include-package=aiosqlite \
             --include-package=sqlalchemy \
             --include-package=fastapi \
             --include-package=uvicorn \
+            --include-package=httpx \
+            --include-package=toml \
+            --include-package=starlette \
+            --include-package=pydantic \
+            --include-package=anyio \
+            --include-package=aiohttp \
+            --include-data-files=pyproject.toml=pyproject.toml \
             --output-dir=build \
+            --output-filename=onedisc.exe \
             --lto=yes \
             --windows-icon-from-ico=icon.ico \
             --enable-console \
             --assume-yes-for-downloads \
             main.py
 
+      - name: "List build output"
+        shell: bash
+        run: |
+          echo "Build directory contents:"
+          ls -la build/ || true
+          find build -type f -name "*.exe" 2>/dev/null || true
+
       - name: "Rename application"
         shell: pwsh
         run: |
-          if (Test-Path "build\main.exe") {
-              Move-Item -Path "build\main.exe" -Destination "build\onedisc-${{ matrix.arch }}.exe"
+          $exeFile = Get-ChildItem -Path "build" -Filter "*.exe" -Recurse | Select-Object -First 1
+          if ($exeFile) {
+              $destPath = "build\onedisc-windows-${{ matrix.arch }}.exe"
+              Move-Item -Path $exeFile.FullName -Destination $destPath -Force
+              Write-Host "Moved $($exeFile.Name) to $destPath"
           } else {
-              Write-Host "Error: main.exe not found in build directory"
+              Write-Host "Error: No exe file found in build directory"
               Get-ChildItem -Path "build" -Recurse
               exit 1
           }
 
       - name: "Upload build"
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
           name: OneDisc-${{ needs.get-version-number.outputs.VERSION }}-windows-${{ matrix.arch }}
-          path: build/onedisc-${{ matrix.arch }}.exe
+          path: build/onedisc-windows-${{ matrix.arch }}.exe
 
-  build-linux-macos:
+  build-linux:
     needs: get-version-number
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
-        include:
-          - os: ubuntu-22.04
-            platform: linux
-          - os: macos-latest
-            platform: macos
-        arch: [x64, arm64]
+        arch: [x64]
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
       
       - name: "Setup Python"
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v5
         with:
-          python-version: 3.12
+          python-version: '3.12'
 
-      - name: Setup Poetry
-        uses: snok/install-poetry@v1.4.1
+      - name: "Setup Poetry"
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
 
-      - name: "Install system dependencies (Linux)"
-        if: matrix.platform == 'linux'
+      - name: "Install system dependencies"
         run: |
           sudo apt-get update
-          sudo apt-get install -y libsqlite3-dev
+          sudo apt-get install -y patchelf ccache libffi-dev
 
-      - name: "Install requirements and build"
+      - name: "Install dependencies"
         run: |
           poetry install --all-groups
-          poetry run nuitka --standalone \
+
+      - name: "Build with Nuitka"
+        run: |
+          poetry run python -m nuitka \
+            --standalone \
             --onefile \
             --follow-imports \
+            --include-package=discord \
             --include-package=websockets \
             --include-package=aiosqlite \
             --include-package=sqlalchemy \
             --include-package=fastapi \
             --include-package=uvicorn \
+            --include-package=httpx \
+            --include-package=toml \
+            --include-package=starlette \
+            --include-package=pydantic \
+            --include-package=anyio \
+            --include-package=aiohttp \
+            --include-data-files=pyproject.toml=pyproject.toml \
             --output-dir=build \
+            --output-filename=onedisc \
             --lto=yes \
             --assume-yes-for-downloads \
+            --static-libpython=no \
             main.py
           
+      - name: "List build output"
+        run: |
+          echo "Build directory contents:"
+          ls -la build/ || true
+          find build -type f -executable 2>/dev/null || true
+
       - name: "Rename application"
         run: |
-          if [ -f "build/main.bin" ]; then
-            mv build/main.bin build/onedisc-${{ matrix.platform }}-${{ matrix.arch }}
+          # 查找生成的可执行文件
+          EXE_FILE=$(find build -maxdepth 1 -type f -executable | head -n 1)
+          if [ -n "$EXE_FILE" ]; then
+            mv "$EXE_FILE" build/onedisc-linux-${{ matrix.arch }}
+            chmod +x build/onedisc-linux-${{ matrix.arch }}
+            echo "Moved $EXE_FILE to build/onedisc-linux-${{ matrix.arch }}"
           else
-            echo "Error: main.bin not found in build directory"
+            echo "Error: No executable file found in build directory"
             ls -la build/
             exit 1
           fi
 
       - name: "Upload build"
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v4
         with:
-          name: OneDisc-${{ needs.get-version-number.outputs.VERSION }}-${{ matrix.platform }}-${{ matrix.arch }}
-          path: build/onedisc-${{ matrix.platform }}-${{ matrix.arch }}
+          name: OneDisc-${{ needs.get-version-number.outputs.VERSION }}-linux-${{ matrix.arch }}
+          path: build/onedisc-linux-${{ matrix.arch }}
 
-  deploy:
+  build-macos:
     needs: get-version-number
+    runs-on: macos-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: x64
+            python-arch: x64
+          - arch: arm64
+            python-arch: arm64
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+      
+      - name: "Setup Python"
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: "Setup Poetry"
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: "Install dependencies"
+        run: |
+          poetry install --all-groups
+
+      - name: "Build with Nuitka"
+        run: |
+          poetry run python -m nuitka \
+            --standalone \
+            --onefile \
+            --follow-imports \
+            --include-package=discord \
+            --include-package=websockets \
+            --include-package=aiosqlite \
+            --include-package=sqlalchemy \
+            --include-package=fastapi \
+            --include-package=uvicorn \
+            --include-package=httpx \
+            --include-package=toml \
+            --include-package=starlette \
+            --include-package=pydantic \
+            --include-package=anyio \
+            --include-package=aiohttp \
+            --include-data-files=pyproject.toml=pyproject.toml \
+            --output-dir=build \
+            --output-filename=onedisc \
+            --lto=yes \
+            --assume-yes-for-downloads \
+            main.py
+          
+      - name: "List build output"
+        run: |
+          echo "Build directory contents:"
+          ls -la build/ || true
+          find build -type f -perm +111 2>/dev/null || true
+
+      - name: "Rename application"
+        run: |
+          # 查找生成的可执行文件
+          EXE_FILE=$(find build -maxdepth 1 -type f -perm +111 ! -name "*.so" ! -name "*.dylib" | head -n 1)
+          if [ -n "$EXE_FILE" ]; then
+            mv "$EXE_FILE" build/onedisc-macos-${{ matrix.arch }}
+            chmod +x build/onedisc-macos-${{ matrix.arch }}
+            echo "Moved $EXE_FILE to build/onedisc-macos-${{ matrix.arch }}"
+          else
+            echo "Error: No executable file found in build directory"
+            ls -la build/
+            exit 1
+          fi
+
+      - name: "Upload build"
+        uses: actions/upload-artifact@v4
+        with:
+          name: OneDisc-${{ needs.get-version-number.outputs.VERSION }}-macos-${{ matrix.arch }}
+          path: build/onedisc-macos-${{ matrix.arch }}
+
+  deploy-docs:
     runs-on: ubuntu-latest
     steps:
       - name: "Checkout"
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
       
       - name: "Set up Node.js"
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
-          node-version: '21'
+          node-version: '20'
           registry-url: 'https://registry.npmjs.org/'
       
-      - name: Install requirements
+      - name: "Install requirements"
         run: |
           npm install
       
-      - name: Build Documents
+      - name: "Build Documents"
         run: |
           npm run docs:build
 
-      - name: Deploy to GitHub Pages
+      - name: "Deploy to GitHub Pages"
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
