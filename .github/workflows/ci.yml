@@ -139,7 +139,7 @@ jobs:
           }
 
       - name: "Upload build"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: OneDisc-${{ needs.get-version-number.outputs.VERSION }}-windows-${{ matrix.arch }}
           path: build/onedisc-windows-${{ matrix.arch }}.exe
@@ -236,7 +236,7 @@ jobs:
           fi
 
       - name: "Upload build"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: OneDisc-${{ needs.get-version-number.outputs.VERSION }}-linux-${{ matrix.arch }}
           path: build/onedisc-linux-${{ matrix.arch }}
@@ -331,7 +331,7 @@ jobs:
           fi
 
       - name: "Upload build"
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: OneDisc-${{ needs.get-version-number.outputs.VERSION }}-macos-${{ matrix.arch }}
           path: build/onedisc-macos-${{ matrix.arch }}
