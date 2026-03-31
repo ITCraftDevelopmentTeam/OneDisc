@@ -1,1 +1,0 @@
-import{_ as e,o as a,c as s,ae as i}from"./chunks/framework.EHGTsUvI.js";const k=JSON.parse('{"title":"配置","description":"","frontmatter":{},"headers":[],"relativePath":"config.md","filePath":"config.md"}'),d={name:"config.md"};function n(l,t,h,o,r,c){return a(),s("div",null,[...t[0]||(t[0]=[i("",135)])])}const y=e(d,[["render",n]]);export{k as __pageData,y as default};
