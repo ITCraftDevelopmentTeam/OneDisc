@@ -792,13 +792,13 @@ files = [
 
 [[package]]
 name = "nuitka"
-version = "4.1.2"
+version = "4.1.3"
 description = "Python compiler with full language support and CPython compatibility"
 optional = false
 python-versions = "*"
 groups = ["dev"]
 files = [
-    {file = "nuitka-4.1.2.tar.gz", hash = "sha256:efc2359b171d7b63046ca8ec8dee57015c3466a9df74b68a049c2c1a7e93ecee"},
+    {file = "nuitka-4.1.3.tar.gz", hash = "sha256:838ff8899dc2f0b652d4fcf6c5d7466cb7ad5abcb005668ac622d1e40f4d8a8d"},
 ]
 
 [package.extras]
@@ -1658,4 +1658,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "962f8cae498521e53abc9a949214d9965232f50bac8335149cd8c7e973362785"
+content-hash = "ebe3d9101c6d86da8e4dd55a7b854cf7321799399f953d386ebe6a126a63a890"
