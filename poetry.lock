@@ -623,14 +623,14 @@ all = ["flake8 (>=7.1.1)", "mypy (>=1.11.2)", "pytest (>=8.3.2)", "ruff (>=0.6.2
 
 [[package]]
 name = "imageio"
-version = "2.37.3"
+version = "2.37.4"
 description = "Read and write images and video across all major formats. Supports scientific and volumetric data."
 optional = false
 python-versions = ">=3.10"
 groups = ["dev"]
 files = [
-    {file = "imageio-2.37.3-py3-none-any.whl", hash = "sha256:46f5bb8522cd421c0f5ae104d8268f569d856b29eb1a13b92829d1970f32c9f0"},
-    {file = "imageio-2.37.3.tar.gz", hash = "sha256:bbb37efbfc4c400fcd534b367b91fcd66d5da639aaa138034431a1c5e0a41451"},
+    {file = "imageio-2.37.4-py3-none-any.whl", hash = "sha256:1ab2e22c8debf700f24c3ac43e8f95f3b3a8110c83b93411e97b4b0b2cd1c7e6"},
+    {file = "imageio-2.37.4.tar.gz", hash = "sha256:e45cbc5e83502047fb138f7f585f7f105a136a57eea5f4b3cfc6ce1b52720bd3"},
 ]
 
 [package.dependencies]
@@ -639,7 +639,7 @@ pillow = ">=8.3.2"
 
 [package.extras]
 all-plugins = ["astropy", "av", "fsspec[http]", "imageio-ffmpeg", "numpy (>2)", "pillow-heif", "psutil", "rawpy", "tifffile"]
-all-plugins-pypy = ["fsspec[http]", "imageio-ffmpeg", "pillow-heif", "psutil", "tifffile"]
+all-plugins-pypy = ["fsspec[http]", "imageio-ffmpeg", "pillow-heif", "psutil"]
 dev = ["black", "flake8", "fsspec[github]", "pytest", "pytest-cov"]
 docs = ["numpydoc", "pydata-sphinx-theme", "sphinx (<6)"]
 ffmpeg = ["imageio-ffmpeg", "psutil"]
@@ -1658,4 +1658,4 @@ propcache = ">=0.2.1"
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.12"
-content-hash = "909c78fe0ef4860e1d6b4eebd9c20055c2c8457128a078b4465e71fad75af95d"
+content-hash = "c53690a070aed9e035a6c3b9542a2083c00947c01e88906117164d42aef93124"
