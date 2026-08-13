@@ -1,8 +1,8 @@
 import json
 import logging
+import sys
 import httpx
 import discord
-import inspect
 
 BASIC_CONFIG = {
     "level": 20,
@@ -18,6 +18,13 @@ def init_logger(logger_config: dict) -> None:
     Args:
         logger_config (dict): 配置（`config.json->system.logger`）
     """
+    # 强制 stdout/stderr 使用 UTF-8：在非 UTF-8 locale（如英文 Windows 重定向输出、
+    # POSIX 环境）下，避免日志中的中文被转义成 \\uXXXX（Nuitka 打包环境同样生效）
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
     config = BASIC_CONFIG.copy()
     config.update(logger_config)
     logging.basicConfig(**config)
@@ -33,7 +40,15 @@ def get_logger(name: str | None = None) -> logging.Logger:
     Returns:
         logging.Logger: 日志记录器
     """
-    return logging.getLogger(name or inspect.getmodule(inspect.stack()[1][0]).__name__)
+    if name is None:
+        try:
+            # 使用 sys._getframe 获取调用方模块名，避免使用 inspect。
+            # 在 Nuitka 编译环境下，编译模块没有真实源码文件，
+            # inspect.stack()/getmodule() 会抛 AttributeError 导致程序无法启动
+            name = sys._getframe(1).f_globals.get("__name__")
+        except Exception:
+            name = None
+    return logging.getLogger(name or __name__)
 
 
 logger = get_logger()
