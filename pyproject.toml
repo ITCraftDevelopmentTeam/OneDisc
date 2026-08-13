@@ -1,6 +1,6 @@
 [project]
 name = "onedisc"
-version = "1.0.1"
+version = "1.0.2"
 description = "OneBot implement for Discord"
 authors = [
     {name = "XiaoDeng3386",email = "1744793737@qq.com"}
