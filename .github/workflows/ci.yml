@@ -138,6 +138,29 @@ jobs:
               exit 1
           }
 
+      - name: "Smoke test"
+        shell: pwsh
+        run: |
+          # 冒烟测试：用临时配置启动产物，确认可以正常运行
+          $env:PYTHONUTF8 = "1"
+          '{"account_token":"smoke_test_token","system":{"proxy":null,"logger":{"level":20}},"servers":[]}' | Out-File -Encoding utf8 config.json
+          $exe = "build\onedisc-windows-${{ matrix.arch }}.exe"
+          $p = Start-Process -FilePath $exe -PassThru -RedirectStandardOutput smoke.out.log -RedirectStandardError smoke.err.log
+          Start-Sleep -Seconds 25
+          if (-not $p.HasExited) { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue }
+          Start-Sleep -Seconds 5
+          Get-Process | Where-Object { $_.ProcessName -like "onedisc*" } | Stop-Process -Force -ErrorAction SilentlyContinue
+          $out = ""
+          foreach ($f in @("smoke.out.log", "smoke.err.log")) {
+            if (Test-Path $f) { $out += (Get-Content $f -Raw) + "`n" }
+          }
+          Write-Host "===== smoke log ====="
+          Write-Host $out
+          if ($out -notmatch "OneDisc \(By: IT Craft Development Team\)" -or $out -notmatch "当前版本") {
+            Write-Error "冒烟测试失败：程序未能正常启动"
+            exit 1
+          }
+
       - name: "Upload build"
         uses: actions/upload-artifact@v4
         with:
@@ -235,6 +258,28 @@ jobs:
             exit 1
           fi
 
+      - name: "Smoke test"
+        run: |
+          # 冒烟测试：用临时配置启动产物，确认可以正常运行
+          cat > config.json <<'EOF'
+          {
+            "account_token": "smoke_test_token",
+            "system": {"proxy": null, "logger": {"level": 20}},
+            "servers": []
+          }
+          EOF
+          ./build/onedisc-linux-${{ matrix.arch }} > smoke.log 2>&1 &
+          PID=$!
+          sleep 20
+          kill $PID 2>/dev/null || true
+          wait $PID 2>/dev/null || true
+          echo "===== smoke.log ====="
+          cat smoke.log
+          if ! grep -q "OneDisc (By: IT Craft Development Team)" smoke.log || ! grep -q "当前版本" smoke.log; then
+            echo "::error::冒烟测试失败：程序未能正常启动"
+            exit 1
+          fi
+
       - name: "Upload build"
         uses: actions/upload-artifact@v4
         with:
@@ -327,6 +372,28 @@ jobs:
           else
             echo "Error: No executable file found in build directory"
             ls -la build/
+            exit 1
+          fi
+
+      - name: "Smoke test"
+        run: |
+          # 冒烟测试：用临时配置启动产物，确认可以正常运行
+          cat > config.json <<'EOF'
+          {
+            "account_token": "smoke_test_token",
+            "system": {"proxy": null, "logger": {"level": 20}},
+            "servers": []
+          }
+          EOF
+          ./build/onedisc-macos-${{ matrix.arch }} > smoke.log 2>&1 &
+          PID=$!
+          sleep 20
+          kill $PID 2>/dev/null || true
+          wait $PID 2>/dev/null || true
+          echo "===== smoke.log ====="
+          cat smoke.log
+          if ! grep -q "OneDisc (By: IT Craft Development Team)" smoke.log || ! grep -q "当前版本" smoke.log; then
+            echo "::error::冒烟测试失败：程序未能正常启动"
             exit 1
           fi
 

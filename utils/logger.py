@@ -1,8 +1,8 @@
 import json
 import logging
+import sys
 import httpx
 import discord
-import inspect
 
 BASIC_CONFIG = {
     "level": 20,
@@ -33,7 +33,15 @@ def get_logger(name: str | None = None) -> logging.Logger:
     Returns:
         logging.Logger: 日志记录器
     """
-    return logging.getLogger(name or inspect.getmodule(inspect.stack()[1][0]).__name__)
+    if name is None:
+        try:
+            # 使用 sys._getframe 获取调用方模块名，避免使用 inspect。
+            # 在 Nuitka 编译环境下，编译模块没有真实源码文件，
+            # inspect.stack()/getmodule() 会抛 AttributeError 导致程序无法启动
+            name = sys._getframe(1).f_globals.get("__name__")
+        except Exception:
+            name = None
+    return logging.getLogger(name or __name__)
 
 
 logger = get_logger()
