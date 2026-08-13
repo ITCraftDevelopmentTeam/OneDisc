@@ -17,9 +17,8 @@ def get_message_by_id(message_id: int) -> dict | None:
         if message.id == message_id:
             return {
                 "user_id": message.author.id,
-                "content": translator.translate_v12_message_to_v11(
-                    parser.parse_string(message.content)
-                ),
+                # v11 纯文本 → CQ 数组；parse_string 不存在，正确入口是 parse_string_to_array
+                "content": parser.parse_string_to_array(message.content),
                 "nickname": message.author.name,
             }
     logger.warning(f"解析合并转发节点时出现错误：找不到消息：{message_id}")

@@ -19,12 +19,15 @@ class DiscordApiException(Exception):
 
 async def call(method: str, path: str, data: dict | None = None, **params) -> dict:
     async with httpx.AsyncClient(
-        proxies=config["system"].get("proxy"), base_url="https://discord.com/api/v10"
+        # httpx >= 0.28 已将 proxies 参数改名为 proxy
+        proxy=config["system"].get("proxy"),
+        base_url="https://discord.com/api/v10",
     ) as client:
         response = await client.request(
             method,
             path,
-            data=data,
+            # Discord API 需要 JSON 编码（httpx 的 data= 会发表单格式）
+            json=data,
             headers={"Authorization": f"Bot {config['account_token']}"},
             **params,
         )
