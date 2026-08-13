@@ -27,7 +27,7 @@ class WebSocketServer:
         self.check_access_token()
 
     def check_access_token(self) -> None:
-        if self.config["host"] == "0.0.0.0" or self.config["access_token"]:
+        if not self.config["access_token"]:
             logger.warning(
                 f'[{self.config["host"]}:{self.config["port"]}] 未配置 Access Token !'
             )
