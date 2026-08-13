@@ -10,21 +10,23 @@ import uuid
 import hashlib
 import json
 import httpx
+import time
 import utils.return_object as return_object
+from utils.cache import files_dir, file_list_path, cached_url_path, get_file_path
 
 try:
-    os.makedirs(".cache/files")
+    files_dir()
 except OSError:
     pass
 
 try:
-    json.load(open(".cache/file_list.json", "r", encoding="utf-8"))
+    json.load(open(file_list_path(), "r", encoding="utf-8"))
 except Exception:
-    json.dump({}, open(".cache/file_list.json", "w", encoding="utf-8"))
+    json.dump({}, open(file_list_path(), "w", encoding="utf-8"))
 try:
-    json.load(open(".cache/cached_url.json", "r", encoding="utf-8"))
+    json.load(open(cached_url_path(), "r", encoding="utf-8"))
 except Exception:
-    json.dump({}, open(".cache/cached_url.json", "w", encoding="utf-8"))
+    json.dump({}, open(cached_url_path(), "w", encoding="utf-8"))
 
 logger = get_logger()
 
@@ -36,10 +38,12 @@ def verify_sha256(content: bytes, sha256: str | None) -> bool:
 
 
 def create_url_cache(name: str, url: str) -> str:
-    with open(".cache/cached_url.json", "r", encoding="utf-8") as f:
+    with open(cached_url_path(), "r", encoding="utf-8") as f:
         cache = json.load(f)
-    cache[file_id := create_file_id()] = {"name": name, "url": url}
-    with open(".cache/cached_url.json", "w", encoding="utf-8") as f:
+    cache[file_id := create_file_id()] = {
+        "name": name, "url": url, "time": int(time.time())
+    }
+    with open(cached_url_path(), "w", encoding="utf-8") as f:
         json.dump(cache, f)
     return file_id
 
@@ -56,7 +60,7 @@ async def upload_file_from_url(
         async with httpx.AsyncClient(proxies=proxy) as client:
             response = await client.get(url, headers=headers)
             if response.status_code == 200 and verify_sha256(response.content, sha256):
-                with open(f".cache/files/{name}", "wb") as f:
+                with open(get_file_path(name), "wb") as f:
                     f.write(response.content)
                 return True
         logger.warning(
@@ -75,7 +79,7 @@ async def upload_file_from_url(
 
 def upload_file_from_data(name: str, data: str) -> tuple[bool, str]:
     try:
-        with open(f".cache/files/{name}", "wb") as f:
+        with open(get_file_path(name), "wb") as f:
             f.write(base64.b64decode(data))
         return True, ""
     except Exception as e:
@@ -85,10 +89,10 @@ def upload_file_from_data(name: str, data: str) -> tuple[bool, str]:
 
 def create_file_id() -> str:
     file_id = str(uuid.uuid1())
-    with open(".cache/file_list.json", "r", encoding="utf-8") as f:
+    with open(file_list_path(), "r", encoding="utf-8") as f:
         if file_id in json.load(f).keys():
             return create_file_id()
-    with open(".cache/cached_url.json", "r", encoding="utf-8") as f:
+    with open(cached_url_path(), "r", encoding="utf-8") as f:
         if file_id in json.load(f).keys():
             return create_file_id()
     return file_id
@@ -96,10 +100,10 @@ def create_file_id() -> str:
 
 def register_saved_file(name: str, _file_id: str | None = None) -> str:
     file_id = _file_id or create_file_id()
-    with open(".cache/file_list.json", "r", encoding="utf-8") as f:
+    with open(file_list_path(), "r", encoding="utf-8") as f:
         file_list = json.load(f)
     file_list[file_id] = name
-    with open(".cache/file_list.json", "w", encoding="utf-8") as f:
+    with open(file_list_path(), "w", encoding="utf-8") as f:
         json.dump(file_list, f, ensure_ascii=False, indent=4)
     return file_id
 
@@ -107,7 +111,7 @@ def register_saved_file(name: str, _file_id: str | None = None) -> str:
 def upload_file_from_path(name: str, path: str) -> tuple[bool, str]:
     try:
         with open(path, "rb") as from_f:
-            with open(f".cache/files/{name}", "wb") as to_f:
+            with open(get_file_path(name), "wb") as to_f:
                 to_f.write(from_f.read())
         return True, ""
     except Exception as e:
@@ -177,7 +181,7 @@ async def upload_file_fragmented(
         case "finish":
             type_checker.check_arguments(file_id, offset, sha256)
             file_name = uploading_files[file_id]["name"]
-            with open(f".cache/files/{file_name}", "wb") as f:
+            with open(get_file_path(file_name), "wb") as f:
                 f.write(bytes(uploading_files.pop(file_id)["content"]))
             # TODO sha256 校验
             return return_object.get(file_id=register_saved_file(file_name))
@@ -234,11 +238,11 @@ async def get_file_name_by_id(file_id: str) -> str | None:
     """
     根据文件 ID 获取文件名
     """
-    with open(f".cache/file_list.json", "r", encoding="utf-8") as f:
+    with open(ffile_list_path(), "r", encoding="utf-8") as f:
         file_list = json.load(f)
     if _id := file_list.get(file_id):
         return _id
-    with open(".cache/cached_url.json", "r", encoding="utf-8") as f:
+    with open(cached_url_path(), "r", encoding="utf-8") as f:
         cached_url_list = json.load(f)
     if cache_data := cached_url_list.get(file_id):
         return await get_file_name_by_id(
@@ -249,9 +253,9 @@ async def get_file_name_by_id(file_id: str) -> str | None:
 
 
 async def clean_files() -> None:
-    with open(".cache/file_list.json", "r", encoding="utf-8") as f:
+    with open(file_list_path(), "r", encoding="utf-8") as f:
         file_list = json.load(f)
-    with open(".cache/cached_url.json", "r", encoding="utf-8") as f:
+    with open(cached_url_path(), "r", encoding="utf-8") as f:
         cached_url_list = json.load(f)
     for file_id in list(file_list.keys()):
         if not os.path.exists(get_file_path(file_list[file_id])):
@@ -272,14 +276,10 @@ async def clean_files() -> None:
                 cached_url_list.pop(file_id)
     logger.debug(file_list)
     logger.debug(cached_url_list)
-    with open(".cache/file_list.json", "w", encoding="utf-8") as f:
+    with open(file_list_path(), "w", encoding="utf-8") as f:
         json.dump(file_list, f, ensure_ascii=False, indent=4)
-    with open(".cache/cached_url.json", "w", encoding="utf-8") as f:
+    with open(cached_url_path(), "w", encoding="utf-8") as f:
         json.dump(cached_url_list, f, ensure_ascii=False, indent=4)
-
-
-def get_file_path(file_name: str) -> str:
-    return os.path.abspath(f".cache/files/{file_name}")
 
 
 @register_action()
@@ -297,12 +297,12 @@ async def get_file(file_id: str, type: str) -> dict:
 
         case "path":
             return return_object.get(
-                0, name=file, path=os.path.abspath(f".cache/files/{file}")
+                0, name=file, path=get_file_path(file)
             )
         # TODO 返回 sha256
 
         case "data":
-            with open(f".cache/files/{file}", "rb") as f:
+            with open(get_file_path(file), "rb") as f:
                 return return_object.get(
                     0, name=file, data=base64.b64encode(f.read()).decode("utf-8")
                 )

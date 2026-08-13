@@ -13,6 +13,8 @@ import os
 import utils.translator as translator
 import utils.message.v11.parser as parser
 import utils.return_object as return_object
+from utils.cache import get_cache_dir
+import utils.forward_merge as forward_merge
 from utils.config import config
 from utils.client import client
 import utils.message.v11.parser as parser
@@ -71,9 +73,9 @@ async def delete_msg(message_id: int) -> dict:
 
 
 def clean_node_cache() -> None:
-    for file in os.listdir(".cache"):
+    for file in os.listdir(get_cache_dir()):
         if file.startswith("node."):
-            os.remove(os.path.join(".cache", file))
+            os.remove(os.path.join(get_cache_dir(), file))
 
 
 @register_action("v11")
@@ -350,6 +352,15 @@ async def send_private_forward_msg(user_id: int, messages: list) -> dict:
             {"type": "image", "data": {"file": f"file://{os.path.abspath(path)}"}}
         ],
     )
+
+
+@register_action("v11")
+async def get_forward_msg(message_id: str) -> dict:
+    """获取合并转发消息（接收方向：转发消息自动合并后由框架按 id 取回）"""
+    nodes = await forward_merge.get_forward(message_id)
+    if nodes is None:
+        return return_object.get(400, f"合并转发消息 {message_id} 不存在")
+    return return_object.get(0, message_id=message_id, message=nodes)
 
 
 async def _restart() -> None:

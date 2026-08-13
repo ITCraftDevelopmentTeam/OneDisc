@@ -8,6 +8,8 @@ import discord
 from discord import Object
 import asyncio
 from ..db import commit_message, init_database
+from utils.cache import start_cleanup_loop
+import utils.forward_merge as forward_merge
 from actions.v12.basic import get_status
 from actions.v11.basic import get_role
 
@@ -30,6 +32,7 @@ async def on_ready() -> None:
     logger.info(config["system"].get("started_text", "OneDisc 已成功启动"))
     event.new_event("meta", "status_update", status=(await get_status())["data"])
     await init_database()
+    asyncio.create_task(start_cleanup_loop())
 
 
 @client.event
@@ -42,6 +45,12 @@ async def on_message(message: discord.Message) -> None:
         or message.author.bot
         and config["system"].get("ignore_bot_event")
     ):
+        return
+    if forward_merge.handle_forward_message(message):
+        # 已进入合并转发流程（第一条已上报 forward 段，后续消息被吸收）
+        await commit_message(
+            message.id, message.channel.id, int(message.created_at.timestamp())
+        )
         return
     print_message_log(message)
     await commit_message(

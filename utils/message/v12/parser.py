@@ -8,6 +8,8 @@ from discord.utils import escape_markdown
 import utils.message.v12.tokenizer as tokenizer
 import re
 import discord.file
+from utils import discord_api
+from utils.db import get_session, Message
 
 
 class BadSegmentData(Exception):
@@ -48,7 +50,35 @@ def escape_mentions(text):
     return text
 
 
-async def parse_message(message: list) -> dict:
+async def _resolve_reply(
+    message_id: int, channel_id: int | None
+) -> discord.Message | discord.MessageReference | None:
+    """解析 reply 段引用的消息：内存缓存 → 本地数据库 → 同频道 REST 预检"""
+    for msg in client.cached_messages:
+        if msg.id == message_id:
+            return msg
+    async with get_session() as session:
+        record = await session.get(Message, message_id)
+    if record is not None:
+        return discord.MessageReference(
+            message_id=message_id, channel_id=record.channel
+        )
+    if channel_id is not None:
+        try:
+            await discord_api.call(
+                "GET", f"/channels/{channel_id}/messages/{message_id}"
+            )
+            return discord.MessageReference(
+                message_id=message_id, channel_id=channel_id
+            )
+        except Exception:
+            logger.debug(
+                f"REST 预检失败：消息 {message_id}（频道 {channel_id}）不存在或不可读"
+            )
+    return None
+
+
+async def parse_message(message: list, channel_id: int | None = None) -> dict:
     logger.debug(config)
     message_data = {"content": "", "files": []}
     for segment in message:
@@ -106,10 +136,11 @@ async def parse_message(message: list) -> dict:
                 case "discord.navigation":
                     message_data["content"] += f"<id:{segment['data']['type']}>"
                 case "reply":
-                    for msg in client.cached_messages:
-                        if msg.id == int(segment["data"]["message_id"]):
-                            message_data["reference"] = msg
-                            break
+                    reference = await _resolve_reply(
+                        int(segment["data"]["message_id"]), channel_id
+                    )
+                    if reference is not None:
+                        message_data["reference"] = reference
                     else:
                         logger.warning(
                             f"解析消息段 {segment} 时出现错误：找不到指定消息，已忽略"
