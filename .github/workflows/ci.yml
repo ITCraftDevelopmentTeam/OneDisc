@@ -75,6 +75,11 @@ jobs:
         run: |
           poetry install --all-groups
 
+      - name: "Install zstandard (Nuitka onefile compression)"
+        shell: bash
+        run: |
+          poetry run pip install zstandard
+
       - name: "Build with Nuitka"
         shell: bash
         run: |
@@ -199,6 +204,11 @@ jobs:
         run: |
           poetry install --all-groups
 
+      - name: "Install zstandard (Nuitka onefile compression)"
+        shell: bash
+        run: |
+          poetry run pip install zstandard
+
       - name: "Build with Nuitka"
         run: |
           poetry run python -m nuitka \
@@ -319,6 +329,11 @@ jobs:
       - name: "Install dependencies"
         run: |
           poetry install --all-groups
+
+      - name: "Install zstandard (Nuitka onefile compression)"
+        shell: bash
+        run: |
+          poetry run pip install zstandard
 
       - name: "Build with Nuitka"
         run: |
