@@ -1,6 +1,6 @@
 import utils.translator as translator
 import utils.event as event
-from network.authentication import verify_access_token
+from network.authentication import get_bearer_token, verify_access_token
 from utils.logger import get_logger
 import utils.uvicorn_server as uvicorn_server
 import fastapi
@@ -22,7 +22,7 @@ class WebSocket:
         self.check_access_token()
 
     def check_access_token(self) -> None:
-        if self.config["host"] == "0.0.0.0" or self.config["access_token"]:
+        if not self.config["access_token"]:
             logger.warning(
                 f'[{self.config["host"]}:{self.config["port"]}] 未配置 Access Token !'
             )
@@ -35,7 +35,7 @@ class WebSocket:
     async def handle_event_route(self, websocket: fastapi.WebSocket) -> None:
         if not verify_access_token(websocket, self.config["access_token"]):
             if (
-                "Authorization" in websocket.headers.keys()
+                get_bearer_token(websocket)
                 or websocket.query_params.get("access_token")
             ):
                 await websocket.close(403, "Invalid access token")
@@ -53,7 +53,7 @@ class WebSocket:
     async def handle_api_route(self, websocket: fastapi.WebSocket) -> None:
         if not verify_access_token(websocket, self.config["access_token"]):
             if (
-                "Authorization" in websocket.headers.keys()
+                get_bearer_token(websocket)
                 or websocket.query_params.get("access_token")
             ):
                 await websocket.close(403, "Invalid access token")
@@ -73,7 +73,7 @@ class WebSocket:
     async def handle_root_route(self, websocket: fastapi.WebSocket) -> None:
         if not verify_access_token(websocket, self.config["access_token"]):
             if (
-                "Authorization" in websocket.headers.keys()
+                get_bearer_token(websocket)
                 or websocket.query_params.get("access_token")
             ):
                 await websocket.close(403, "Invalid access token")

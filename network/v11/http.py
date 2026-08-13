@@ -1,4 +1,4 @@
-from network.authentication import verify_access_token
+from network.authentication import get_bearer_token, verify_access_token
 import utils.uvicorn_server as uvicorn_server
 import fastapi
 from utils.logger import get_logger
@@ -17,7 +17,7 @@ class HttpServer:
         self.check_access_token()
 
     def check_access_token(self) -> None:
-        if self.config["host"] == "0.0.0.0" or self.config["access_token"]:
+        if not self.config["access_token"]:
             logger.warning(
                 f'[{self.config["host"]}:{self.config["port"]}] 未配置 Access Token !'
             )
@@ -31,9 +31,7 @@ class HttpServer:
         self, request: fastapi.Request
     ) -> fastapi.responses.JSONResponse:
         if not verify_access_token(request, self.config["access_token"]):
-            if "Authorization" in request.headers.keys() or request.query_params.get(
-                "access_token"
-            ):
+            if get_bearer_token(request) or request.query_params.get("access_token"):
                 raise fastapi.HTTPException(status_code=403, detail="Forbidden")
             else:
                 raise fastapi.HTTPException(status_code=401, detail="Unauthorized")
