@@ -156,7 +156,7 @@ jobs:
           }
           Write-Host "===== smoke log ====="
           Write-Host $out
-          if ($out -notmatch "OneDisc \(By: IT Craft Development Team\)" -or $out -notmatch "当前版本") {
+          if ($out -notmatch "OneDisc \(By: IT Craft Development Team\)" -or $out -notmatch "logging in using static token") {
             Write-Error "冒烟测试失败：程序未能正常启动"
             exit 1
           }
@@ -275,7 +275,7 @@ jobs:
           wait $PID 2>/dev/null || true
           echo "===== smoke.log ====="
           cat smoke.log
-          if ! grep -q "OneDisc (By: IT Craft Development Team)" smoke.log || ! grep -q "当前版本" smoke.log; then
+          if ! grep -q "OneDisc (By: IT Craft Development Team)" smoke.log || ! grep -q "logging in using static token" smoke.log; then
             echo "::error::冒烟测试失败：程序未能正常启动"
             exit 1
           fi
@@ -395,7 +395,7 @@ jobs:
           wait $PID 2>/dev/null || true
           echo "===== smoke.log ====="
           cat smoke.log
-          if ! grep -q "OneDisc (By: IT Craft Development Team)" smoke.log || ! grep -q "当前版本" smoke.log; then
+          if ! grep -q "OneDisc (By: IT Craft Development Team)" smoke.log || ! grep -q "logging in using static token" smoke.log; then
             echo "::error::冒烟测试失败：程序未能正常启动"
             exit 1
           fi

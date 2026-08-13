@@ -18,6 +18,13 @@ def init_logger(logger_config: dict) -> None:
     Args:
         logger_config (dict): 配置（`config.json->system.logger`）
     """
+    # 强制 stdout/stderr 使用 UTF-8：在非 UTF-8 locale（如英文 Windows 重定向输出、
+    # POSIX 环境）下，避免日志中的中文被转义成 \\uXXXX（Nuitka 打包环境同样生效）
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except Exception:
+            pass
     config = BASIC_CONFIG.copy()
     config.update(logger_config)
     logging.basicConfig(**config)
