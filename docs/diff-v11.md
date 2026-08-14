@@ -39,7 +39,7 @@
 
 | 接口名称         | 终结点                    | 说明                     |
 |------------------|---------------------------|--------------------------|
-| 获取合并转发消息 | `get_forward_msg`         | Discord 不支持相关功能   |
+| 获取合并转发消息 | `get_forward_msg`         | 仅支持查询 OneDisc 自动合并转发产生的消息（id 格式为「频道id_消息id」，见 `merge_forward` 配置项），其他 id 返回错误；Discord 本身没有合并转发概念 |
 | 发送好友赞       | `send_like`               | Discord 不支持相关功能   |
 | 群组匿名用户禁言 | `set_group_anonymous_ban` | Discord 不支持相关功能   |
 | 群组全员禁言     | `set_group_whole_ban`     | Discord 不支持相关功能   |
