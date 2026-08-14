@@ -5,21 +5,18 @@ import shutil
 
 import pytest
 
-
-@pytest.fixture(scope="session", autouse=True)
-def ensure_config_json():
-    """import utils 链需要读取 config.json（CI/干净环境不存在时创建 dummy，本地已有则不动）"""
-    if not os.path.exists("config.json"):
-        with open("config.json", "w", encoding="utf-8") as f:
-            json.dump(
-                {
-                    "account_token": "dummy_token",
-                    "system": {"proxy": None, "logger": {"level": 20}},
-                    "servers": [],
-                },
-                f,
-            )
-    yield
+# 模块级执行（收集阶段即生效）：import utils 链需要 config.json，
+# CI/干净环境不存在时创建 dummy，本地已有则不动
+if not os.path.exists("config.json"):
+    with open("config.json", "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "account_token": "dummy_token",
+                "system": {"proxy": None, "logger": {"level": 20}},
+                "servers": [],
+            },
+            f,
+        )
 
 
 @pytest.fixture(autouse=True)
