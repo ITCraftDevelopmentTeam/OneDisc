@@ -32,3 +32,12 @@ package-mode = false
 nuitka = "^4.1.3"
 imageio = "^2.37.3"
 
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.0"
+pytest-asyncio = "^0.24.0"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
+
