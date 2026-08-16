@@ -65,7 +65,14 @@ class WebSocketClient:
         )
 
     async def reconnect(self) -> None:
-        # 但愿别 tm 出 bug
+        # 先关闭旧连接，避免下游服务器保留旧连接拒绝新连接
+        if hasattr(self, "ws"):
+            try:
+                await self.ws.close()
+            except Exception:
+                pass  # 忽略关闭时的错误
+            self.ws = None
+
         if not self.connect_task:
             self.connect_task = asyncio.create_task(self.connect())
         await self.connect_task
@@ -141,9 +148,22 @@ class EventClient(WebSocketClient):
         self.role = "Event"
 
     async def push_event(self, event: dict) -> None:
-        if not hasattr(self, "ws"):
+        if not self.is_ready():
             await self.reconnect()
-        await self.ws.send(json.dumps(await translator.translate_event(event)))
+        try:
+            await self.ws.send(json.dumps(await translator.translate_event(event)))
+        except websockets.exceptions.ConnectionClosedError:
+            logger.warning(
+                f"从反向 WebSocket {self.role} 断开连接: {traceback.format_exc()}"
+            )
+            await self.reconnect()
+            # 重连后重试发送
+            try:
+                await self.ws.send(json.dumps(await translator.translate_event(event)))
+            except Exception:
+                logger.error(
+                    f"重连后发送事件失败: {traceback.format_exc()}"
+                )
 
 
 class UniversalClient(APIClient, EventClient):
