@@ -40,7 +40,7 @@ class HttpServer:
         self.check_access_token()
 
     def check_access_token(self) -> None:
-        if self.config["host"] == "0.0.0.0" or self.config["access_token"]:
+        if not self.config["access_token"]:
             logger.warning(
                 f'[HTTP {self.config["host"]}:{self.config["port"]}] 未配置 Access Token !'
             )
@@ -61,7 +61,7 @@ class HttpServer:
             dict: 返回值
         """
         logger.debug(request)
-        if verify_access_token(request, self.config["access_token"]):
+        if not verify_access_token(request, self.config["access_token"]):
             raise fastapi.HTTPException(fastapi.status.HTTP_401_UNAUTHORIZED)
         logger.debug(await request.body())
         return fastapi.responses.JSONResponse(

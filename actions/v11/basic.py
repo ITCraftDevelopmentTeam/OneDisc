@@ -6,12 +6,15 @@ import actions.v12.basic as basic
 from actions import register_action
 from discord.abc import PrivateChannel
 import utils.node2image as node2image
+import utils.native_forward as native_forward
 from discord.channel import CategoryChannel, ForumChannel
 from utils.logger import get_logger
 import os
 import utils.translator as translator
 import utils.message.v11.parser as parser
 import utils.return_object as return_object
+from utils.cache import get_cache_dir
+import utils.forward_merge as forward_merge
 from utils.config import config
 from utils.client import client
 import utils.message.v11.parser as parser
@@ -70,9 +73,9 @@ async def delete_msg(message_id: int) -> dict:
 
 
 def clean_node_cache() -> None:
-    for file in os.listdir(".cache"):
+    for file in os.listdir(get_cache_dir()):
         if file.startswith("node."):
-            os.remove(os.path.join(".cache", file))
+            os.remove(os.path.join(get_cache_dir(), file))
 
 
 @register_action("v11")
@@ -325,6 +328,11 @@ async def set_group_card(group_id: int, user_id: int, card: str) -> dict:
 
 @register_action("v11")
 async def send_group_forward_msg(group_id: int, messages: list) -> dict:
+    if config["system"].get("use_native_forward", True):
+        refs = await native_forward.can_native_forward(messages, group_id)
+        if refs is not None:
+            return await native_forward.send_native_forward(group_id, refs)
+        logger.debug("合并转发存在需降级的节点，回退图片方案")
     path = node2image.node2image(messages)
     return await send_group_msg(
         group_id=group_id,
@@ -336,6 +344,7 @@ async def send_group_forward_msg(group_id: int, messages: list) -> dict:
 
 @register_action("v11")
 async def send_private_forward_msg(user_id: int, messages: list) -> dict:
+    # 私聊转发暂不支持原生 forward（转发到 DM 的可行性尚未实测），始终走图片方案
     path = node2image.node2image(messages)
     return await send_private_msg(
         user_id=user_id,
@@ -343,6 +352,15 @@ async def send_private_forward_msg(user_id: int, messages: list) -> dict:
             {"type": "image", "data": {"file": f"file://{os.path.abspath(path)}"}}
         ],
     )
+
+
+@register_action("v11")
+async def get_forward_msg(message_id: str) -> dict:
+    """获取合并转发消息（接收方向：转发消息自动合并后由框架按 id 取回）"""
+    nodes = await forward_merge.get_forward(message_id)
+    if nodes is None:
+        return return_object.get(400, f"合并转发消息 {message_id} 不存在")
+    return return_object.get(0, message_id=message_id, message=nodes)
 
 
 async def _restart() -> None:

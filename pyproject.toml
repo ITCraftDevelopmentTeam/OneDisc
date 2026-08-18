@@ -1,6 +1,6 @@
 [project]
 name = "onedisc"
-version = "1.0.0"
+version = "1.0.3"
 description = "OneBot implement for Discord"
 authors = [
     {name = "XiaoDeng3386",email = "1744793737@qq.com"}
@@ -15,7 +15,7 @@ dependencies = [
     "imgkit (>=1.2.3,<2.0.0)",
     "websockets (>=15.0.1,<16.0.0)",
     "aiosqlite (>=0.21.0,<0.22.0)",
-    "sqlalchemy (>=2.0.43,<3.0.0)",
+    "sqlalchemy (>=2.0.52,<3.0.0)",
     "httpx (>=0.28.1,<0.29.0)",
     "toml (>=0.10.2,<0.11.0)"
 ]
@@ -29,6 +29,15 @@ build-backend = "poetry.core.masonry.api"
 package-mode = false
 
 [tool.poetry.group.dev.dependencies]
-nuitka = "^2.8.9"
-imageio = "^2.37.0"
+nuitka = "^4.1.3"
+imageio = "^2.37.3"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.0"
+pytest-asyncio = "^1.4.0"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_mode = "auto"
 
