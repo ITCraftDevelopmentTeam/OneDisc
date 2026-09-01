@@ -1,1 +1,0 @@
-import{_ as e,o as a,c as s,a0 as d}from"./chunks/framework.DQOulFGV.js";const k=JSON.parse('{"title":"配置","description":"","frontmatter":{},"headers":[],"relativePath":"config.md","filePath":"config.md"}'),i={name:"config.md"};function n(l,t,h,o,r,c){return a(),s("div",null,[...t[0]||(t[0]=[d("",149)])])}const y=e(i,[["render",n]]);export{k as __pageData,y as default};
