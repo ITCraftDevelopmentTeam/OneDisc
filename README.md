@@ -23,7 +23,7 @@ Discord 平台的 OneBot 实现
 >
 > 在重新部署 [Moonlark](https://github.com/Moonlark-Dev/Moonlark) 的 Discord 节点的过程中，我们发现按 `v0.2` 使用的依赖管理方式重新部署出现一些严重的问题，构建 Actions 也存在一些的问题，譬如 Windows 的 Release 构建流程也开始失败。
 >
-> 我们在 `v1.0` 版本中改用了 Poetry 作为依赖管理器。同时，我们正在重写 CI 的流程（这遇到了一些问题，需要时间修复），并重构一些过时的方法。
+> 我们在 `v1.0` 版本中改用了 Poetry 作为依赖管理器，并使用 Nuitka 将程序编译为 Windows / Linux / macOS 三平台可执行文件发布。CI 流程已重写完成并稳定运行：三平台构建均包含冒烟测试，Release 资产由工作流自动构建并上传。
 
 ## 兼容性
 
