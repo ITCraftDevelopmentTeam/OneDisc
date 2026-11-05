@@ -34,7 +34,7 @@ imageio = "^2.38.1"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^9.2.0"
-pytest-asyncio = "^1.4.0"
+pytest-asyncio = "^1.4.1"
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
