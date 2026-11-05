@@ -33,7 +33,7 @@ nuitka = "^4.3.0"
 imageio = "^2.38.1"
 
 [tool.poetry.group.test.dependencies]
-pytest = "^9.1.1"
+pytest = "^9.2.0"
 pytest-asyncio = "^1.4.0"
 
 [tool.pytest.ini_options]
