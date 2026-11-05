@@ -1,6 +1,6 @@
 [project]
 name = "onedisc"
-version = "1.0.4"
+version = "1.0.5"
 description = "OneBot implement for Discord"
 authors = [
     {name = "XiaoDeng3386",email = "1744793737@qq.com"}
@@ -40,4 +40,5 @@ pytest-asyncio = "^1.4.1"
 testpaths = ["tests"]
 pythonpath = ["."]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
 
