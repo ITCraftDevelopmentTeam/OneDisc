@@ -238,7 +238,7 @@ async def get_file_name_by_id(file_id: str) -> str | None:
     """
     根据文件 ID 获取文件名
     """
-    with open(ffile_list_path(), "r", encoding="utf-8") as f:
+    with open(file_list_path(), "r", encoding="utf-8") as f:
         file_list = json.load(f)
     if _id := file_list.get(file_id):
         return _id
