@@ -17,14 +17,25 @@ from utils.logger import get_logger, print_message_delete_log, print_message_log
 
 logger = get_logger()
 
+_initialized = False
+
 
 @client.event
 async def on_ready() -> None:
+    global _initialized
     logger.info(f"成功登陆到 {client.user}")
+    if _initialized:
+        # discord.py 在 RESUME 失败等原因重新 IDENTIFY 后会再次派发 READY，
+        # on_ready 会被重复调用。此时反向 WebSocket、心跳、缓存清理等任务仍在运行，
+        # 重复初始化会让每条反向 WebSocket 再建立一条连接（表现为重复连接）。
+        logger.info("检测到 on_ready 重复触发，跳过重复初始化")
+        return
     for guild in config["system"].get("sync_guilds", []):
         await tree.sync(guild=Object(id=int(guild)))
     if config["system"].get("sync_globally", False):
         await tree.sync()
+    # 从创建连接开始就不能再来一遍：重复执行会让每条反向 WebSocket 各多一条连接
+    _initialized = True
     await init_connections(config["servers"])
     asyncio.create_task(
         heartbeat_event.setup_heartbeat_event(config["system"].get("heartbeat", {}))
