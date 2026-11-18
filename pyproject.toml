@@ -29,7 +29,7 @@ build-backend = "poetry.core.masonry.api"
 package-mode = false
 
 [tool.poetry.group.dev.dependencies]
-nuitka = "^4.3.4"
+nuitka = "^4.3.5"
 imageio = "^2.38.1"
 
 [tool.poetry.group.test.dependencies]
