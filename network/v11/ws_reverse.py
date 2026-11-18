@@ -32,16 +32,14 @@ class WebSocketClient:
         if not self.config["use_universal_client"]:
             self.config["api_url"] = self.config["api_url"] or self.config["url"]
             self.config["event_url"] = self.config["event_url"] or self.config["url"]
-        self.connect_task: asyncio.Task | None = None
+        # 重连必须串行：并发的 reconnect() 若各自建立连接，会让下游服务器同时保留多条连接。
+        self.reconnect_lock = asyncio.Lock()
 
         self.role: Literal["API", "Universal", "Event"]
-        self.ws: websockets.client.WebSocketClientProtocol
+        self.ws: websockets.client.WebSocketClientProtocol | None = None
 
     def is_ready(self) -> bool:
-        try:
-            return self.ws.open
-        except AttributeError:
-            return False
+        return self.ws is not None and self.ws.open
 
     def get_url(self) -> str:
         return (
@@ -64,19 +62,6 @@ class WebSocketClient:
             extra_headers=self.get_headers(),
         )
 
-    async def reconnect(self) -> None:
-        # 先关闭旧连接，避免下游服务器保留旧连接拒绝新连接
-        if hasattr(self, "ws"):
-            try:
-                await self.ws.close()
-            except Exception:
-                pass  # 忽略关闭时的错误
-            self.ws = None
-
-        if not self.connect_task:
-            self.connect_task = asyncio.create_task(self.connect())
-        await self.connect_task
-
     async def connect(self) -> None:
         while True:
             try:
@@ -91,7 +76,25 @@ class WebSocketClient:
                 )
                 await asyncio.sleep(self.config["reconnect_interval"] / 1000)
         logger.info(f"成功连接到反向 WebSocket {self.role} 服务器: {self.get_url()}")
-        self.connect_task = None
+
+    async def reconnect(self) -> None:
+        # 同一时间只允许一个重连流程，避免多个任务各自建立连接（重复连接）。
+        async with self.reconnect_lock:
+            # 等锁期间可能已经有别的任务重连成功，直接复用。
+            if self.is_ready():
+                return
+
+            # 先关闭旧连接，避免下游服务器保留旧连接拒绝新连接。
+            # 旧连接关闭后 self.ws 才会被 connect() 重新赋值。
+            old_ws = self.ws
+            self.ws = None
+            if old_ws is not None:
+                try:
+                    await old_ws.close()
+                except Exception:
+                    pass  # 忽略关闭时的错误
+
+            await self.connect()
 
     async def send(self, data: dict) -> None:
         try:
@@ -177,13 +180,13 @@ async def init_websocket_reverse_connection(config: dict) -> Callable:
     config = BASE_CONFIG | config
     if config["use_universal_client"]:
         client = UniversalClient(config)
-        client.connect_task = asyncio.create_task(client.connect())
+        asyncio.create_task(client.reconnect())
         asyncio.create_task(client.handle_api_requests())
         return client.push_event
     else:
         api_client = APIClient(config)
-        api_client.connect_task = asyncio.create_task(api_client.connect())
+        asyncio.create_task(api_client.reconnect())
         asyncio.create_task(api_client.handle_api_requests())
         event_client = EventClient(config)
-        event_client.connect_task = asyncio.create_task(event_client.connect())
+        asyncio.create_task(event_client.reconnect())
         return event_client.push_event
