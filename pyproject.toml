@@ -30,7 +30,7 @@ package-mode = false
 
 [tool.poetry.group.dev.dependencies]
 nuitka = "^4.3.5"
-imageio = "^2.38.1"
+imageio = "^2.38.2"
 
 [tool.poetry.group.test.dependencies]
 pytest = "^9.2.0"
